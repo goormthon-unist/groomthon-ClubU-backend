@@ -29,12 +29,30 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ap-northeast-2
 
+    - name: Setup SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2-key.pem
+        chmod 600 ~/.ssh/ec2-key.pem
+
     - name: Deploy to EC2
       run: |
         echo "🚀 Starting deployment to EC2..."
-        echo "📦 Installing dependencies on EC2..."
-        echo "🔧 Setting up environment..."
-        echo "✅ Deployment completed successfully!"
         
-        # 실제 배포를 위해서는 SSH 키와 EC2 연결이 필요합니다
-        # 현재는 기본 구조만 확인하는 단계입니다
+        # EC2에 SSH로 연결하여 배포
+        ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2-key.pem ubuntu@3.39.193.78 << 'EOF'
+          echo "📦 Updating code on EC2..."
+          cd /home/ubuntu/clubu-backend
+          git pull origin main
+          
+          echo "🔧 Installing dependencies..."
+          source venv/bin/activate
+          pip install -r requirements.txt
+          
+          echo "🔄 Restarting Flask service..."
+          sudo systemctl restart clubu-flask
+          
+          echo "✅ Deployment completed on EC2!"
+        EOF
+        
+        echo "✅ Deployment to EC2 completed successfully!"
