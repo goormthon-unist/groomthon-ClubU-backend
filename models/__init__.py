@@ -15,15 +15,15 @@ from .role import Role
 from .user import User
 
 __all__ = [
-    'db',
-    'User',
-    'Club', 
-    'ClubMember',
-    'ClubCategory',
-    'ClubApplicationQuestion',
-    'Application',
-    'ApplicationAnswer',
-    'ClubRecommendation',
-    'Department',
-    'Role'
+    "db",
+    "User",
+    "Club",
+    "ClubMember",
+    "ClubCategory",
+    "ClubApplicationQuestion",
+    "Application",
+    "ApplicationAnswer",
+    "ClubRecommendation",
+    "Department",
+    "Role",
 ]

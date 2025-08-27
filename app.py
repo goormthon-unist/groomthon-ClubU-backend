@@ -17,6 +17,7 @@ def create_app():
 
     # 설정 로드
     from config import config
+
     app.config.from_object(config[os.getenv("FLASK_ENV", "development")])
 
     # CORS 설정
