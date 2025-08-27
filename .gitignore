@@ -39,3 +39,21 @@ Thumbs.db
 # Coverage
 htmlcov/
 .coverage
+.coverage.*
+coverage.xml
+
+# Test
+.pytest_cache/
+.tox/
+.nox/
+
+# CI/CD
+bandit-report.json
+safety-report.json
+
+# Documentation
+docs/_build/
+docs/build/
+
+# Pre-commit
+.pre-commit-config.yaml.bak
