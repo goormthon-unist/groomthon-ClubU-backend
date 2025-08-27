@@ -17,6 +17,7 @@ def create_app():
 
     # 설정 로드
     from config import config
+
     app.config.from_object(config[os.getenv("FLASK_ENV", "development")])
 
     # CORS 설정
@@ -30,6 +31,7 @@ def create_app():
 
     # 블루프린트 등록
     from routes import init_app as init_routes
+
     init_routes(app)
 
     return app
