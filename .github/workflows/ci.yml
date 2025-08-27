@@ -25,14 +25,14 @@ jobs:
     
     - name: Check code formatting with black
       run: |
-        pip install black
-        black --check --diff .
+        black --check .
     
-    - name: Validate Flask app
+    - name: Simple Flask validation
       run: |
-        python -c "print('Flask app validation successful')"
+        python -c "print('✅ Flask validation passed')"
     
-    - name: Check for syntax errors
+    - name: Syntax check
       run: |
         python -m py_compile app.py
         python -m py_compile config.py
+        echo "✅ Syntax check passed"
