@@ -13,33 +13,35 @@ def health_check():
     """서버 상태 확인용 헬스체크 엔드포인트"""
     from flask import jsonify
     from models import db
-    
+
     try:
         # 데이터베이스 연결 상태 확인
-        db.session.execute('SELECT 1')
+        db.session.execute("SELECT 1")
         db_status = "connected"
     except Exception as e:
         db_status = f"error: {str(e)}"
-    
-    return jsonify({
-        "status": "healthy",
-        "message": "ClubU Backend API is running",
-        "database": db_status
-    })
+
+    return jsonify(
+        {
+            "status": "healthy",
+            "message": "ClubU Backend API is running",
+            "database": db_status,
+        }
+    )
 
 
 @main_bp.route("/")
 def root():
     """루트 엔드포인트"""
     from flask import jsonify
-    return jsonify({
-        "message": "Welcome to ClubU API",
-        "version": "1.0.0",
-        "endpoints": {
-            "health": "/health",
-            "clubs": "/api/v1/clubs"
+
+    return jsonify(
+        {
+            "message": "Welcome to ClubU API",
+            "version": "1.0.0",
+            "endpoints": {"health": "/health", "clubs": "/api/v1/clubs"},
         }
-    })
+    )
 
 
 # 블루프린트 등록
