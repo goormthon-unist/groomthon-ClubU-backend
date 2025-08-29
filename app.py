@@ -33,17 +33,17 @@ def create_app():
     # Flask-RESTX API 초기화
     api = Api(
         app,
-        version='1.0',
-        title='ClubU API',
-        description='UNIST 동아리 관리 시스템 API',
-        doc='/docs/'  # Swagger UI 경로
+        version="1.0",
+        title="ClubU API",
+        description="UNIST 동아리 관리 시스템 API",
+        doc="/docs/",  # Swagger UI 경로
     )
 
     # 네임스페이스 등록
     from routes.club_routes import club_ns
     from routes import init_app as init_routes
-    
-    api.add_namespace(club_ns, path='/api/v1/clubs')
+
+    api.add_namespace(club_ns, path="/api/v1/clubs")
     init_routes(app)
 
     return app

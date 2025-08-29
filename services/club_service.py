@@ -10,27 +10,24 @@ def get_all_clubs():
             .join(ClubCategory, Club.category_id == ClubCategory.id)
             .all()
         )
-        
+
         if not clubs:
             raise ValueError("등록된 동아리가 없습니다")
-        
+
         # JSON 변환
         return [
             {
                 "id": club.id,
                 "name": club.name,
                 "activity_summary": club.activity_summary,
-                "category": {
-                    "id": category.id, 
-                    "name": category.name
-                },
+                "category": {"id": category.id, "name": category.name},
                 "recruitment_status": club.recruitment_status,
                 "created_at": club.created_at.isoformat() if club.created_at else None,
                 "updated_at": club.updated_at.isoformat() if club.updated_at else None,
             }
             for club, category in clubs
         ]
-        
+
     except Exception as e:
         # 데이터베이스 오류를 상위로 전달
         raise Exception(f"동아리 목록 조회 중 오류 발생: {str(e)}")
@@ -45,28 +42,25 @@ def get_club_by_id(club_id):
             .filter(Club.id == club_id)
             .first()
         )
-        
+
         if not club_data:
             return None
-            
+
         club, category = club_data
-        
+
         # JSON 변환
         return {
             "id": club.id,
             "name": club.name,
             "activity_summary": club.activity_summary,
-            "category": {
-                "id": category.id, 
-                "name": category.name
-            },
+            "category": {"id": category.id, "name": category.name},
             "recruitment_status": club.recruitment_status,
             "president_name": club.president_name,
             "contact": club.contact,
             "created_at": club.created_at.isoformat() if club.created_at else None,
             "updated_at": club.updated_at.isoformat() if club.updated_at else None,
         }
-        
+
     except Exception as e:
         # 데이터베이스 오류를 상위로 전달
         raise Exception(f"동아리 상세 조회 중 오류 발생: {str(e)}")
