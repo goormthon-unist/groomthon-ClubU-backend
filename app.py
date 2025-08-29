@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
 from flask_migrate import Migrate
+from flask_restx import Api
 
 # 환경변수 로드
 load_dotenv()
@@ -29,9 +30,20 @@ def create_app():
     # 마이그레이션 초기화
     Migrate(app, db)
 
-    # 블루프린트 등록
-    from routes import init_app as init_routes
+    # Flask-RESTX API 초기화
+    api = Api(
+        app,
+        version='1.0',
+        title='ClubU API',
+        description='UNIST 동아리 관리 시스템 API',
+        doc='/docs/'  # Swagger UI 경로
+    )
 
+    # 네임스페이스 등록
+    from routes.club_routes import club_ns
+    from routes import init_app as init_routes
+    
+    api.add_namespace(club_ns, path='/api/v1/clubs')
     init_routes(app)
 
     return app
