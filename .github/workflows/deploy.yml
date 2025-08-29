@@ -1,58 +1,82 @@
-name: Deploy to AWS
+name: Deploy to EC2
 
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  deploy:
+  test:
     runs-on: ubuntu-latest
-
+    
     steps:
     - uses: actions/checkout@v4
-
-    - name: Set up Python
+    
+    - name: Set up Python 3.11
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-
+    
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ap-northeast-2
-
-    - name: Setup SSH key
+        pip install -r requirements-dev.txt
+    
+    - name: Run tests with pytest
       run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2-key.pem
-        chmod 600 ~/.ssh/ec2-key.pem
+        pytest --cov=. --cov-report=xml
+      continue-on-error: true
+    
+    - name: Run linting
+      run: |
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
     - name: Deploy to EC2
-      run: |
-        echo "🚀 Starting deployment to EC2..."
-        
-        # EC2에 SSH로 연결하여 배포
-        ssh -o StrictHostKeyChecking=no -i ~/.ssh/ec2-key.pem ubuntu@3.39.193.78 << 'EOF'
-          echo "📦 Updating code on EC2..."
-          cd /home/ubuntu/clubu-backend
-          git pull origin main
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USERNAME }}
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          # 애플리케이션 디렉토리로 이동
+          cd /home/ubuntu/groomthon-ClubU-backend || {
+            echo "Directory not found. Cloning repository..."
+            cd /home/ubuntu
+            git clone https://github.com/${{ github.repository }}.git groomthon-ClubU-backend
+            cd groomthon-ClubU-backend
+          }
           
-          echo "🔧 Installing dependencies..."
-          source venv/bin/activate
-          pip install -r requirements.txt
+          # 최신 코드 가져오기
+          git fetch origin
+          git reset --hard origin/main
           
-          echo "🔄 Restarting Flask service..."
-          sudo systemctl restart clubu-flask
+          # Docker 이미지 빌드
+          sudo docker build -t clubu-backend .
           
-          echo "✅ Deployment completed on EC2!"
-        EOF
-        
-        echo "✅ Deployment to EC2 completed successfully!"
+          # 기존 컨테이너 중지 및 제거
+          sudo docker stop clubu-backend-container || true
+          sudo docker rm clubu-backend-container || true
+          
+          # 새 컨테이너 실행
+          sudo docker run -d \
+            --name clubu-backend-container \
+            --restart unless-stopped \
+            -p 5000:5000 \
+            --env-file /home/ubuntu/.env \
+            clubu-backend
+          
+          # 사용하지 않는 Docker 이미지 정리
+          sudo docker image prune -f
+          
+          echo "Deployment completed successfully!"
