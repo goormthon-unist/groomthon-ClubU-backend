@@ -21,6 +21,13 @@ jobs:
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
+          set -e
+          echo "== whoami ==" && whoami
+          echo "== docker version ==" && docker --version || sudo docker --version
+          echo "== pwd ==" && pwd
+          # --- 아래부터 기존 배포 스크립트 ---
+            
+
           # 애플리케이션 디렉토리로 이동
           cd /home/ubuntu/groomthon-ClubU-backend || {
             echo "Directory not found. Cloning repository..."
