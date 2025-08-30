@@ -1,7 +1,8 @@
 from flask_restx import Namespace
 from controllers.home_controller import (
     ClubListController, ClubDetailController, ClubUpdateController,
-    ClubStatusController, ClubQuestionsController, ClubMembersController
+    ClubStatusController, ClubQuestionsController, ClubMembersController,
+    OpenClubsController
 )
 
 # 네임스페이스 등록
@@ -47,5 +48,12 @@ class ClubQuestionsResource(ClubQuestionsController):
 @home_ns.route("/<int:club_id>/members")
 class ClubMembersResource(ClubMembersController):
     """동아리원 목록 조회 리소스"""
+
+    pass
+
+
+@home_ns.route("/imminent")
+class OpenClubsResource(OpenClubsController):
+    """모집 중인 동아리 조회 리소스"""
 
     pass

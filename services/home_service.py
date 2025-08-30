@@ -70,6 +70,7 @@ def get_club_by_id(club_id):
         raise Exception(f"동아리 상세 조회 중 오류 발생: {str(e)}")
 
 
+<<<<<<< HEAD
 def update_club_info(club_id, update_data):
     """동아리 정보 수정"""
     try:
@@ -248,3 +249,41 @@ def get_club_members(club_id):
 
     except Exception as e:
         raise Exception(f"동아리원 목록 조회 중 오류 발생: {str(e)}")
+def get_open_clubs():
+    """모집 중인 동아리 정보를 카테고리와 함께 조회"""
+    try:
+        # recruitment_status가 OPEN인 동아리와 카테고리 정보를 함께 조회
+        open_clubs = (
+            db.session.query(Club, ClubCategory)
+            .join(ClubCategory, Club.category_id == ClubCategory.id)
+            .filter(Club.recruitment_status == "OPEN")
+            .all()
+        )
+
+        if not open_clubs:
+            raise ValueError("모집 중인 동아리가 없습니다")
+
+        # JSON 변환
+        return [
+            {
+                "id": club.id,
+                "name": club.name,
+                "activity_summary": club.activity_summary,
+                "category": {"id": category.id, "name": category.name},
+                "recruitment_status": club.recruitment_status,
+                "president_name": club.president_name,
+                "contact": club.contact,
+                "current_generation": club.current_generation,
+                "introduction": club.introduction,
+                "created_at": club.created_at.isoformat() if club.created_at else None,
+                "updated_at": club.updated_at.isoformat() if club.updated_at else None,
+            }
+            for club, category in open_clubs
+        ]
+
+    except ValueError:
+        # ValueError는 그대로 전달 (모집 중인 동아리가 없는 경우)
+        raise
+    except Exception as e:
+        # 다른 데이터베이스 오류를 상위로 전달
+        raise Exception(f"모집 중인 동아리 조회 중 오류 발생: {str(e)}")
