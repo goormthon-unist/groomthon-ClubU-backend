@@ -100,9 +100,8 @@ def submit_application(club_id: int, user_id: int, answers_data: list[dict]):
                 raise ValueError(f"질문 {qid}에 대한 중복 답변이 있습니다")
             seen.add(qid)
 
-        # 3) Application 생성 (submitted_at 필수)
+        # 3) Application 생성 (submitted_at 필수) - id는 절대 넣지 않음
         new_app = Application(
-            id=None,  # 명시적으로 None 설정하여 AUTO_INCREMENT 작동
             user_id=user_id,
             club_id=club_id,
             status="SUBMITTED",
@@ -111,17 +110,24 @@ def submit_application(club_id: int, user_id: int, answers_data: list[dict]):
         db.session.add(new_app)
         db.session.commit()  # 즉시 커밋하여 AUTO_INCREMENT ID 확보
 
-        # ID 확인
-        if not new_app.id or new_app.id == 0:
+        # ID 확인 (더 자세한 진단)
+        if not new_app.id or int(new_app.id) == 0:
             db.session.rollback()
-            raise Exception(f"Application 생성 실패: ID가 할당되지 않았습니다 (id={new_app.id})")
+            # SQL_MODE 확인을 위한 추가 정보
+            from sqlalchemy import text
+
+            sql_mode_result = db.session.execute(text("SELECT @@sql_mode"))
+            sql_mode = sql_mode_result.fetchone()[0] if sql_mode_result else "UNKNOWN"
+            raise Exception(
+                f"Application PK 미할당 (id={new_app.id}). "
+                f"SQL_MODE: {sql_mode}. JSON/모델/SQL_MODE를 확인하세요."
+            )
 
         # 4) Answer 저장 (order = question_order)
         for a in answers_data:
             qid = int(a["question_id"])
             db.session.add(
                 ApplicationAnswer(
-                    id=None,  # 명시적으로 None 설정하여 AUTO_INCREMENT 작동
                     application_id=new_app.id,
                     question_id=qid,
                     answer_text=a["answer_text"],
