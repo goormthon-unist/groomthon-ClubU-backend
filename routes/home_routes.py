@@ -1,5 +1,5 @@
 from flask_restx import Namespace
-from controllers.home_controller import ClubListController, ClubDetailController
+from controllers.home_controller import ClubListController, ClubDetailController, OpenClubsController
 
 # 네임스페이스 등록
 home_ns = Namespace("clubs", description="동아리 관리 API")
@@ -16,5 +16,12 @@ class ClubListResource(ClubListController):
 @home_ns.route("/<int:club_id>")
 class ClubDetailResource(ClubDetailController):
     """동아리 상세 조회 리소스"""
+
+    pass
+
+
+@home_ns.route("/imminent")
+class OpenClubsResource(OpenClubsController):
+    """모집 중인 동아리 조회 리소스"""
 
     pass

@@ -1,5 +1,5 @@
 from flask_restx import Resource, abort
-from services.home_service import get_all_clubs, get_club_by_id
+from services.home_service import get_all_clubs, get_club_by_id, get_open_clubs
 
 
 class ClubListController(Resource):
@@ -33,5 +33,29 @@ class ClubDetailController(Resource):
             return {"status": "success", "club": club_data}, 200
         except ValueError as e:
             abort(400, f"400-02: {str(e)}")
+        except Exception as e:
+            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+
+
+class OpenClubsController(Resource):
+    """모집 중인 동아리 조회 컨트롤러"""
+
+    def get(self):
+        """모집 중인 동아리 목록을 반환합니다"""
+        try:
+            open_clubs_data = get_open_clubs()
+            return {
+                "status": "success",
+                "count": len(open_clubs_data),
+                "clubs": open_clubs_data,
+            }, 200
+        except ValueError as e:
+            # 모집 중인 동아리가 없는 경우 빈 배열과 메시지 반환
+            return {
+                "status": "success",
+                "count": 0,
+                "clubs": [],
+                "message": str(e)
+            }, 200
         except Exception as e:
             abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
