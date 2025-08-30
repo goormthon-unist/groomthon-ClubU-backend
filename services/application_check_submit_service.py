@@ -114,7 +114,8 @@ def submit_application(club_id: int, user_id: int, answers_data: list[dict]):
         # AUTO_INCREMENT 문제 해결을 위한 추가 확인
         if not new_app.id or new_app.id == 0:
             # MySQL의 LAST_INSERT_ID() 사용
-            result = db.session.execute("SELECT LAST_INSERT_ID() as id")
+            from sqlalchemy import text
+            result = db.session.execute(text("SELECT LAST_INSERT_ID() as id"))
             last_id = result.fetchone()[0]
             if last_id and last_id > 0:
                 new_app.id = last_id
