@@ -133,9 +133,6 @@ def get_club_questions(club_id):
                 "club_id": question.club_id,
                 "question_text": question.question_text,
                 "question_order": question.question_order,
-                "created_at": (
-                    (question.created_at.isoformat() if question.created_at else None)
-                ),
             }
             for question in questions
         ]
@@ -173,13 +170,6 @@ def add_club_question(club_id, question_data):
             "club_id": new_question.club_id,
             "question_text": new_question.question_text,
             "question_order": new_question.question_order,
-            "created_at": (
-                (
-                    new_question.created_at.isoformat()
-                    if new_question.created_at
-                    else None
-                )
-            ),
         }
 
     except Exception as e:
@@ -208,9 +198,6 @@ def update_question(question_id, update_data):
             "club_id": question.club_id,
             "question_text": question.question_text,
             "question_order": question.question_order,
-            "created_at": (
-                (question.created_at.isoformat() if question.created_at else None)
-            ),
         }
 
     except Exception as e:
