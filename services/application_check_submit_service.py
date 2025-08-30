@@ -109,21 +109,12 @@ def submit_application(club_id: int, user_id: int, answers_data: list[dict]):
             submitted_at=datetime.utcnow(),  # TIMESTAMP NOT NULL
         )
         db.session.add(new_app)
-        db.session.flush()  # id 확보
+        db.session.commit()  # 즉시 커밋하여 AUTO_INCREMENT ID 확보
 
-        # AUTO_INCREMENT 문제 해결을 위한 추가 확인
+        # ID 확인
         if not new_app.id or new_app.id == 0:
-            # MySQL의 LAST_INSERT_ID() 사용
-            from sqlalchemy import text
-
-            result = db.session.execute(text("SELECT LAST_INSERT_ID() as id"))
-            last_id = result.fetchone()[0]
-            if last_id and last_id > 0:
-                new_app.id = last_id
-            else:
-                raise Exception(
-                    f"AUTO_INCREMENT 실패: new_app.id={new_app.id}, LAST_INSERT_ID={last_id}"
-                )
+            db.session.rollback()
+            raise Exception(f"Application 생성 실패: ID가 할당되지 않았습니다 (id={new_app.id})")
 
         # 4) Answer 저장 (order = question_order)
         for a in answers_data:
