@@ -6,11 +6,11 @@ from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_restx import Api
 
-# 환경변수 로드
-load_dotenv()
-
 # 데이터베이스 객체 import
 from models import db
+
+# 환경변수 로드
+load_dotenv()
 
 
 def create_app():
@@ -41,9 +41,11 @@ def create_app():
 
     # 네임스페이스 등록
     from routes.home_routes import home_ns
+    from routes.question_routes import question_ns
     from routes import init_app as init_routes
 
     api.add_namespace(home_ns, path="/api/v1/clubs")
+    api.add_namespace(question_ns, path="/api/v1")
     init_routes(app)
 
     return app
