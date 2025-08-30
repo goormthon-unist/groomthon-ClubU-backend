@@ -17,7 +17,7 @@ class ClubApplicationQuestionsResource(ClubApplicationQuestionsController):
     pass
 
 
-@application_ns.route("/applications/<int:club_id>")
+@application_ns.route("/<int:club_id>")
 class ApplicationSubmitResource(ApplicationSubmitController):
     """지원서 제출 리소스"""
 
