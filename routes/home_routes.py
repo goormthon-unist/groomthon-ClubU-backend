@@ -1,5 +1,9 @@
 from flask_restx import Namespace
-from controllers.home_controller import ClubListController, ClubDetailController, OpenClubsController
+from controllers.home_controller import (
+    ClubListController,
+    ClubDetailController,
+    OpenClubsController,
+)
 
 # 네임스페이스 등록
 home_ns = Namespace("clubs", description="동아리 관리 API")

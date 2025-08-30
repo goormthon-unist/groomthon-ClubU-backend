@@ -17,6 +17,7 @@ def health_check():
     try:
         # 데이터베이스 연결 상태 확인
         from sqlalchemy import text
+
         db.session.execute(text("SELECT 1"))
         db_status = "connected"
     except Exception as e:

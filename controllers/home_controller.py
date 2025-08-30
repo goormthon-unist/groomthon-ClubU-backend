@@ -55,7 +55,7 @@ class OpenClubsController(Resource):
                 "status": "success",
                 "count": 0,
                 "clubs": [],
-                "message": str(e)
+                "message": str(e),
             }, 200
         except Exception as e:
             abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
