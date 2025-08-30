@@ -41,12 +41,10 @@ def create_app():
 
     # 네임스페이스 등록
     from routes.home_routes import home_ns
-    from routes.question_routes import question_ns
     from routes.application_check_submit_routes import application_ns
     from routes import init_app as init_routes
 
     api.add_namespace(home_ns, path="/api/v1/clubs")
-    api.add_namespace(question_ns, path="/api/v1")
     api.add_namespace(application_ns, path="/api/v1")
     init_routes(app)
 
