@@ -8,6 +8,7 @@ from models import (
     Club,
 )
 
+
 def get_club_application_questions(club_id: int):
     """특정 동아리의 지원 질문들을 조회 (DB 스키마 컬럼만 반환)"""
     try:
