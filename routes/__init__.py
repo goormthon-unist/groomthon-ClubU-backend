@@ -4,7 +4,7 @@ from flask import Blueprint
 main_bp = Blueprint("main", __name__)
 
 # 모든 라우트를 여기서 import
-from .club import club_bp
+# club_bp는 제거됨 - Flask-RESTX 구조 사용
 
 
 # 헬스체크 엔드포인트
@@ -47,4 +47,4 @@ def root():
 # 블루프린트 등록
 def init_app(app):
     app.register_blueprint(main_bp)
-    app.register_blueprint(club_bp, url_prefix="/api/v1/clubs")
+    # club_bp 등록 제거 - Flask-RESTX 구조로 대체됨
