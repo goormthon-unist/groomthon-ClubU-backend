@@ -16,15 +16,14 @@ def get_club_application_questions(club_id):
         if not club:
             raise ValueError("존재하지 않는 동아리입니다")
 
-        # 해당 동아리의 지원 질문들 조회 (순서대로 정렬)
-        questions = (
-            ClubApplicationQuestion.query.filter_by(club_id=club_id)
-            .order_by(ClubApplicationQuestion.question_order.asc())
-            .all()
-        )
+        # 해당 동아리의 지원 질문들 조회 (간단한 방식)
+        questions = ClubApplicationQuestion.query.filter_by(club_id=club_id).all()
 
         if not questions:
             raise ValueError("해당 동아리의 지원 질문이 없습니다")
+
+        # 수동으로 정렬 (Python에서)
+        questions_sorted = sorted(questions, key=lambda q: q.question_order)
 
         # JSON 변환
         return [
@@ -33,7 +32,7 @@ def get_club_application_questions(club_id):
                 "question_text": question.question_text,
                 "question_order": question.question_order,
             }
-            for question in questions
+            for question in questions_sorted
         ]
 
     except ValueError:
