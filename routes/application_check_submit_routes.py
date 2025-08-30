@@ -8,6 +8,15 @@ from controllers.application_check_submit_controller import (
 application_ns = Namespace("applications", description="지원서 관리 API")
 
 
+# 임시 테스트 API
+@application_ns.route("/test")
+class TestResource:
+    """테스트용 임시 API"""
+    
+    def get(self):
+        return {"message": "테스트 API 성공!", "status": "ok"}, 200
+
+
 # API 엔드포인트 등록
 @application_ns.route("/clubs/<int:club_id>/application/questions")
 class ClubApplicationQuestionsResource(ClubApplicationQuestionsController):
