@@ -9,7 +9,9 @@ class Application(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     club_id = db.Column(db.Integer, db.ForeignKey("clubs.id"), nullable=False)
-    status = db.Column(db.String(20), default="SUBMITTED")  # SUBMITTED, VIEWED, ACCEPTED, REJECTED
+    status = db.Column(
+        db.String(20), default="SUBMITTED"
+    )  # SUBMITTED, VIEWED, ACCEPTED, REJECTED
     submitted_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     # 관계 설정
