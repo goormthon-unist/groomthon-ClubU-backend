@@ -8,8 +8,6 @@ from controllers.application_check_submit_controller import (
 application_ns = Namespace("applications", description="지원서 관리 API")
 
 
-
-
 # API 엔드포인트 등록
 @application_ns.route("/clubs/<int:club_id>/application/questions")
 class ClubApplicationQuestionsResource(ClubApplicationQuestionsController):
