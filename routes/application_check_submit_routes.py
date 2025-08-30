@@ -31,7 +31,7 @@ class DebugApplicationResource(Resource):
     def post(self, club_id):
         from models import db
         from datetime import datetime
-        
+
         try:
             # 1. 기본 검증
             club = Club.query.get(club_id)
@@ -48,24 +48,20 @@ class DebugApplicationResource(Resource):
                 user_id=9001,
                 club_id=club_id,
                 status="SUBMITTED",
-                submitted_at=datetime.utcnow()
+                submitted_at=datetime.utcnow(),
             )
             db.session.add(test_app)
             db.session.flush()  # ID 확보 시도
-            
+
             return {
                 "step": 3,
                 "success": True,
                 "application_id": test_app.id,
                 "user_found": True,
                 "club_found": True,
-                "club_name": club.name
+                "club_name": club.name,
             }, 200
 
         except Exception as e:
             db.session.rollback()
-            return {
-                "error": str(e),
-                "type": type(e).__name__,
-                "step": "exception"
-            }, 500
+            return {"error": str(e), "type": type(e).__name__, "step": "exception"}, 500
