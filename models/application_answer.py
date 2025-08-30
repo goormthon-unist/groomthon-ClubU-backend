@@ -11,6 +11,7 @@ class ApplicationAnswer(db.Model):
     question_id = db.Column(
         db.Integer, db.ForeignKey("club_application_questions.id"), nullable=False
     )
+    answer_order = db.Column(db.Integer, nullable=False)
     answer_text = db.Column(db.Text, nullable=False)
 
     # 관계 설정
