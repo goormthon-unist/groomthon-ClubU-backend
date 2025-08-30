@@ -9,4 +9,5 @@ question_ns = Namespace("application/questions", description="지원서 문항 �
 @question_ns.route("/<int:question_id>")
 class QuestionResource(QuestionController):
     """지원서 문항 수정/삭제 리소스"""
+
     pass

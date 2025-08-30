@@ -20,8 +20,9 @@ class Config:
     else:
         # 로컬 개발용 SQLite 설정
         import os
+
         basedir = os.path.abspath(os.path.dirname(__file__))
-        db_path = os.path.join(basedir, 'instance', 'app.db')
+        db_path = os.path.join(basedir, "instance", "app.db")
         SQLALCHEMY_DATABASE_URI = f"sqlite:///{db_path}"
         SQLALCHEMY_ENGINE_OPTIONS = {}
 

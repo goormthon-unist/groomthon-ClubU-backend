@@ -14,23 +14,18 @@ class Club(db.Model):
     activity_summary = db.Column(db.String(255))
     president_name = db.Column(db.String(100), nullable=False)
     contact = db.Column(db.String(255), nullable=False)
-    recruitment_status = db.Column(
-        db.String(20), nullable=False, default="closed"
-    )
+    recruitment_status = db.Column(db.String(20), nullable=False, default="closed")
     current_generation = db.Column(db.Integer)
     introduction = db.Column(db.Text)
     created_at = db.Column(db.TIMESTAMP, default=datetime.utcnow)
     updated_at = db.Column(
-        db.TIMESTAMP, default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        db.TIMESTAMP, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
     # 관계 설정
     category = db.relationship("ClubCategory", back_populates="clubs")
     members = db.relationship("ClubMember", back_populates="club")
-    questions = db.relationship(
-        "ClubApplicationQuestion", back_populates="club"
-    )
+    questions = db.relationship("ClubApplicationQuestion", back_populates="club")
     applications = db.relationship("Application", back_populates="club")
 
     def __repr__(self):
