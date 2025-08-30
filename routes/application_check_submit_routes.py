@@ -1,4 +1,4 @@
-from flask_restx import Namespace
+from flask_restx import Namespace, Resource
 from controllers.application_check_submit_controller import (
     ClubApplicationQuestionsController,
     ApplicationSubmitController,
@@ -10,7 +10,7 @@ application_ns = Namespace("applications", description="지원서 관리 API")
 
 # 임시 테스트 API
 @application_ns.route("/test")
-class TestResource:
+class TestResource(Resource):
     """테스트용 임시 API"""
 
     def get(self):
