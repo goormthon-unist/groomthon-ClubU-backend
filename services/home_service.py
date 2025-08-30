@@ -127,7 +127,9 @@ def get_club_questions(club_id):
         if not club:
             raise ValueError("해당 동아리를 찾을 수 없습니다")
 
-        questions = ClubApplicationQuestion.query.filter_by(club_id=club_id).all()
+        questions = ClubApplicationQuestion.query.filter_by(
+            club_id=club_id
+        ).all()
 
         return [
             {
@@ -138,7 +140,8 @@ def get_club_questions(club_id):
                 "is_required": question.is_required,
                 "order": question.order,
                 "created_at": (
-                    question.created_at.isoformat() if question.created_at else None
+                    (question.created_at.isoformat()
+                     if question.created_at else None)
                 ),
             }
             for question in questions
@@ -179,7 +182,8 @@ def add_club_question(club_id, question_data):
             "is_required": new_question.is_required,
             "order": new_question.order,
             "created_at": (
-                new_question.created_at.isoformat() if new_question.created_at else None
+                (new_question.created_at.isoformat()
+                 if new_question.created_at else None)
             ),
         }
 
@@ -215,7 +219,8 @@ def update_question(question_id, update_data):
             "is_required": question.is_required,
             "order": question.order,
             "created_at": (
-                question.created_at.isoformat() if question.created_at else None
+                (question.created_at.isoformat()
+                 if question.created_at else None)
             ),
         }
 
