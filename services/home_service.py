@@ -61,8 +61,12 @@ def get_club_by_id(club_id):
             "recruitment_status": club.recruitment_status,
             "president_name": club.president_name,
             "contact": club.contact,
-            "created_at": club.created_at.isoformat() if club.created_at else None,
-            "updated_at": club.updated_at.isoformat() if club.updated_at else None,
+            "created_at": (
+                club.created_at.isoformat() if club.created_at else None
+            ),
+            "updated_at": (
+                club.updated_at.isoformat() if club.updated_at else None
+            ),
         }
 
     except Exception as e:
@@ -83,7 +87,7 @@ def update_club_info(club_id, update_data):
             "president_name", "contact",
             "category_id"
         ]
-        
+
         for field in allowed_fields:
             if field in update_data:
                 setattr(club, field, update_data[field])
@@ -108,7 +112,7 @@ def update_club_status(club_id, status):
 
         club.recruitment_status = status
         db.session.commit()
-        
+
         return get_club_by_id(club_id)
 
     except Exception as e:
@@ -124,7 +128,7 @@ def get_club_questions(club_id):
             raise ValueError("해당 동아리를 찾을 수 없습니다")
 
         questions = ClubApplicationQuestion.query.filter_by(club_id=club_id).all()
-        
+
         return [
             {
                 "id": question.id,
@@ -196,7 +200,7 @@ def update_question(question_id, update_data):
             "question_text", "question_type",
             "is_required"
         ]
-        
+
         for field in allowed_fields:
             if field in update_data:
                 setattr(question, field, update_data[field])
@@ -245,7 +249,7 @@ def get_club_members(club_id):
             raise ValueError("해당 동아리를 찾을 수 없습니다")
 
         members = ClubMember.query.filter_by(club_id=club_id).all()
-        
+
         return [
             {
                 "id": member.id,
