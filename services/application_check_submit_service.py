@@ -1,4 +1,11 @@
-from models import db, ClubApplicationQuestion, Application, ApplicationAnswer, User, Club
+from models import (
+    db,
+    ClubApplicationQuestion,
+    Application,
+    ApplicationAnswer,
+    User,
+    Club,
+)
 
 
 def get_club_application_questions(club_id):

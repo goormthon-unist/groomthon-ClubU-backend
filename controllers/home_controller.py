@@ -1,8 +1,15 @@
 from flask_restx import Resource, abort, reqparse
 from services.home_service import (
-    get_all_clubs, get_club_by_id, get_open_clubs, update_club_info,
-    update_club_status, get_club_questions, add_club_question, update_question,
-    delete_question, get_club_members
+    get_all_clubs,
+    get_club_by_id,
+    get_open_clubs,
+    update_club_info,
+    update_club_status,
+    get_club_questions,
+    add_club_question,
+    update_question,
+    delete_question,
+    get_club_members,
 )
 
 
@@ -31,11 +38,11 @@ class ClubUpdateController(Resource):
         """동아리 정보를 수정합니다"""
         try:
             parser = reqparse.RequestParser()
-            parser.add_argument('name', type=str, location='json')
-            parser.add_argument('activity_summary', type=str, location='json')
-            parser.add_argument('president_name', type=str, location='json')
-            parser.add_argument('contact', type=str, location='json')
-            parser.add_argument('category_id', type=int, location='json')
+            parser.add_argument("name", type=str, location="json")
+            parser.add_argument("activity_summary", type=str, location="json")
+            parser.add_argument("president_name", type=str, location="json")
+            parser.add_argument("contact", type=str, location="json")
+            parser.add_argument("category_id", type=int, location="json")
             args = parser.parse_args()
             update_data = {k: v for k, v in args.items() if v is not None}
 
@@ -58,11 +65,9 @@ class ClubStatusController(Resource):
         """동아리 모집 상태를 변경합니다"""
         try:
             parser = reqparse.RequestParser()
-            parser.add_argument(
-                'status', type=str, required=True, location='json'
-            )
+            parser.add_argument("status", type=str, required=True, location="json")
             args = parser.parse_args()
-            status = args['status']
+            status = args["status"]
 
             club_data = update_club_status(club_id, status)
             return {"status": "success", "club": club_data}, 200
@@ -83,7 +88,7 @@ class ClubQuestionsController(Resource):
             return {
                 "status": "success",
                 "count": len(questions),
-                "questions": questions
+                "questions": questions,
             }, 200
 
         except ValueError as e:
@@ -96,19 +101,17 @@ class ClubQuestionsController(Resource):
         try:
             parser = reqparse.RequestParser()
             parser.add_argument(
-                'question_text', type=str, required=True, location='json'
+                "question_text", type=str, required=True, location="json"
             )
             parser.add_argument(
-                'question_type', type=str, default='text', location='json'
+                "question_type", type=str, default="text", location="json"
             )
-            parser.add_argument(
-                'is_required', type=bool, default=True, location='json'
-            )
+            parser.add_argument("is_required", type=bool, default=True, location="json")
             args = parser.parse_args()
             question_data = {
-                "question_text": args['question_text'],
-                "question_type": args['question_type'],
-                "is_required": args['is_required']
+                "question_text": args["question_text"],
+                "question_type": args["question_type"],
+                "is_required": args["is_required"],
             }
 
             new_question = add_club_question(club_id, question_data)
@@ -127,9 +130,9 @@ class QuestionController(Resource):
         """지원서 문항을 수정합니다"""
         try:
             parser = reqparse.RequestParser()
-            parser.add_argument('question_text', type=str, location='json')
-            parser.add_argument('question_type', type=str, location='json')
-            parser.add_argument('is_required', type=bool, location='json')
+            parser.add_argument("question_text", type=str, location="json")
+            parser.add_argument("question_type", type=str, location="json")
+            parser.add_argument("is_required", type=bool, location="json")
             args = parser.parse_args()
             update_data = {k: v for k, v in args.items() if v is not None}
 
@@ -163,11 +166,7 @@ class ClubMembersController(Resource):
         """동아리원 목록을 조회합니다"""
         try:
             members = get_club_members(club_id)
-            return {
-                "status": "success",
-                "count": len(members),
-                "members": members
-            }, 200
+            return {"status": "success", "count": len(members), "members": members}, 200
 
         except ValueError as e:
             abort(400, f"400-11: {str(e)}")

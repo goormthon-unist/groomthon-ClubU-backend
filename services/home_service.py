@@ -61,12 +61,8 @@ def get_club_by_id(club_id):
             "recruitment_status": club.recruitment_status,
             "president_name": club.president_name,
             "contact": club.contact,
-            "created_at": (
-                club.created_at.isoformat() if club.created_at else None
-            ),
-            "updated_at": (
-                club.updated_at.isoformat() if club.updated_at else None
-            ),
+            "created_at": (club.created_at.isoformat() if club.created_at else None),
+            "updated_at": (club.updated_at.isoformat() if club.updated_at else None),
         }
 
     except Exception as e:
@@ -83,9 +79,11 @@ def update_club_info(club_id, update_data):
 
         # 업데이트 가능한 필드들
         allowed_fields = [
-            "name", "activity_summary",
-            "president_name", "contact",
-            "category_id"
+            "name",
+            "activity_summary",
+            "president_name",
+            "contact",
+            "category_id",
         ]
 
         for field in allowed_fields:
@@ -127,9 +125,7 @@ def get_club_questions(club_id):
         if not club:
             raise ValueError("해당 동아리를 찾을 수 없습니다")
 
-        questions = ClubApplicationQuestion.query.filter_by(
-            club_id=club_id
-        ).all()
+        questions = ClubApplicationQuestion.query.filter_by(club_id=club_id).all()
 
         return [
             {
@@ -140,8 +136,7 @@ def get_club_questions(club_id):
                 "is_required": question.is_required,
                 "order": question.order,
                 "created_at": (
-                    (question.created_at.isoformat()
-                     if question.created_at else None)
+                    (question.created_at.isoformat() if question.created_at else None)
                 ),
             }
             for question in questions
@@ -159,16 +154,19 @@ def add_club_question(club_id, question_data):
             raise ValueError("해당 동아리를 찾을 수 없습니다")
 
         # 기존 문항들의 최대 order 값 찾기
-        max_order = db.session.query(
-            db.func.max(ClubApplicationQuestion.order)
-        ).filter_by(club_id=club_id).scalar() or 0
+        max_order = (
+            db.session.query(db.func.max(ClubApplicationQuestion.order))
+            .filter_by(club_id=club_id)
+            .scalar()
+            or 0
+        )
 
         new_question = ClubApplicationQuestion(
             club_id=club_id,
             question_text=question_data["question_text"],
             question_type=question_data.get("question_type", "text"),
             is_required=question_data.get("is_required", True),
-            order=max_order + 1
+            order=max_order + 1,
         )
 
         db.session.add(new_question)
@@ -182,8 +180,11 @@ def add_club_question(club_id, question_data):
             "is_required": new_question.is_required,
             "order": new_question.order,
             "created_at": (
-                (new_question.created_at.isoformat()
-                 if new_question.created_at else None)
+                (
+                    new_question.created_at.isoformat()
+                    if new_question.created_at
+                    else None
+                )
             ),
         }
 
@@ -200,10 +201,7 @@ def update_question(question_id, update_data):
             raise ValueError("해당 문항을 찾을 수 없습니다")
 
         # 업데이트 가능한 필드들
-        allowed_fields = [
-            "question_text", "question_type",
-            "is_required"
-        ]
+        allowed_fields = ["question_text", "question_type", "is_required"]
 
         for field in allowed_fields:
             if field in update_data:
@@ -219,8 +217,7 @@ def update_question(question_id, update_data):
             "is_required": question.is_required,
             "order": question.order,
             "created_at": (
-                (question.created_at.isoformat()
-                 if question.created_at else None)
+                (question.created_at.isoformat() if question.created_at else None)
             ),
         }
 
