@@ -1,5 +1,5 @@
 from flask_restx import Resource, abort
-from services.club_service import get_all_clubs, get_club_by_id
+from services.home_service import get_all_clubs, get_club_by_id
 
 
 class ClubListController(Resource):
