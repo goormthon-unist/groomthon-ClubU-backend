@@ -19,7 +19,7 @@ def get_club_application_questions(club_id):
         # 해당 동아리의 지원 질문들 조회 (순서대로 정렬)
         questions = (
             ClubApplicationQuestion.query.filter_by(club_id=club_id)
-            .order_by(ClubApplicationQuestion.question_order)
+            .order_by(ClubApplicationQuestion.question_order.asc())
             .all()
         )
 
