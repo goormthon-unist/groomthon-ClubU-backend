@@ -102,6 +102,7 @@ def submit_application(club_id: int, user_id: int, answers_data: list[dict]):
 
         # 3) Application 생성 (submitted_at 필수)
         new_app = Application(
+            id=None,  # 명시적으로 None 설정하여 AUTO_INCREMENT 작동
             user_id=user_id,
             club_id=club_id,
             status="SUBMITTED",
@@ -115,6 +116,7 @@ def submit_application(club_id: int, user_id: int, answers_data: list[dict]):
             qid = int(a["question_id"])
             db.session.add(
                 ApplicationAnswer(
+                    id=None,  # 명시적으로 None 설정하여 AUTO_INCREMENT 작동
                     application_id=new_app.id,
                     question_id=qid,
                     answer_text=a["answer_text"],
