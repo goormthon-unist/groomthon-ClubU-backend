@@ -115,6 +115,7 @@ def submit_application(club_id: int, user_id: int, answers_data: list[dict]):
         if not new_app.id or new_app.id == 0:
             # MySQL의 LAST_INSERT_ID() 사용
             from sqlalchemy import text
+
             result = db.session.execute(text("SELECT LAST_INSERT_ID() as id"))
             last_id = result.fetchone()[0]
             if last_id and last_id > 0:
