@@ -132,9 +132,7 @@ def get_club_questions(club_id):
                 "id": question.id,
                 "club_id": question.club_id,
                 "question_text": question.question_text,
-                "question_type": question.question_type,
-                "is_required": question.is_required,
-                "order": question.order,
+                "question_order": question.question_order,
                 "created_at": (
                     (question.created_at.isoformat() if question.created_at else None)
                 ),
@@ -164,9 +162,7 @@ def add_club_question(club_id, question_data):
         new_question = ClubApplicationQuestion(
             club_id=club_id,
             question_text=question_data["question_text"],
-            question_type=question_data.get("question_type", "text"),
-            is_required=question_data.get("is_required", True),
-            order=max_order + 1,
+            question_order=max_order + 1,
         )
 
         db.session.add(new_question)
@@ -176,9 +172,7 @@ def add_club_question(club_id, question_data):
             "id": new_question.id,
             "club_id": new_question.club_id,
             "question_text": new_question.question_text,
-            "question_type": new_question.question_type,
-            "is_required": new_question.is_required,
-            "order": new_question.order,
+            "question_order": new_question.question_order,
             "created_at": (
                 (
                     new_question.created_at.isoformat()
@@ -201,7 +195,7 @@ def update_question(question_id, update_data):
             raise ValueError("해당 문항을 찾을 수 없습니다")
 
         # 업데이트 가능한 필드들
-        allowed_fields = ["question_text", "question_type", "is_required"]
+        allowed_fields = ["question_text", "question_order"]
 
         for field in allowed_fields:
             if field in update_data:
@@ -213,9 +207,7 @@ def update_question(question_id, update_data):
             "id": question.id,
             "club_id": question.club_id,
             "question_text": question.question_text,
-            "question_type": question.question_type,
-            "is_required": question.is_required,
-            "order": question.order,
+            "question_order": question.question_order,
             "created_at": (
                 (question.created_at.isoformat() if question.created_at else None)
             ),

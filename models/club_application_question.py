@@ -4,8 +4,8 @@ from . import db
 class ClubApplicationQuestion(db.Model):
     __tablename__ = "club_application_questions"
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    club_id = db.Column(db.Integer, db.ForeignKey("clubs.id"), nullable=False)
+    id = db.Column(db.BigInteger, primary_key=True)
+    club_id = db.Column(db.BigInteger, db.ForeignKey("clubs.id"), nullable=False)
     question_order = db.Column(db.Integer, nullable=False)
     question_text = db.Column(db.Text, nullable=False)
 
