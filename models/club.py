@@ -14,7 +14,9 @@ class Club(db.Model):
     activity_summary = db.Column(db.String(255))
     president_name = db.Column(db.String(100), nullable=False)
     contact = db.Column(db.String(255), nullable=False)
-    recruitment_status = db.Column(db.String(20), nullable=False, default="closed")
+    recruitment_status = db.Column(
+        db.String(20), nullable=False, default="closed"
+    )
     current_generation = db.Column(db.Integer)
     introduction = db.Column(db.Text)
     created_at = db.Column(db.TIMESTAMP, default=datetime.utcnow)

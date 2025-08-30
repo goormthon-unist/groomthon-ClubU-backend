@@ -1,11 +1,7 @@
 from flask_restx import Namespace
 from controllers.home_controller import (
-    ClubListController,
-    ClubUpdateController,
-    ClubStatusController,
-    QuestionController,
-    ClubMembersController,
-    OpenClubsController,
+    ClubListController, ClubDetailController, ClubUpdateController,
+    ClubStatusController, ClubQuestionsController, ClubMembersController
 )
 
 # 네임스페이스 등록
@@ -21,6 +17,13 @@ class ClubListResource(ClubListController):
 
 
 @home_ns.route("/<int:club_id>")
+class ClubDetailResource(ClubDetailController):
+    """동아리 상세 조회 리소스"""
+
+    pass
+
+
+@home_ns.route("/<int:club_id>/update")
 class ClubUpdateResource(ClubUpdateController):
     """동아리 정보 수정 리소스"""
 
@@ -34,22 +37,15 @@ class ClubStatusResource(ClubStatusController):
     pass
 
 
+@home_ns.route("/<int:club_id>/application/questions")
+class ClubQuestionsResource(ClubQuestionsController):
+    """동아리 지원서 문항 추가 리소스"""
+
+    pass
+
+
 @home_ns.route("/<int:club_id>/members")
 class ClubMembersResource(ClubMembersController):
     """동아리원 목록 조회 리소스"""
-
-    pass
-
-
-@home_ns.route("/application/questions/<int:question_id>")
-class QuestionResource(QuestionController):
-    """지원서 문항 수정/삭제 리소스"""
-
-    pass
-
-
-@home_ns.route("/imminent")
-class OpenClubsResource(OpenClubsController):
-    """모집 중인 동아리 조회 리소스"""
 
     pass
