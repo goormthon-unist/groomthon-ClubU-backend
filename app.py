@@ -40,10 +40,11 @@ def create_app():
     )
 
     # 네임스페이스 등록
-    from routes.club_routes import club_ns
+    from routes.club_routes import club_ns, application_ns
     from routes import init_app as init_routes
 
     api.add_namespace(club_ns, path="/api/v1/clubs")
+    api.add_namespace(application_ns, path="/api/v1")
     init_routes(app)
 
     return app
