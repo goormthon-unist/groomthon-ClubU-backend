@@ -118,63 +118,7 @@ def update_club_status(club_id, status):
         raise Exception(f"동아리 상태 변경 중 오류 발생: {str(e)}")
 
 
-def get_club_questions(club_id):
-    """동아리 지원서 문항 조회"""
-    try:
-        club = Club.query.get(club_id)
-        if not club:
-            raise ValueError("해당 동아리를 찾을 수 없습니다")
 
-        questions = ClubApplicationQuestion.query.filter_by(club_id=club_id).all()
-
-        return [
-            {
-                "id": question.id,
-                "club_id": question.club_id,
-                "question_text": question.question_text,
-                "question_order": question.question_order,
-            }
-            for question in questions
-        ]
-
-    except Exception as e:
-        raise Exception(f"지원서 문항 조회 중 오류 발생: {str(e)}")
-
-
-def add_club_question(club_id, question_data):
-    """동아리 지원서 문항 추가"""
-    try:
-        club = Club.query.get(club_id)
-        if not club:
-            raise ValueError("해당 동아리를 찾을 수 없습니다")
-
-        # 기존 문항들의 최대 order 값 찾기
-        max_order = (
-            db.session.query(db.func.max(ClubApplicationQuestion.order))
-            .filter_by(club_id=club_id)
-            .scalar()
-            or 0
-        )
-
-        new_question = ClubApplicationQuestion(
-            club_id=club_id,
-            question_text=question_data["question_text"],
-            question_order=max_order + 1,
-        )
-
-        db.session.add(new_question)
-        db.session.commit()
-
-        return {
-            "id": new_question.id,
-            "club_id": new_question.club_id,
-            "question_text": new_question.question_text,
-            "question_order": new_question.question_order,
-        }
-
-    except Exception as e:
-        db.session.rollback()
-        raise Exception(f"지원서 문항 추가 중 오류 발생: {str(e)}")
 
 
 def update_question(question_id, update_data):
