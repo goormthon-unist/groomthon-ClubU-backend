@@ -21,13 +21,16 @@ class Club(db.Model):
     introduction = db.Column(db.Text)
     created_at = db.Column(db.TIMESTAMP, default=datetime.utcnow)
     updated_at = db.Column(
-        db.TIMESTAMP, default=datetime.utcnow, onupdate=datetime.utcnow
+        db.TIMESTAMP, default=datetime.utcnow,
+        onupdate=datetime.utcnow
     )
 
     # 관계 설정
     category = db.relationship("ClubCategory", back_populates="clubs")
     members = db.relationship("ClubMember", back_populates="club")
-    questions = db.relationship("ClubApplicationQuestion", back_populates="club")
+    questions = db.relationship(
+        "ClubApplicationQuestion", back_populates="club"
+    )
     applications = db.relationship("Application", back_populates="club")
 
     def __repr__(self):
