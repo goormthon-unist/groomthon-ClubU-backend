@@ -4,7 +4,7 @@ from . import db
 class ApplicationAnswer(db.Model):
     __tablename__ = "application_answers"
 
-    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    id = db.Column(db.BigInteger, primary_key=True)
     application_id = db.Column(
         db.BigInteger,
         db.ForeignKey("applications.id", ondelete="CASCADE"),

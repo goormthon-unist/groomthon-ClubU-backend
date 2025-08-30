@@ -5,9 +5,7 @@ from . import db
 class Application(db.Model):
     __tablename__ = "applications"
 
-    id = db.Column(
-        db.BigInteger, primary_key=True, autoincrement=True
-    )  # ✅ BIGINT AUTO_INCREMENT
+    id = db.Column(db.BigInteger, primary_key=True)  # ✅ BIGINT
     user_id = db.Column(
         db.BigInteger, db.ForeignKey("users.id"), nullable=False
     )  # ✅ BIGINT
