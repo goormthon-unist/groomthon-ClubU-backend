@@ -1,7 +1,7 @@
 from flask_restx import Resource, abort, reqparse
 from services.home_service import (
-    get_all_clubs, get_club_by_id, get_open_clubs, update_club_info, update_club_status,
-    get_club_questions, add_club_question, update_question,
+    get_all_clubs, get_club_by_id, get_open_clubs, update_club_info,
+    update_club_status, get_club_questions, add_club_question, update_question,
     delete_question, get_club_members
 )
 
@@ -38,7 +38,7 @@ class ClubUpdateController(Resource):
             parser.add_argument('category_id', type=int, location='json')
             args = parser.parse_args()
             update_data = {k: v for k, v in args.items() if v is not None}
-            
+
             if not update_data:
                 abort(400, "400-03: 수정할 데이터가 없습니다")
 
@@ -63,7 +63,7 @@ class ClubStatusController(Resource):
             )
             args = parser.parse_args()
             status = args['status']
-            
+
             club_data = update_club_status(club_id, status)
             return {"status": "success", "club": club_data}, 200
 
@@ -110,7 +110,7 @@ class ClubQuestionsController(Resource):
                 "question_type": args['question_type'],
                 "is_required": args['is_required']
             }
-            
+
             new_question = add_club_question(club_id, question_data)
             return {"status": "success", "question": new_question}, 201
 
@@ -132,7 +132,7 @@ class QuestionController(Resource):
             parser.add_argument('is_required', type=bool, location='json')
             args = parser.parse_args()
             update_data = {k: v for k, v in args.items() if v is not None}
-            
+
             if not update_data:
                 abort(400, "400-08: 수정할 데이터가 없습니다")
 

@@ -70,7 +70,6 @@ def get_club_by_id(club_id):
         raise Exception(f"동아리 상세 조회 중 오류 발생: {str(e)}")
 
 
-<<<<<<< HEAD
 def update_club_info(club_id, update_data):
     """동아리 정보 수정"""
     try:
@@ -80,8 +79,9 @@ def update_club_info(club_id, update_data):
 
         # 업데이트 가능한 필드들
         allowed_fields = [
-            "name", "activity_summary", "president_name", 
-            "contact", "category_id"
+            "name", "activity_summary",
+            "president_name", "contact",
+            "category_id"
         ]
         
         for field in allowed_fields:
@@ -133,7 +133,9 @@ def get_club_questions(club_id):
                 "question_type": question.question_type,
                 "is_required": question.is_required,
                 "order": question.order,
-                "created_at": question.created_at.isoformat() if question.created_at else None,
+                "created_at": (
+                    question.created_at.isoformat() if question.created_at else None
+                ),
             }
             for question in questions
         ]
@@ -150,8 +152,9 @@ def add_club_question(club_id, question_data):
             raise ValueError("해당 동아리를 찾을 수 없습니다")
 
         # 기존 문항들의 최대 order 값 찾기
-        max_order = db.session.query(db.func.max(ClubApplicationQuestion.order))\
-            .filter_by(club_id=club_id).scalar() or 0
+        max_order = db.session.query(
+            db.func.max(ClubApplicationQuestion.order)
+        ).filter_by(club_id=club_id).scalar() or 0
 
         new_question = ClubApplicationQuestion(
             club_id=club_id,
@@ -171,7 +174,9 @@ def add_club_question(club_id, question_data):
             "question_type": new_question.question_type,
             "is_required": new_question.is_required,
             "order": new_question.order,
-            "created_at": new_question.created_at.isoformat() if new_question.created_at else None,
+            "created_at": (
+                new_question.created_at.isoformat() if new_question.created_at else None
+            ),
         }
 
     except Exception as e:
@@ -187,7 +192,10 @@ def update_question(question_id, update_data):
             raise ValueError("해당 문항을 찾을 수 없습니다")
 
         # 업데이트 가능한 필드들
-        allowed_fields = ["question_text", "question_type", "is_required"]
+        allowed_fields = [
+            "question_text", "question_type",
+            "is_required"
+        ]
         
         for field in allowed_fields:
             if field in update_data:
@@ -202,7 +210,9 @@ def update_question(question_id, update_data):
             "question_type": question.question_type,
             "is_required": question.is_required,
             "order": question.order,
-            "created_at": question.created_at.isoformat() if question.created_at else None,
+            "created_at": (
+                question.created_at.isoformat() if question.created_at else None
+            ),
         }
 
     except Exception as e:
@@ -242,13 +252,17 @@ def get_club_members(club_id):
                 "club_id": member.club_id,
                 "user_id": member.user_id,
                 "role": member.role,
-                "joined_at": member.joined_at.isoformat() if member.joined_at else None,
+                "joined_at": (
+                    member.joined_at.isoformat() if member.joined_at else None
+                ),
             }
             for member in members
         ]
 
     except Exception as e:
         raise Exception(f"동아리원 목록 조회 중 오류 발생: {str(e)}")
+
+
 def get_open_clubs():
     """모집 중인 동아리 정보를 카테고리와 함께 조회"""
     try:
@@ -275,8 +289,12 @@ def get_open_clubs():
                 "contact": club.contact,
                 "current_generation": club.current_generation,
                 "introduction": club.introduction,
-                "created_at": club.created_at.isoformat() if club.created_at else None,
-                "updated_at": club.updated_at.isoformat() if club.updated_at else None,
+                "created_at": (
+                    club.created_at.isoformat() if club.created_at else None
+                ),
+                "updated_at": (
+                    club.updated_at.isoformat() if club.updated_at else None
+                ),
             }
             for club, category in open_clubs
         ]
