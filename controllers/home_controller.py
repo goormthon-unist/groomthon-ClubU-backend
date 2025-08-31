@@ -99,15 +99,9 @@ class ClubQuestionsController(Resource):
             parser.add_argument(
                 "question_text", type=str, required=True, location="json"
             )
-            parser.add_argument(
-                "question_type", type=str, default="text", location="json"
-            )
-            parser.add_argument("is_required", type=bool, default=True, location="json")
             args = parser.parse_args()
             question_data = {
                 "question_text": args["question_text"],
-                "question_type": args["question_type"],
-                "is_required": args["is_required"],
             }
 
             new_question = add_club_question(club_id, question_data)
@@ -127,8 +121,6 @@ class QuestionController(Resource):
         try:
             parser = reqparse.RequestParser()
             parser.add_argument("question_text", type=str, location="json")
-            parser.add_argument("question_type", type=str, location="json")
-            parser.add_argument("is_required", type=bool, location="json")
             args = parser.parse_args()
             update_data = {k: v for k, v in args.items() if v is not None}
 
