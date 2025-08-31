@@ -7,8 +7,12 @@ class ClubMember(db.Model):
     __tablename__ = "club_members"
 
     id = db.Column(db.BigInteger, primary_key=True)
-    user_id = db.Column(db.BigInteger, db.ForeignKey("users.id"), nullable=False)
-    club_id = db.Column(db.BigInteger, db.ForeignKey("clubs.id"), nullable=False)
+    user_id = db.Column(
+        db.BigInteger, db.ForeignKey("users.id"), nullable=False
+    )
+    club_id = db.Column(
+        db.BigInteger, db.ForeignKey("clubs.id"), nullable=False
+    )
     role_id = db.Column(db.Integer, db.ForeignKey("roles.id"), nullable=False)
     generation = db.Column(db.Integer, nullable=False)
     other_info = db.Column(db.Text, nullable=True)

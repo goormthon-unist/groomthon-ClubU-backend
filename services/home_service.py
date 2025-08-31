@@ -61,8 +61,14 @@ def get_club_by_id(club_id):
             "recruitment_status": club.recruitment_status,
             "president_name": club.president_name,
             "contact": club.contact,
-            "created_at": (club.created_at.isoformat() if club.created_at else None),
-            "updated_at": (club.updated_at.isoformat() if club.updated_at else None),
+            "created_at": (
+                club.created_at.isoformat()
+                if club.created_at else None
+            ),
+            "updated_at": (
+                club.updated_at.isoformat()
+                if club.updated_at else None
+            ),
         }
 
     except Exception as e:
@@ -125,7 +131,9 @@ def get_club_questions(club_id):
         if not club:
             raise ValueError("해당 동아리를 찾을 수 없습니다")
 
-        questions = ClubApplicationQuestion.query.filter_by(club_id=club_id).all()
+        questions = ClubApplicationQuestion.query.filter_by(
+            club_id=club_id
+        ).all()
 
         return [
             {
@@ -138,7 +146,9 @@ def get_club_questions(club_id):
         ]
 
     except Exception as e:
-        raise Exception(f"지원서 문항 조회 중 오류 발생: {str(e)}")
+        raise Exception(
+            f"지원서 문항 조회 중 오류 발생: {str(e)}"
+        )
 
 
 def add_club_question(club_id, question_data):
@@ -150,7 +160,11 @@ def add_club_question(club_id, question_data):
 
         # 기존 문항들의 최대 order 값 찾기
         max_order = (
-            db.session.query(db.func.max(ClubApplicationQuestion.question_order))
+            db.session.query(
+                db.func.max(
+                    ClubApplicationQuestion.question_order
+                )
+            )
             .filter_by(club_id=club_id)
             .scalar()
             or 0
@@ -202,7 +216,9 @@ def update_question(question_id, update_data):
 
     except Exception as e:
         db.session.rollback()
-        raise Exception(f"문항 수정 중 오류 발생: {str(e)}")
+        raise Exception(
+            f"문항 수정 중 오류 발생: {str(e)}"
+        )
 
 
 def delete_question(question_id):

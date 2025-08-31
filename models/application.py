@@ -13,11 +13,15 @@ class Application(db.Model):
         db.BigInteger, db.ForeignKey("clubs.id"), nullable=False
     )  # ✅ BIGINT
     status = db.Column(db.String(20), nullable=False, default="SUBMITTED")
-    submitted_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    submitted_at = db.Column(
+        db.DateTime, nullable=False, default=datetime.utcnow
+    )
 
     # 동일 유저가 동일 동아리에 중복 지원 방지
     __table_args__ = (
-        db.UniqueConstraint("user_id", "club_id", name="uq_applications_user_club"),
+        db.UniqueConstraint(
+            "user_id", "club_id", name="uq_applications_user_club"
+        ),
     )
 
     # 관계
