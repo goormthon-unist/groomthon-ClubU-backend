@@ -167,7 +167,10 @@ try:
     # 7. Club Application Questions
     questions = [
         ClubApplicationQuestion(
-            id=9001, club_id=9001, question_order=1, question_text="TEST_프로그래밍 경험이 있나요?"
+            id=9001,
+            club_id=9001,
+            question_order=1,
+            question_text="TEST_프로그래밍 경험이 있나요?",
         ),
         ClubApplicationQuestion(
             id=9002,
@@ -176,7 +179,10 @@ try:
             question_text="TEST_악기 연주 경험을 알려주세요",
         ),
         ClubApplicationQuestion(
-            id=9003, club_id=9003, question_order=1, question_text="TEST_사진 촬영 경험이 있나요?"
+            id=9003,
+            club_id=9003,
+            question_order=1,
+            question_text="TEST_사진 촬영 경험이 있나요?",
         ),
     ]
 

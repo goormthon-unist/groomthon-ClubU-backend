@@ -52,18 +52,22 @@ def get_club_applicants(club_id):
                 "email": user.email,
                 "phone_number": user.phone_number,
                 "gender": user.gender,
-                "department": {
-                    "id": department.id,
-                    "degree_course": department.degree_course,
-                    "college": department.college,
-                    "major": department.major,
-                }
-                if department
-                else None,
+                "department": (
+                    {
+                        "id": department.id,
+                        "degree_course": department.degree_course,
+                        "college": department.college,
+                        "major": department.major,
+                    }
+                    if department
+                    else None
+                ),
                 "status": application.status,
-                "submitted_at": application.submitted_at.isoformat()
-                if application.submitted_at
-                else None,
+                "submitted_at": (
+                    application.submitted_at.isoformat()
+                    if application.submitted_at
+                    else None
+                ),
                 "answer_count": len(application.answers),
             }
             applicants.append(applicant_info)
@@ -102,9 +106,11 @@ def get_application_detail(application_id):
         application_detail = {
             "application_id": application.id,
             "status": application.status,
-            "submitted_at": application.submitted_at.isoformat()
-            if application.submitted_at
-            else None,
+            "submitted_at": (
+                application.submitted_at.isoformat()
+                if application.submitted_at
+                else None
+            ),
             "user": {
                 "id": user.id,
                 "name": user.name,
@@ -112,23 +118,25 @@ def get_application_detail(application_id):
                 "email": user.email,
                 "phone_number": user.phone_number,
                 "gender": user.gender,
-                "department": {
-                    "id": department.id,
-                    "degree_course": department.degree_course,
-                    "college": department.college,
-                    "major": department.major,
-                }
-                if department
-                else None,
+                "department": (
+                    {
+                        "id": department.id,
+                        "degree_course": department.degree_course,
+                        "college": department.college,
+                        "major": department.major,
+                    }
+                    if department
+                    else None
+                ),
             },
             "club": {"id": club.id, "name": club.name},
             "answers": [
                 {
                     "id": answer.id,
                     "question_id": answer.question_id,
-                    "question_text": answer.question.question_text
-                    if answer.question
-                    else None,
+                    "question_text": (
+                        answer.question.question_text if answer.question else None
+                    ),
                     "answer_order": answer.answer_order,
                     "answer_text": answer.answer_text,
                 }
@@ -172,7 +180,9 @@ def register_club_member(
         # 기본값 설정
         if role_id is None:
             # 기본 역할 (일반회원) 찾기
-            default_role = db.session.query(Role).filter(Role.name.like("%회원%")).first()
+            default_role = (
+                db.session.query(Role).filter(Role.name.like("%회원%")).first()
+            )
             role_id = default_role.id if default_role else 3  # 일반회원 역할 ID
 
         if generation is None:
@@ -220,9 +230,9 @@ def register_club_member(
                     "club_name": club.name,
                     "role_name": role.name,
                     "generation": member.generation,
-                    "joined_at": member.joined_at.isoformat()
-                    if member.joined_at
-                    else None,
+                    "joined_at": (
+                        member.joined_at.isoformat() if member.joined_at else None
+                    ),
                 },
             }
 

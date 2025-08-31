@@ -5,7 +5,9 @@ from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_restx import Api
 
-from models import db  # db = SQLAlchemy() 가 models 또는 extensions에 정의돼 있어야 합니다.
+from models import (
+    db,
+)  # db = SQLAlchemy() 가 models 또는 extensions에 정의돼 있어야 합니다.
 
 load_dotenv()
 
