@@ -20,15 +20,8 @@ class ClubListResource(ClubListController):
 
 
 @home_ns.route("/<int:club_id>")
-class ClubDetailResource(ClubListController):
-    """동아리 상세 조회 리소스"""
-
-    pass
-
-
-@home_ns.route("/<int:club_id>/update")
-class ClubUpdateResource(ClubUpdateController):
-    """동아리 정보 수정 리소스"""
+class ClubDetailResource(ClubUpdateController):
+    """동아리 상세 조회 및 정보 수정 리소스"""
 
     pass
 
@@ -52,3 +45,10 @@ class ClubMembersResource(ClubMembersController):
     """동아리원 목록 조회 리소스"""
 
     pass
+
+
+# 문항 수정/삭제는 별도 네임스페이스로 처리
+# @home_ns.route("/application/questions/<int:question_id>")
+# class QuestionResource(QuestionController):
+#     """지원서 문항 수정/삭제 리소스"""
+#     pass
