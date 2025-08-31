@@ -4,7 +4,7 @@
 
 from flask import request
 from flask_restx import Resource, abort
-from services.mock_application_check_service import (
+from services.application_check_service import (
     get_club_applicants,
     get_application_detail,
     register_club_member,
