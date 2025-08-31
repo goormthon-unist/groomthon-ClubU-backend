@@ -20,9 +20,21 @@ def create_app():
     from config import config
 
     app.config.from_object(config[os.getenv("FLASK_ENV", "development")])
+    
+    # Flask 세션 설정 추가
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-here')
+    app.config['SESSION_COOKIE_SECURE'] = False  # 개발환경에서는 False
+    app.config['SESSION_COOKIE_HTTPONLY'] = True
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+    app.config['SESSION_COOKIE_DOMAIN'] = None  # 모든 도메인에서 접근 가능
+    app.config['SESSION_COOKIE_PATH'] = '/'
 
-    # CORS 설정 (간단하게)
-    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    # CORS 설정 (쿠키 지원)
+    CORS(app, 
+         resources={r"/api/*": {"origins": "*"}},
+         supports_credentials=True,
+         allow_headers=["Content-Type", "Authorization"],
+         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
 
     # 데이터베이스 초기화
     db.init_app(app)
@@ -43,11 +55,13 @@ def create_app():
     from routes.home_routes import home_ns
     from routes.application_check_submit_routes import application_ns
     from routes.auth_routes import auth_ns
+    from routes.role_routes import role_ns
     from routes import init_app as init_routes
 
     api.add_namespace(home_ns, path="/api/v1/clubs")
     api.add_namespace(application_ns, path="/api/v1")
     api.add_namespace(auth_ns, path="/api/v1/auth")
+    api.add_namespace(role_ns, path="/api/v1/roles")
     init_routes(app)
 
     return app

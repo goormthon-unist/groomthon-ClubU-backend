@@ -88,22 +88,4 @@ def authenticate_user(email, password):
         raise Exception(f"사용자 인증 중 오류 발생: {str(e)}")
 
 
-def get_all_users():
-    """모든 사용자 목록 조회 (테스트용)"""
-    try:
-        users = User.query.all()
-        user_list = []
-        
-        for user in users:
-            user_data = {
-                "id": user.id,
-                "name": user.name,
-                "email": user.email,
-                "created_at": user.created_at.isoformat() if user.created_at else None
-            }
-            user_list.append(user_data)
-        
-        return user_list
 
-    except Exception as e:
-        raise Exception(f"사용자 목록 조회 중 오류 발생: {str(e)}")
