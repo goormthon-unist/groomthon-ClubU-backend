@@ -21,8 +21,8 @@ def create_app():
 
     app.config.from_object(config[os.getenv("FLASK_ENV", "development")])
 
-    # CORS 설정
-    CORS(app)
+    # CORS 설정 (간단하게)
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
 
     # 데이터베이스 초기화
     db.init_app(app)
@@ -42,10 +42,12 @@ def create_app():
     # 네임스페이스 등록
     from routes.home_routes import home_ns
     from routes.application_check_submit_routes import application_ns
+    from routes.auth_routes import auth_ns
     from routes import init_app as init_routes
 
     api.add_namespace(home_ns, path="/api/v1/clubs")
     api.add_namespace(application_ns, path="/api/v1")
+    api.add_namespace(auth_ns, path="/api/v1/auth")
     init_routes(app)
 
     return app
