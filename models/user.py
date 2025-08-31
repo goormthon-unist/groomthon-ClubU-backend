@@ -15,11 +15,15 @@ class User(db.Model):
         db.Integer, db.ForeignKey("departments.id"), nullable=False
     )
     phone_number = db.Column(db.String(20), nullable=False)
-    gender = db.Column(db.Enum('MALE', 'FEMALE', 'OTHER'), nullable=True)
+    gender = db.Column(db.Enum("MALE", "FEMALE", "OTHER"), nullable=True)
     email_verification_code = db.Column(db.String(10), nullable=True)
     email_verified_at = db.Column(db.TIMESTAMP, nullable=True)
     created_at = db.Column(db.TIMESTAMP, nullable=False)
-    updated_at = db.Column(db.TIMESTAMP, nullable=False, server_default=db.text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
+    updated_at = db.Column(
+        db.TIMESTAMP,
+        nullable=False,
+        server_default=db.text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"),
+    )
 
     # 관계 설정
     department = db.relationship("Department")

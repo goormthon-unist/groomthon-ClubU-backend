@@ -7,7 +7,7 @@ from flask_restx import Resource, abort
 from services.application_check_service import (
     get_club_applicants,
     get_application_detail,
-    register_club_member
+    register_club_member,
 )
 
 
@@ -18,15 +18,15 @@ class ClubApplicantsController(Resource):
         """특정 동아리의 지원자 목록을 조회합니다"""
         try:
             # 쿼리 파라미터에서 club_id 가져오기
-            club_id = request.args.get('club_id', type=int)
+            club_id = request.args.get("club_id", type=int)
             if not club_id:
                 abort(400, "400-12: club_id 파라미터가 필요합니다")
-            
+
             applicants = get_club_applicants(club_id)
             return {
                 "status": "success",
                 "count": len(applicants),
-                "applicants": applicants
+                "applicants": applicants,
             }, 200
 
         except ValueError as e:
@@ -42,10 +42,7 @@ class ApplicationDetailController(Resource):
         """특정 지원서의 상세 정보를 조회합니다"""
         try:
             application_detail = get_application_detail(application_id)
-            return {
-                "status": "success",
-                "application": application_detail
-            }, 200
+            return {"status": "success", "application": application_detail}, 200
 
         except ValueError as e:
             abort(400, f"400-13: {str(e)}")
@@ -60,10 +57,7 @@ class ClubMemberRegistrationController(Resource):
         """지원자를 동아리원으로 등록합니다"""
         try:
             # 구현 예정 - Mock 응답
-            return {
-                "status": "success",
-                "message": "동아리원 등록 기능 구현 예정"
-            }, 200
+            return {"status": "success", "message": "동아리원 등록 기능 구현 예정"}, 200
 
         except ValueError as e:
             abort(400, f"400-14: {str(e)}")

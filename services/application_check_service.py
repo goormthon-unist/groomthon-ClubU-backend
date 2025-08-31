@@ -19,7 +19,7 @@ def get_club_applicants(club_id):
             db.session.query(Application)
             .options(
                 joinedload(Application.user).joinedload(User.department),
-                joinedload(Application.answers)
+                joinedload(Application.answers),
             )
             .filter(Application.club_id == club_id)
             .order_by(Application.submitted_at.desc())
@@ -34,7 +34,7 @@ def get_club_applicants(club_id):
         for application in applications:
             user = application.user
             department = user.department
-            
+
             applicant_info = {
                 "application_id": application.id,
                 "user_id": user.id,
@@ -47,11 +47,15 @@ def get_club_applicants(club_id):
                     "id": department.id,
                     "degree_course": department.degree_course,
                     "college": department.college,
-                    "major": department.major
-                } if department else None,
+                    "major": department.major,
+                }
+                if department
+                else None,
                 "status": application.status,
-                "submitted_at": application.submitted_at.isoformat() if application.submitted_at else None,
-                "answer_count": len(application.answers)
+                "submitted_at": application.submitted_at.isoformat()
+                if application.submitted_at
+                else None,
+                "answer_count": len(application.answers),
             }
             applicants.append(applicant_info)
 
@@ -70,7 +74,7 @@ def get_application_detail(application_id):
             .options(
                 joinedload(Application.user).joinedload(User.department),
                 joinedload(Application.club),
-                joinedload(Application.answers).joinedload(ApplicationAnswer.question)
+                joinedload(Application.answers).joinedload(ApplicationAnswer.question),
             )
             .filter(Application.id == application_id)
             .first()
@@ -89,7 +93,9 @@ def get_application_detail(application_id):
         application_detail = {
             "application_id": application.id,
             "status": application.status,
-            "submitted_at": application.submitted_at.isoformat() if application.submitted_at else None,
+            "submitted_at": application.submitted_at.isoformat()
+            if application.submitted_at
+            else None,
             "user": {
                 "id": user.id,
                 "name": user.name,
@@ -101,23 +107,24 @@ def get_application_detail(application_id):
                     "id": department.id,
                     "degree_course": department.degree_course,
                     "college": department.college,
-                    "major": department.major
-                } if department else None,
+                    "major": department.major,
+                }
+                if department
+                else None,
             },
-            "club": {
-                "id": club.id,
-                "name": club.name
-            },
+            "club": {"id": club.id, "name": club.name},
             "answers": [
                 {
                     "id": answer.id,
                     "question_id": answer.question_id,
-                    "question_text": answer.question.question_text if answer.question else None,
+                    "question_text": answer.question.question_text
+                    if answer.question
+                    else None,
                     "answer_order": answer.answer_order,
-                    "answer_text": answer.answer_text
+                    "answer_text": answer.answer_text,
                 }
                 for answer in answers
-            ]
+            ],
         }
 
         return application_detail
@@ -130,8 +137,6 @@ def register_club_member(club_id, user_id):
     """지원자를 동아리원으로 등록"""
     try:
         # 구현 예정 - 일단 Mock 응답
-        return {
-            "message": f"사용자 ID {user_id}를 동아리 ID {club_id}의 회원으로 등록했습니다 (Mock)"
-        }
+        return {"message": f"사용자 ID {user_id}를 동아리 ID {club_id}의 회원으로 등록했습니다 (Mock)"}
     except Exception as e:
         raise Exception(f"동아리원 등록 중 오류 발생: {str(e)}")

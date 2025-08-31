@@ -19,12 +19,12 @@ MOCK_APPLICANTS = [
             "id": 1,
             "degree_course": "학사",
             "college": "공과대학",
-            "major": "컴퓨터공학과"
+            "major": "컴퓨터공학과",
         },
         "status": "SUBMITTED",
         "submitted_at": "2024-08-30T14:30:00",
         "answer_count": 2,
-        "club_id": 1
+        "club_id": 1,
     },
     {
         "application_id": 2,
@@ -38,12 +38,12 @@ MOCK_APPLICANTS = [
             "id": 2,
             "degree_course": "학사",
             "college": "경영대학",
-            "major": "경영학과"
+            "major": "경영학과",
         },
         "status": "VIEWED",
         "submitted_at": "2024-08-29T16:45:00",
         "answer_count": 2,
-        "club_id": 1
+        "club_id": 1,
     },
     {
         "application_id": 3,
@@ -57,13 +57,13 @@ MOCK_APPLICANTS = [
             "id": 3,
             "degree_course": "석사",
             "college": "디자인대학",
-            "major": "디자인학과"
+            "major": "디자인학과",
         },
         "status": "ACCEPTED",
         "submitted_at": "2024-08-28T10:20:00",
         "answer_count": 2,
-        "club_id": 2
-    }
+        "club_id": 2,
+    },
 ]
 
 # Mock 지원서 상세 데이터
@@ -83,29 +83,26 @@ MOCK_APPLICATION_DETAILS = {
                 "id": 1,
                 "degree_course": "학사",
                 "college": "공과대학",
-                "major": "컴퓨터공학과"
-            }
+                "major": "컴퓨터공학과",
+            },
         },
-        "club": {
-            "id": 1,
-            "name": "UNIST 코딩클럽"
-        },
+        "club": {"id": 1, "name": "UNIST 코딩클럽"},
         "answers": [
             {
                 "id": 1,
                 "question_id": 1,
                 "question_text": "프로그래밍 경험이 있으신가요? 있다면 어떤 언어를 다룰 수 있나요?",
                 "answer_order": 1,
-                "answer_text": "Python과 JavaScript를 주로 사용하며, 웹 개발 프로젝트 경험이 있습니다."
+                "answer_text": "Python과 JavaScript를 주로 사용하며, 웹 개발 프로젝트 경험이 있습니다.",
             },
             {
                 "id": 2,
                 "question_id": 2,
                 "question_text": "동아리에서 하고 싶은 프로젝트나 활동이 있나요?",
                 "answer_order": 2,
-                "answer_text": "AI 기반 학습 도우미 앱을 개발해보고 싶습니다."
-            }
-        ]
+                "answer_text": "AI 기반 학습 도우미 앱을 개발해보고 싶습니다.",
+            },
+        ],
     },
     2: {
         "application_id": 2,
@@ -122,30 +119,27 @@ MOCK_APPLICATION_DETAILS = {
                 "id": 2,
                 "degree_course": "학사",
                 "college": "경영대학",
-                "major": "경영학과"
-            }
+                "major": "경영학과",
+            },
         },
-        "club": {
-            "id": 1,
-            "name": "UNIST 코딩클럽"
-        },
+        "club": {"id": 1, "name": "UNIST 코딩클럽"},
         "answers": [
             {
                 "id": 3,
                 "question_id": 1,
                 "question_text": "프로그래밍 경험이 있으신가요? 있다면 어떤 언어를 다룰 수 있나요?",
                 "answer_order": 1,
-                "answer_text": "Java를 기본적으로 다룰 수 있고, 최근에 React를 배우고 있습니다."
+                "answer_text": "Java를 기본적으로 다룰 수 있고, 최근에 React를 배우고 있습니다.",
             },
             {
                 "id": 4,
                 "question_id": 2,
                 "question_text": "동아리에서 하고 싶은 프로젝트나 활동이 있나요?",
                 "answer_order": 2,
-                "answer_text": "경영과 IT를 결합한 비즈니스 솔루션을 개발하고 싶습니다."
-            }
-        ]
-    }
+                "answer_text": "경영과 IT를 결합한 비즈니스 솔루션을 개발하고 싶습니다.",
+            },
+        ],
+    },
 }
 
 
@@ -153,8 +147,12 @@ def get_club_applicants(club_id):
     """특정 동아리의 지원자 리스트를 조회 (Mock)"""
     try:
         # 해당 동아리의 지원자만 필터링
-        applicants = [applicant for applicant in MOCK_APPLICANTS if applicant["club_id"] == club_id]
-        
+        applicants = [
+            applicant
+            for applicant in MOCK_APPLICANTS
+            if applicant["club_id"] == club_id
+        ]
+
         if not applicants:
             # 동아리 ID가 존재하는지 확인 (간단한 체크)
             if club_id not in [1, 2, 3, 4, 5]:  # Mock 동아리 ID들
@@ -182,8 +180,6 @@ def get_application_detail(application_id):
 def register_club_member(club_id, user_id):
     """지원자를 동아리원으로 등록 (Mock)"""
     try:
-        return {
-            "message": f"사용자 ID {user_id}를 동아리 ID {club_id}의 회원으로 등록했습니다 (Mock)"
-        }
+        return {"message": f"사용자 ID {user_id}를 동아리 ID {club_id}의 회원으로 등록했습니다 (Mock)"}
     except Exception as e:
         raise Exception(f"동아리원 등록 중 오류 발생: {str(e)}")

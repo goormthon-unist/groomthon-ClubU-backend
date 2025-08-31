@@ -14,11 +14,17 @@ class Club(db.Model):
     activity_summary = db.Column(db.String(255), nullable=True)
     president_name = db.Column(db.String(100), nullable=False)
     contact = db.Column(db.String(255), nullable=False)
-    recruitment_status = db.Column(db.Enum('OPEN', 'CLOSED'), nullable=False, default="CLOSED")
+    recruitment_status = db.Column(
+        db.Enum("OPEN", "CLOSED"), nullable=False, default="CLOSED"
+    )
     current_generation = db.Column(db.Integer, nullable=True)
     introduction = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.TIMESTAMP, nullable=False)
-    updated_at = db.Column(db.TIMESTAMP, nullable=False, server_default=db.text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
+    updated_at = db.Column(
+        db.TIMESTAMP,
+        nullable=False,
+        server_default=db.text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"),
+    )
 
     # 관계 설정
     category = db.relationship("ClubCategory", back_populates="clubs")

@@ -6,13 +6,13 @@ class Application(db.Model):
     __tablename__ = "applications"
 
     id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    user_id = db.Column(
-        db.BigInteger, db.ForeignKey("users.id"), nullable=False
+    user_id = db.Column(db.BigInteger, db.ForeignKey("users.id"), nullable=False)
+    club_id = db.Column(db.BigInteger, db.ForeignKey("clubs.id"), nullable=False)
+    status = db.Column(
+        db.Enum("SUBMITTED", "VIEWED", "ACCEPTED", "REJECTED"),
+        nullable=False,
+        default="SUBMITTED",
     )
-    club_id = db.Column(
-        db.BigInteger, db.ForeignKey("clubs.id"), nullable=False
-    )
-    status = db.Column(db.Enum('SUBMITTED', 'VIEWED', 'ACCEPTED', 'REJECTED'), nullable=False, default="SUBMITTED")
     submitted_at = db.Column(db.TIMESTAMP, nullable=False)
 
     # 동일 유저가 동일 동아리에 중복 지원 방지

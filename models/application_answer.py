@@ -3,17 +3,17 @@ from . import db
 
 class ApplicationAnswer(db.Model):
     __tablename__ = "application_answers"
-    
+
     id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
     application_id = db.Column(
         db.BigInteger,
         db.ForeignKey("applications.id", ondelete="CASCADE"),
-        nullable=False
+        nullable=False,
     )
     question_id = db.Column(
         db.BigInteger,
         db.ForeignKey("club_application_questions.id", ondelete="CASCADE"),
-        nullable=False
+        nullable=False,
     )
     answer_order = db.Column(db.Integer, nullable=False)
     answer_text = db.Column(db.Text, nullable=False)
