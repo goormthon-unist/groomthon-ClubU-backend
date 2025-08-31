@@ -6,21 +6,19 @@ from . import db
 class Club(db.Model):
     __tablename__ = "clubs"
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.BigInteger, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     category_id = db.Column(
         db.Integer, db.ForeignKey("club_categories.id"), nullable=False
     )
-    activity_summary = db.Column(db.String(255))
+    activity_summary = db.Column(db.String(255), nullable=True)
     president_name = db.Column(db.String(100), nullable=False)
     contact = db.Column(db.String(255), nullable=False)
-    recruitment_status = db.Column(db.String(20), nullable=False, default="closed")
-    current_generation = db.Column(db.Integer)
-    introduction = db.Column(db.Text)
-    created_at = db.Column(db.TIMESTAMP, default=datetime.utcnow)
-    updated_at = db.Column(
-        db.TIMESTAMP, default=datetime.utcnow, onupdate=datetime.utcnow
-    )
+    recruitment_status = db.Column(db.Enum('OPEN', 'CLOSED'), nullable=False, default="CLOSED")
+    current_generation = db.Column(db.Integer, nullable=True)
+    introduction = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.TIMESTAMP, nullable=False)
+    updated_at = db.Column(db.TIMESTAMP, nullable=False, server_default=db.text('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'))
 
     # 관계 설정
     category = db.relationship("ClubCategory", back_populates="clubs")
