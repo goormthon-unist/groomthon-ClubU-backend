@@ -177,9 +177,23 @@ def get_application_detail(application_id):
         raise Exception(f"지원서 상세 조회 중 오류 발생: {str(e)}")
 
 
-def register_club_member(club_id, user_id):
+def register_club_member(
+    application_id, role_id=None, generation=None, other_info=None
+):
     """지원자를 동아리원으로 등록 (Mock)"""
     try:
-        return {"message": f"사용자 ID {user_id}를 동아리 ID {club_id}의 회원으로 등록했습니다 (Mock)"}
+        # Mock 응답
+        return {
+            "message": "동아리원 등록이 완료되었습니다 (Mock)",
+            "member": {
+                "id": 999,
+                "user_name": "김지원",
+                "student_id": "20210001",
+                "club_name": "UNIST 코딩클럽",
+                "role_name": "일반회원",
+                "generation": generation or 5,
+                "joined_at": "2024-09-01T00:10:00",
+            },
+        }
     except Exception as e:
         raise Exception(f"동아리원 등록 중 오류 발생: {str(e)}")

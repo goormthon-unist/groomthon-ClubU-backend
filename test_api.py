@@ -75,6 +75,30 @@ def test_add_question(club_id=1):
     return response
 
 
+def test_application_detail(application_id=1):
+    """지원서 상세 조회 테스트"""
+    response = requests.get(f"{BASE_URL}/applications/{application_id}")
+    print_test_result(f"지원서 상세 조회 (GET /applications/{application_id})", response)
+    return response
+
+
+def test_club_applicants(club_id=1):
+    """동아리 지원자 목록 조회 테스트"""
+    response = requests.get(f"{BASE_URL}/applications?club_id={club_id}")
+    print_test_result(f"동아리 지원자 목록 조회 (GET /applications?club_id={club_id})", response)
+    return response
+
+
+def test_register_club_member():
+    """동아리원 등록 테스트"""
+    data = {"application_id": 1, "role_id": 3, "generation": 5, "other_info": "테스트 등록"}
+    response = requests.post(
+        f"{BASE_URL}/members", json=data, headers={"Content-Type": "application/json"}
+    )
+    print_test_result("동아리원 등록 (POST /members)", response)
+    return response
+
+
 def test_swagger_docs():
     """Swagger 문서 접근 테스트"""
     response = requests.get("http://localhost:5000/docs/")
@@ -102,6 +126,14 @@ def main():
             "POST API 테스트",
             [
                 test_add_question,
+            ],
+        ),
+        (
+            "지원서 관리 API 테스트",
+            [
+                test_club_applicants,
+                test_application_detail,
+                test_register_club_member,
             ],
         ),
         (
