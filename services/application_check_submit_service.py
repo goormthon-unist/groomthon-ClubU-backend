@@ -65,9 +65,7 @@ def submit_application(club_id: int, user_id: int, answers_data: list[dict]):
         if not user:
             raise ValueError("존재하지 않는 사용자입니다")
 
-        existing = Application.query.filter_by(
-            user_id=user_id, club_id=club_id
-        ).first()
+        existing = Application.query.filter_by(user_id=user_id, club_id=club_id).first()
         if existing:
             raise ValueError("이미 해당 동아리에 지원하셨습니다")
 

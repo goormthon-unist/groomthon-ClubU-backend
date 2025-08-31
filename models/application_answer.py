@@ -19,9 +19,7 @@ class ApplicationAnswer(db.Model):
     answer_text = db.Column(db.Text, nullable=False)
 
     application = db.relationship("Application", back_populates="answers")
-    question = db.relationship(
-        "ClubApplicationQuestion"
-    )  # 필요시 back_populates 추가
+    question = db.relationship("ClubApplicationQuestion")  # 필요시 back_populates 추가
 
     def __repr__(self):
         return f"<ApplicationAnswer {self.id}:{self.application_id}>"

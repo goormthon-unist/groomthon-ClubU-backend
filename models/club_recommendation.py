@@ -13,6 +13,4 @@ class ClubRecommendation(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def __repr__(self):
-        return (
-            f"<ClubRecommendation {self.user_id}:{self.club_id}:{self.score}>"
-        )
+        return f"<ClubRecommendation {self.user_id}:{self.club_id}:{self.score}>"

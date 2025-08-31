@@ -15,9 +15,7 @@ class Club(db.Model):
     president_name = db.Column(db.String(100), nullable=False)
     contact = db.Column(db.String(255), nullable=False)
     recruitment_status = db.Column(
-        db.Enum(
-            "OPEN", "CLOSED", name="recruitment_status_enum"
-        ),
+        db.Enum("OPEN", "CLOSED", name="recruitment_status_enum"),
         nullable=False,
         default="CLOSED",
     )
@@ -31,9 +29,7 @@ class Club(db.Model):
     # 관계 설정
     category = db.relationship("ClubCategory", back_populates="clubs")
     members = db.relationship("ClubMember", back_populates="club")
-    questions = db.relationship(
-        "ClubApplicationQuestion", back_populates="club"
-    )
+    questions = db.relationship("ClubApplicationQuestion", back_populates="club")
     applications = db.relationship("Application", back_populates="club")
 
     def __repr__(self):

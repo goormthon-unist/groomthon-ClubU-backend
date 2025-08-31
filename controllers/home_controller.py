@@ -66,9 +66,7 @@ class ClubUpdateController(Resource):
         except ValueError as e:
             abort(400, f"400-04: {str(e)}")
         except Exception as e:
-            abort(
-                500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}"
-            )
+            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
 
 
 class ClubStatusController(Resource):
@@ -78,9 +76,7 @@ class ClubStatusController(Resource):
         """동아리 모집 상태를 변경합니다"""
         try:
             parser = reqparse.RequestParser()
-            parser.add_argument(
-                "status", type=str, required=True, location="json"
-            )
+            parser.add_argument("status", type=str, required=True, location="json")
             args = parser.parse_args()
             status = args["status"]
 
@@ -90,9 +86,7 @@ class ClubStatusController(Resource):
         except ValueError as e:
             abort(400, f"400-05: {str(e)}")
         except Exception as e:
-            abort(
-                500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}"
-            )
+            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
 
 
 class ClubQuestionsController(Resource):
