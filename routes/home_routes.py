@@ -5,6 +5,7 @@ from controllers.home_controller import (
     ClubStatusController,
     ClubQuestionsController,
     ClubMembersController,
+    QuestionController,
 )
 
 # 네임스페이스 등록
@@ -47,8 +48,9 @@ class ClubMembersResource(ClubMembersController):
     pass
 
 
-# 문항 수정/삭제는 별도 네임스페이스로 처리
-# @home_ns.route("/application/questions/<int:question_id>")
-# class QuestionResource(QuestionController):
-#     """지원서 문항 수정/삭제 리소스"""
-#     pass
+# 문항 수정/삭제 엔드포인트
+@home_ns.route("/application/questions/<int:question_id>")
+class QuestionResource(QuestionController):
+    """지원서 문항 수정/삭제 리소스"""
+
+    pass
