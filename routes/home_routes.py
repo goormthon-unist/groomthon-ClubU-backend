@@ -1,7 +1,6 @@
 from flask_restx import Namespace
 from controllers.home_controller import (
     ClubListController,
-    ClubDetailController,
     ClubUpdateController,
     ClubStatusController,
     ClubQuestionsController,
@@ -21,7 +20,7 @@ class ClubListResource(ClubListController):
 
 
 @home_ns.route("/<int:club_id>")
-class ClubDetailResource(ClubDetailController):
+class ClubDetailResource(ClubListController):
     """동아리 상세 조회 리소스"""
 
     pass
