@@ -1,53 +1,54 @@
 import os
-
 from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_restx import Api
 
-# 데이터베이스 객체 import
-from models import db
+from models import (
+    db,
+)  # db = SQLAlchemy() 가 models 또는 extensions에 정의돼 있어야 합니다.
 
-# 환경변수 로드
 load_dotenv()
 
 
 def create_app():
-    app = Flask(__name__)
+    # instance_relative_config=True → SQLite 파일을 instance 폴더에 저장하기 편함
+    app = Flask(__name__, instance_relative_config=True)
 
     # 설정 로드
-    from config import config
+    from config import config as cfg
 
-    app.config.from_object(config[os.getenv("FLASK_ENV", "development")])
+    env_name = os.getenv("FLASK_ENV", "development")
+    app.config.from_object(cfg.get(env_name, cfg["default"]))
 
-    # CORS 설정
+    # CORS
     CORS(app)
 
-    # 데이터베이스 초기화
+    # DB & Migrate 초기화
     db.init_app(app)
-
-    # 마이그레이션 초기화
     Migrate(app, db)
 
-    # Flask-RESTX API 초기화
+    # RESTX API
     api = Api(
         app,
         version="1.0",
         title="ClubU API",
         description="UNIST 동아리 관리 시스템 API",
-        doc="/docs/",  # Swagger UI 경로
+        doc="/docs/",
     )
 
     # 네임스페이스 등록
     from routes.home_routes import home_ns
     from routes.question_routes import question_ns
     from routes.application_check_submit_routes import application_ns
+    from routes.application_check_routes import application_check_ns
     from routes import init_app as init_routes
 
     api.add_namespace(home_ns, path="/api/v1/clubs")
     api.add_namespace(question_ns, path="/api/v1")
     api.add_namespace(application_ns, path="/api/v1")
+    api.add_namespace(application_check_ns, path="/api/v1")
     init_routes(app)
 
     return app

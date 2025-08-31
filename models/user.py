@@ -6,19 +6,27 @@ from . import db
 class User(db.Model):
     __tablename__ = "users"
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.BigInteger, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(255), unique=True, nullable=False)
-    student_id = db.Column(db.String(20), unique=True, nullable=False)
+    email = db.Column(db.String(255), nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    student_id = db.Column(db.String(20), nullable=False)
     department_id = db.Column(
         db.Integer, db.ForeignKey("departments.id"), nullable=False
     )
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    phone_number = db.Column(db.String(20), nullable=False)
+    gender = db.Column(db.Enum("MALE", "FEMALE", "OTHER"), nullable=True)
+    email_verification_code = db.Column(db.String(10), nullable=True)
+    email_verified_at = db.Column(db.TIMESTAMP, nullable=True)
+    created_at = db.Column(db.TIMESTAMP, nullable=False)
     updated_at = db.Column(
-        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+        db.TIMESTAMP,
+        nullable=False,
+        server_default=db.text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"),
     )
 
     # 관계 설정
+    department = db.relationship("Department")
     club_members = db.relationship("ClubMember", back_populates="user")
     applications = db.relationship("Application", back_populates="user")
 
