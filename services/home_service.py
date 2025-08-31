@@ -61,12 +61,8 @@ def get_club_by_id(club_id):
             "recruitment_status": club.recruitment_status,
             "president_name": club.president_name,
             "contact": club.contact,
-            "created_at": (
-                club.created_at.isoformat() if club.created_at else None
-            ),
-            "updated_at": (
-                club.updated_at.isoformat() if club.updated_at else None
-            ),
+            "created_at": (club.created_at.isoformat() if club.created_at else None),
+            "updated_at": (club.updated_at.isoformat() if club.updated_at else None),
         }
 
     except Exception as e:

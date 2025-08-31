@@ -100,9 +100,7 @@ class ClubQuestionsController(Resource):
                 "question_text", type=str, required=True, location="json"
             )
             args = parser.parse_args()
-            question_data = {
-                "question_text": args["question_text"],
-            }
+            question_data = {"question_text": args["question_text"]}
 
             new_question = add_club_question(club_id, question_data)
             return {"status": "success", "question": new_question}, 201
