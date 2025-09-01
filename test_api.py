@@ -38,7 +38,7 @@ def test_club_list():
     return response
 
 
-def test_club_detail(club_id=1):
+def test_club_detail(club_id=1001):
     """동아리 상세 조회 테스트"""
     response = requests.get(f"{BASE_URL}/clubs/{club_id}")
     print_test_result(f"동아리 상세 조회 (GET /clubs/{club_id})", response)
@@ -52,7 +52,7 @@ def test_open_clubs():
     return response
 
 
-def test_club_questions(club_id=1):
+def test_club_questions(club_id=1001):
     """동아리 지원서 문항 조회 테스트"""
     response = requests.get(f"{BASE_URL}/clubs/{club_id}/application/questions")
     print_test_result(
@@ -62,8 +62,8 @@ def test_club_questions(club_id=1):
     return response
 
 
-def test_add_question(club_id=1):
-    """지원서 문항 추가 테스트"""
+def test_add_question(club_id=9001):
+    """지원서 문항 추가 테스트 (TEST 동아리 사용)"""
     data = {"question_text": "동아리 활동에 대한 기대사항을 알려주세요."}
     response = requests.post(
         f"{BASE_URL}/clubs/{club_id}/application/questions",

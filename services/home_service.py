@@ -222,6 +222,47 @@ def delete_question(question_id):
         raise Exception(f"문항 삭제 중 오류 발생: {str(e)}")
 
 
+def get_open_clubs():
+    """모집 중인 동아리 정보를 카테고리와 함께 조회"""
+    try:
+        # 모집 중인 동아리와 카테고리 정보를 함께 조회
+        clubs = (
+            db.session.query(Club, ClubCategory)
+            .join(ClubCategory, Club.category_id == ClubCategory.id)
+            .filter(Club.recruitment_status == "OPEN")
+            .all()
+        )
+
+        if not clubs:
+            return []  # 빈 리스트 반환 (에러가 아님)
+
+        # JSON 변환 - 요청된 형식에 맞춰 모든 필드 포함
+        return [
+            {
+                "id": club.id,
+                "name": club.name,
+                "category": {"id": category.id, "name": category.name},
+                "activity_summary": club.activity_summary,
+                "introduction": club.introduction,
+                "recruitment_status": club.recruitment_status,
+                "current_generation": club.current_generation,
+                "president_name": club.president_name,
+                "contact": club.contact,
+                "created_at": (
+                    club.created_at.strftime('%Y-%m-%dT%H:%M:%SZ') if club.created_at else None
+                ),
+                "updated_at": (
+                    club.updated_at.strftime('%Y-%m-%dT%H:%M:%SZ') if club.updated_at else None
+                ),
+            }
+            for club, category in clubs
+        ]
+
+    except Exception as e:
+        # 데이터베이스 오류를 상위로 전달
+        raise Exception(f"모집 중인 동아리 목록 조회 중 오류 발생: {str(e)}")
+
+
 def get_club_members(club_id):
     """동아리원 목록 조회"""
     try:
