@@ -18,7 +18,7 @@ from .session import UserSession
 __all__ = [
     "db",
     "User",
-    "Club", 
+    "Club",
     "ClubCategory",
     "ClubMember",
     "ClubRecommendation",

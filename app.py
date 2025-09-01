@@ -1,43 +1,42 @@
 import os
+
 from dotenv import load_dotenv
 from flask import Flask
 from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_restx import Api
 
-from models import (
-    db,
-)  # db = SQLAlchemy() 가 models 또는 extensions에 정의돼 있어야 합니다.
+from models import db
 
 load_dotenv()
 
 
 def create_app():
-    # instance_relative_config=True → SQLite 파일을 instance 폴더에 저장하기 편함
-    app = Flask(__name__, instance_relative_config=True)
+    app = Flask(__name__)
 
     # 설정 로드
-    from config import config as cfg
-
+    from config import config
 
     app.config.from_object(config[os.getenv("FLASK_ENV", "development")])
-    
+
     # Flask 세션 설정 추가
-    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-here')
-    app.config['SESSION_COOKIE_SECURE'] = False  # 개발환경에서는 False
-    app.config['SESSION_COOKIE_HTTPONLY'] = True
-    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
-    app.config['SESSION_COOKIE_DOMAIN'] = None  # 모든 도메인에서 접근 가능
-    app.config['SESSION_COOKIE_PATH'] = '/'
+    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "your-secret-key-here")
+    app.config["SESSION_COOKIE_SECURE"] = False  # 개발환경에서는 False
+    app.config["SESSION_COOKIE_HTTPONLY"] = True
+    app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+    app.config["SESSION_COOKIE_DOMAIN"] = None  # 모든 도메인에서 접근 가능
+    app.config["SESSION_COOKIE_PATH"] = "/"
 
     # CORS 설정 (쿠키 지원)
-    CORS(app, 
-         resources={r"/api/*": {"origins": "*"}},
-         supports_credentials=True,
-         allow_headers=["Content-Type", "Authorization"],
-         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
-    env_name = os.getenv("FLASK_ENV", "development")
-    app.config.from_object(cfg.get(env_name, cfg["default"]))
+
+    CORS(
+        app,
+        resources={r"/api/*": {"origins": "*"}},
+        supports_credentials=True,
+        allow_headers=["Content-Type", "Authorization"],
+        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    )
+
 
 
 

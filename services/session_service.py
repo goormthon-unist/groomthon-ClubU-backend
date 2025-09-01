@@ -9,32 +9,32 @@ def create_session(user_id, expires_hours=24):
     try:
         # 기존 활성 세션 비활성화
         deactivate_user_sessions(user_id)
-        
+
         # 새 세션 생성
         session_id = str(uuid.uuid4())
         expires_at = datetime.utcnow() + timedelta(hours=expires_hours)
-        
+
         new_session = UserSession(
             session_id=session_id,
             user_id=user_id,
             expires_at=expires_at,
-            is_active=True
+            is_active=True,
         )
-        
+
         db.session.add(new_session)
         db.session.commit()
-        
+
         # Flask 세션에는 session_id만 저장 (쿠키에 자동 저장됨)
-        session['session_id'] = session_id
-        
+        session["session_id"] = session_id
+
         result = {
             "session_id": session_id,
             "user_id": user_id,
-            "expires_at": expires_at.isoformat()
+            "expires_at": expires_at.isoformat(),
         }
-        
+
         return result
-        
+
     except Exception as e:
         db.session.rollback()
         raise Exception(f"세션 생성 중 오류 발생: {str(e)}")
@@ -43,34 +43,33 @@ def create_session(user_id, expires_hours=24):
 def get_current_session():
     """현재 Flask 세션에서 세션 정보 조회 (쿠키에서 session_id만 읽기)"""
     try:
-        session_id = session.get('session_id')
-        
+        session_id = session.get("session_id")
+
         if not session_id:
             return None
-            
+
         # DB에서 세션 유효성 확인
         db_session = UserSession.query.filter_by(
-            session_id=session_id,
-            is_active=True
+            session_id=session_id, is_active=True
         ).first()
-        
+
         if not db_session:
             clear_flask_session()
             return None
-        
+
         if datetime.utcnow() > db_session.expires_at:
             deactivate_session(session_id)
             clear_flask_session()
             return None
-        
+
         result = {
             "session_id": db_session.session_id,
             "user_id": db_session.user_id,
-            "expires_at": db_session.expires_at.isoformat()
+            "expires_at": db_session.expires_at.isoformat(),
         }
-        
+
         return result
-        
+
     except Exception as e:
         raise Exception(f"현재 세션 조회 중 오류 발생: {str(e)}")
 
@@ -81,12 +80,13 @@ def get_current_user():
         session_data = get_current_session()
         if not session_data:
             return None
-            
+
         from models import User
-        user = User.query.get(session_data['user_id'])
-        
+
+        user = User.query.get(session_data["user_id"])
+
         return user
-        
+
     except Exception as e:
         raise Exception(f"현재 사용자 조회 중 오류 발생: {str(e)}")
 
@@ -100,26 +100,25 @@ def validate_session(session_id):
     """세션 유효성 검증 (기존 방식 유지)"""
     try:
         session_obj = UserSession.query.filter_by(
-            session_id=session_id,
-            is_active=True
+            session_id=session_id, is_active=True
         ).first()
-        
+
         if not session_obj:
             return None
-        
+
         # 만료 시간 확인
         if datetime.utcnow() > session_obj.expires_at:
             deactivate_session(session_id)
             return None
-        
+
         result = {
             "session_id": session_obj.session_id,
             "user_id": session_obj.user_id,
-            "expires_at": session_obj.expires_at.isoformat()
+            "expires_at": session_obj.expires_at.isoformat(),
         }
-        
+
         return result
-        
+
     except Exception as e:
         raise Exception(f"세션 검증 중 오류 발생: {str(e)}")
 
@@ -131,7 +130,7 @@ def deactivate_session(session_id):
         if session_obj:
             session_obj.is_active = False
             db.session.commit()
-            
+
     except Exception as e:
         db.session.rollback()
         raise Exception(f"세션 비활성화 중 오류 발생: {str(e)}")
@@ -140,12 +139,11 @@ def deactivate_session(session_id):
 def deactivate_user_sessions(user_id):
     """사용자의 모든 세션 비활성화"""
     try:
-        UserSession.query.filter_by(
-            user_id=user_id,
-            is_active=True
-        ).update({"is_active": False})
+        UserSession.query.filter_by(user_id=user_id, is_active=True).update(
+            {"is_active": False}
+        )
         db.session.commit()
-        
+
     except Exception as e:
         db.session.rollback()
         raise Exception(f"사용자 세션 비활성화 중 오류 발생: {str(e)}")
@@ -155,17 +153,16 @@ def cleanup_expired_sessions():
     """만료된 세션 정리"""
     try:
         expired_sessions = UserSession.query.filter(
-            UserSession.expires_at < datetime.utcnow(),
-            UserSession.is_active == True
+            UserSession.expires_at < datetime.utcnow(), UserSession.is_active == True
         ).all()
-        
+
         for session_obj in expired_sessions:
             session_obj.is_active = False
-        
+
         db.session.commit()
-        
+
         return len(expired_sessions)
-        
+
     except Exception as e:
         db.session.rollback()
         raise Exception(f"만료된 세션 정리 중 오류 발생: {str(e)}")
@@ -175,35 +172,36 @@ def debug_session_info():
     """현재 세션 상태 디버깅 정보 출력"""
     try:
         # Flask 세션 정보
-        flask_session_id = session.get('session_id')
-        
+        flask_session_id = session.get("session_id")
+
         # DB 세션 통계
         total_sessions = UserSession.query.count()
         active_sessions = UserSession.query.filter_by(is_active=True).count()
         expired_sessions = UserSession.query.filter(
-            UserSession.expires_at < datetime.utcnow(),
-            UserSession.is_active == True
+            UserSession.expires_at < datetime.utcnow(), UserSession.is_active == True
         ).count()
-        
+
         # 현재 사용자 정보
         current_user = get_current_user()
-        
+
         debug_info = {
             "flask_session_id": flask_session_id,
             "db_sessions": {
                 "total": total_sessions,
                 "active": active_sessions,
-                "expired": expired_sessions
+                "expired": expired_sessions,
             },
             "current_user": {
                 "id": current_user.id if current_user else None,
                 "name": current_user.name if current_user else None,
-                "email": current_user.email if current_user else None
-            } if current_user else None
+                "email": current_user.email if current_user else None,
+            }
+            if current_user
+            else None,
         }
-        
+
         return debug_info
-        
+
     except Exception as e:
         raise Exception(f"디버깅 정보 출력 중 오류 발생: {str(e)}")
 
@@ -215,16 +213,17 @@ def get_session_info():
         session_data = get_current_session()
         if not session_data:
             return None
-        
+
         # 2. 사용자 정보 조회
         user = get_current_user()
         if not user:
             return None
-        
+
         # 3. 사용자의 동아리 멤버십 정보 조회
         from models.club_member import ClubMember
+
         memberships = ClubMember.query.filter_by(user_id=user.id).all()
-        
+
         clubs_info = []
         for membership in memberships:
             club_info = {
@@ -232,28 +231,30 @@ def get_session_info():
                 "club_name": membership.club.name,
                 "role_id": membership.role.id,
                 "role_name": membership.role.role_name,
-                "joined_at": membership.joined_at.isoformat() if membership.joined_at else None
+                "joined_at": membership.joined_at.isoformat()
+                if membership.joined_at
+                else None,
             }
             clubs_info.append(club_info)
-        
+
         # 4. 통합 정보 구성
         session_info = {
             "session": {
                 "session_id": session_data["session_id"],
                 "user_id": session_data["user_id"],
-                "expires_at": session_data["expires_at"]
+                "expires_at": session_data["expires_at"],
             },
             "user": {
                 "user_id": user.id,
                 "name": user.name,
                 "email": user.email,
-                "created_at": user.created_at.isoformat() if user.created_at else None
+                "created_at": user.created_at.isoformat() if user.created_at else None,
             },
             "clubs": clubs_info,
-            "total_clubs": len(clubs_info)
+            "total_clubs": len(clubs_info),
         }
-        
+
         return session_info
-        
+
     except Exception as e:
         raise Exception(f"세션 통합 정보 조회 중 오류 발생: {str(e)}")

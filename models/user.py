@@ -11,13 +11,17 @@ class User(db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     student_id = db.Column(db.String(20), unique=True, nullable=False)
-    department_id = db.Column(db.Integer, db.ForeignKey('departments.id'), nullable=False)
+    department_id = db.Column(
+        db.Integer, db.ForeignKey("departments.id"), nullable=False
+    )
     phone_number = db.Column(db.String(20), nullable=False)
-    gender = db.Column(db.Enum('MALE', 'FEMALE', 'OTHER'), nullable=True)
+    gender = db.Column(db.Enum("MALE", "FEMALE", "OTHER"), nullable=True)
     email_verification_code = db.Column(db.String(10), nullable=True)
     email_verified_at = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at = db.Column(
+        db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
     # 관계 설정
     department = db.relationship("Department", backref="users")

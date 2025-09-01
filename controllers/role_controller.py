@@ -9,7 +9,7 @@ from services.role_service import (
     get_users_by_role_in_club,
     get_all_club_members,
     check_current_user_permission,
-    get_current_user_clubs
+    get_current_user_clubs,
 )
 
 
@@ -75,7 +75,7 @@ class ClubMemberRoleController(Resource):
                 return {
                     "status": "success",
                     "message": "해당 동아리의 멤버가 아닙니다",
-                    "data": None
+                    "data": None,
                 }, 200
 
             return {"status": "success", "data": role_data}, 200
@@ -93,7 +93,7 @@ class ClubMemberRoleController(Resource):
             return {
                 "status": "success",
                 "message": "역할이 성공적으로 부여되었습니다",
-                "data": result
+                "data": result,
             }, 200
 
         except ValueError as e:
@@ -108,7 +108,7 @@ class ClubMemberRoleController(Resource):
             return {
                 "status": "success",
                 "message": "역할이 성공적으로 제거되었습니다",
-                "data": result
+                "data": result,
             }, 200
 
         except ValueError as e:
@@ -164,14 +164,10 @@ class CurrentUserPermissionController(Resource):
             args = parser.parse_args()
 
             permission_data = check_current_user_permission(
-                club_id, 
-                args.get("required_role")
+                club_id, args.get("required_role")
             )
 
-            return {
-                "status": "success",
-                "data": permission_data
-            }, 200
+            return {"status": "success", "data": permission_data}, 200
 
         except Exception as e:
             abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
