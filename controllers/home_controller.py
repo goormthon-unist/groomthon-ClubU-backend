@@ -99,16 +99,8 @@ class ClubQuestionsController(Resource):
             parser.add_argument(
                 "question_text", type=str, required=True, location="json"
             )
-            parser.add_argument(
-                "question_type", type=str, default="text", location="json"
-            )
-            parser.add_argument("is_required", type=bool, default=True, location="json")
             args = parser.parse_args()
-            question_data = {
-                "question_text": args["question_text"],
-                "question_type": args["question_type"],
-                "is_required": args["is_required"],
-            }
+            question_data = {"question_text": args["question_text"]}
 
             new_question = add_club_question(club_id, question_data)
             return {"status": "success", "question": new_question}, 201
@@ -127,8 +119,6 @@ class QuestionController(Resource):
         try:
             parser = reqparse.RequestParser()
             parser.add_argument("question_text", type=str, location="json")
-            parser.add_argument("question_type", type=str, location="json")
-            parser.add_argument("is_required", type=bool, location="json")
             args = parser.parse_args()
             update_data = {k: v for k, v in args.items() if v is not None}
 
@@ -162,7 +152,11 @@ class ClubMembersController(Resource):
         """동아리원 목록을 조회합니다"""
         try:
             members = get_club_members(club_id)
-            return {"status": "success", "count": len(members), "members": members}, 200
+            return {
+                "status": "success",
+                "count": len(members),
+                "members": members,
+            }, 200
 
         except ValueError as e:
             abort(400, f"400-11: {str(e)}")

@@ -1,18 +1,16 @@
 import os
-
 from dotenv import load_dotenv
 
+# .env 로드
 load_dotenv()
 
 
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "dev")
-
-    # MySQL RDS 설정
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # 추가 설정
+    # MySQL 데이터베이스 설정
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
     SQLALCHEMY_ENGINE_OPTIONS = {
         "pool_size": 10,
         "pool_recycle": 3600,

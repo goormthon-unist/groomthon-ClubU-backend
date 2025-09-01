@@ -11,28 +11,37 @@ jobs:
   basic-check:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
-    
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-    
-    - name: Check code formatting with black
-      run: |
-        black --check .
-    
-    - name: Simple Flask validation
-      run: |
-        python -c "print('✅ Flask validation passed')"
-    
-    - name: Syntax check
-      run: |
-        python -m py_compile app.py
-        python -m py_compile config.py
-        echo "✅ Syntax check passed"
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # ✅ 추가: Black 버전 고정 설치
+      - name: Install Black (pin version)
+        run: |
+          pip install black==24.4.2
+
+      # ✅ 추가: 실행되는 Black 버전 확인(로그에 찍히게)
+      - name: Show Black version
+        run: black --version
+
+      - name: Check code formatting with black
+        run: |
+          black --check .
+
+      - name: Simple Flask validation
+        run: |
+          python -c "print('✅ Flask validation passed')"
+
+      - name: Syntax check
+        run: |
+          python -m py_compile app.py
+          python -m py_compile config.py
+          echo "✅ Syntax check passed"

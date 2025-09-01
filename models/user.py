@@ -21,6 +21,7 @@ class User(db.Model):
 
     # 관계 설정
     department = db.relationship("Department", backref="users")
+
     club_members = db.relationship("ClubMember", back_populates="user")
     applications = db.relationship("Application", back_populates="user")
 
