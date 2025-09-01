@@ -127,9 +127,7 @@ def test_permission_flow():
 
     # 로그아웃 후 권한 확인
     after_logout_response = requests.get(MY_CLUBS_URL, cookies=cookies)
-    print(
-        f"🔍 [TEST] 로그아웃 후 동아리 목록 응답: {after_logout_response.status_code}"
-    )
+    print(f"🔍 [TEST] 로그아웃 후 동아리 목록 응답: {after_logout_response.status_code}")
 
     if after_logout_response.status_code == 200:
         after_logout_data = after_logout_response.json()
