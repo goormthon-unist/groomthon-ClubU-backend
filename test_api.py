@@ -79,14 +79,18 @@ def test_add_question(club_id=9001):
 def test_application_detail(application_id=1):
     """지원서 상세 조회 테스트"""
     response = requests.get(f"{BASE_URL}/applications/{application_id}")
-    print_test_result(f"지원서 상세 조회 (GET /applications/{application_id})", response)
+    print_test_result(
+        f"지원서 상세 조회 (GET /applications/{application_id})", response
+    )
     return response
 
 
 def test_club_applicants(club_id=1):
     """동아리 지원자 목록 조회 테스트"""
     response = requests.get(f"{BASE_URL}/applications?club_id={club_id}")
-    print_test_result(f"동아리 지원자 목록 조회 (GET /applications?club_id={club_id})", response)
+    print_test_result(
+        f"동아리 지원자 목록 조회 (GET /applications?club_id={club_id})", response
+    )
     return response
 
 
