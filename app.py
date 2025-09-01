@@ -49,14 +49,14 @@ def create_app():
         resources={r"/api/*": {"origins": allowed_origins}},
         supports_credentials=True,
         allow_headers=[
-            "Content-Type", 
+            "Content-Type",
             "Authorization",
             "X-Requested-With",
             "Accept",
-            "Origin"
+            "Origin",
         ],
         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-        expose_headers=["Set-Cookie"]
+        expose_headers=["Set-Cookie"],
     )
 
     # DB & Migrate 초기화
