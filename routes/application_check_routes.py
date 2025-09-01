@@ -10,9 +10,7 @@ from controllers.application_check_controller import (
 )
 
 # 네임스페이스 등록
-application_check_ns = Namespace(
-    "application-check", description="지원서 확인 관리 API"
-)
+application_check_ns = Namespace("application-check", description="지원서 확인 관리 API")
 
 
 @application_check_ns.route("/applications")

@@ -28,7 +28,6 @@ def create_app():
     app.config["SESSION_COOKIE_PATH"] = "/"
 
     # CORS 설정 (쿠키 지원)
-
     CORS(
         app,
         resources={r"/api/*": {"origins": "*"}},
@@ -36,9 +35,6 @@ def create_app():
         allow_headers=["Content-Type", "Authorization"],
         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     )
-
-
-
 
     # DB & Migrate 초기화
     db.init_app(app)
