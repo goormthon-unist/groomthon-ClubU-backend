@@ -17,7 +17,7 @@ class ClubMember(db.Model):
     # 관계 설정
     user = db.relationship("User", back_populates="club_members")
     club = db.relationship("Club", back_populates="members")
-    role = db.relationship("Role")
+    role = db.relationship("Role", backref="club_members")  # Role과의 관계 추가
 
     def __repr__(self):
         return f"<ClubMember {self.user_id}:{self.club_id}>"
