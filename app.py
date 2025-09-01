@@ -22,10 +22,14 @@ def create_app():
     # Flask 세션 설정 추가
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "your-secret-key-here")
 
-    # HTTPS 강제 설정 (api.clubu.co.kr 도메인 사용)
-    app.config["SESSION_COOKIE_SECURE"] = True  # HTTPS에서만 쿠키 설정
+    # 쿠키 설정 (개발/프로덕션 환경 고려)
+    is_production = os.getenv("FLASK_ENV") == "production"
+
+    app.config["SESSION_COOKIE_SECURE"] = is_production  # 프로덕션에서만 HTTPS 강제
     app.config["SESSION_COOKIE_HTTPONLY"] = True
-    app.config["SESSION_COOKIE_SAMESITE"] = "None"  # HTTPS에서 크로스 사이트 요청 허용
+    app.config["SESSION_COOKIE_SAMESITE"] = (
+        "None" if is_production else "Lax"
+    )  # 개발환경에서는 Lax
     app.config["SESSION_COOKIE_DOMAIN"] = None
     app.config["SESSION_COOKIE_PATH"] = "/"
 
