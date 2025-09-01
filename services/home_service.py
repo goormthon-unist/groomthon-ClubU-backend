@@ -249,10 +249,14 @@ def get_open_clubs():
                 "president_name": club.president_name,
                 "contact": club.contact,
                 "created_at": (
-                    club.created_at.strftime('%Y-%m-%dT%H:%M:%SZ') if club.created_at else None
+                    club.created_at.strftime("%Y-%m-%dT%H:%M:%SZ")
+                    if club.created_at
+                    else None
                 ),
                 "updated_at": (
-                    club.updated_at.strftime('%Y-%m-%dT%H:%M:%SZ') if club.updated_at else None
+                    club.updated_at.strftime("%Y-%m-%dT%H:%M:%SZ")
+                    if club.updated_at
+                    else None
                 ),
             }
             for club, category in clubs

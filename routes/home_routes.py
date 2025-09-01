@@ -57,9 +57,10 @@ class OpenClubsResource(ClubListController):
         """모집 중인 동아리 목록을 반환합니다"""
         from services.home_service import get_open_clubs
         from flask_restx import abort
+
         try:
             clubs_data = get_open_clubs()
-            
+
             # 모집 중인 동아리가 없는 경우
             if not clubs_data:
                 return {
@@ -68,10 +69,10 @@ class OpenClubsResource(ClubListController):
                         "status": "success",
                         "count": 0,
                         "clubs": [],
-                        "message": "모집 중인 동아리가 없습니다"
-                    }
+                        "message": "모집 중인 동아리가 없습니다",
+                    },
                 }, 200
-            
+
             # 모집 중인 동아리가 있는 경우
             return {
                 "ok": True,
@@ -79,9 +80,9 @@ class OpenClubsResource(ClubListController):
                     "status": "success",
                     "count": len(clubs_data),
                     "clubs": clubs_data,
-                }
+                },
             }, 200
-            
+
         except ValueError as e:
             abort(400, f"400-01: {str(e)}")
         except Exception as e:

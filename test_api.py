@@ -20,9 +20,9 @@ def print_test_result(test_name, response):
 
     try:
         data = response.json()
-        print(f"📄 Response:")
+        print("📄 Response:")
         print(json.dumps(data, indent=2, ensure_ascii=False))
-    except:
+    except Exception:
         print(f"📄 Response Text: {response.text}")
 
     if response.status_code == 200:
@@ -79,18 +79,14 @@ def test_add_question(club_id=9001):
 def test_application_detail(application_id=1):
     """지원서 상세 조회 테스트"""
     response = requests.get(f"{BASE_URL}/applications/{application_id}")
-    print_test_result(
-        f"지원서 상세 조회 (GET /applications/{application_id})", response
-    )
+    print_test_result(f"지원서 상세 조회 (GET /applications/{application_id})", response)
     return response
 
 
 def test_club_applicants(club_id=1):
     """동아리 지원자 목록 조회 테스트"""
     response = requests.get(f"{BASE_URL}/applications?club_id={club_id}")
-    print_test_result(
-        f"동아리 지원자 목록 조회 (GET /applications?club_id={club_id})", response
-    )
+    print_test_result(f"동아리 지원자 목록 조회 (GET /applications?club_id={club_id})", response)
     return response
 
 
@@ -118,7 +114,7 @@ def test_swagger_docs():
 
 def main():
     """메인 테스트 실행"""
-    print(f"\n🚀 ClubU API 테스트 시작")
+    print("\n🚀 ClubU API 테스트 시작")
     print(f"⏰ 시작 시간: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"🌐 Base URL: {BASE_URL}")
 
@@ -173,7 +169,7 @@ def main():
 
     # 테스트 결과 요약
     print(f"\n\n{'='*80}")
-    print(f"📊 테스트 결과 요약")
+    print("📊 테스트 결과 요약")
     print(f"{'='*80}")
     print(f"✅ 성공: {success_count}/{total_count}")
     print(f"❌ 실패: {total_count - success_count}/{total_count}")
