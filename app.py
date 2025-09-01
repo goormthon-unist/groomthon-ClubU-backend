@@ -21,16 +21,24 @@ def create_app():
 
     # Flask 세션 설정 추가
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "your-secret-key-here")
-    app.config["SESSION_COOKIE_SECURE"] = False  # 개발환경에서는 False
+
+    # HTTPS 강제 설정 (api.clubu.co.kr 도메인 사용)
+    app.config["SESSION_COOKIE_SECURE"] = True  # HTTPS에서만 쿠키 설정
     app.config["SESSION_COOKIE_HTTPONLY"] = True
-    app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
-    app.config["SESSION_COOKIE_DOMAIN"] = None  # 모든 도메인에서 접근 가능
+    app.config["SESSION_COOKIE_SAMESITE"] = "None"  # HTTPS에서 크로스 사이트 요청 허용
+    app.config["SESSION_COOKIE_DOMAIN"] = None
     app.config["SESSION_COOKIE_PATH"] = "/"
 
-    # CORS 설정 (쿠키 지원)
+    # CORS 설정 (HTTPS 환경에 맞춤)
+    allowed_origins = [
+        "https://clubu.co.kr",
+        "https://www.clubu.co.kr",
+        "https://api.clubu.co.kr",
+    ]
+
     CORS(
         app,
-        resources={r"/api/*": {"origins": "*"}},
+        resources={r"/api/*": {"origins": allowed_origins}},
         supports_credentials=True,
         allow_headers=["Content-Type", "Authorization"],
         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
