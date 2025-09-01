@@ -109,7 +109,10 @@ class LogoutController(Resource):
             # Flask 세션 클리어
             clear_flask_session()
 
-            response_data = {"status": "success", "message": "로그아웃이 완료되었습니다."}
+            response_data = {
+                "status": "success",
+                "message": "로그아웃이 완료되었습니다.",
+            }
 
             return response_data, 200
 

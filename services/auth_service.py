@@ -59,9 +59,9 @@ def create_user(user_data):
             "user_id": new_user.id,
             "name": new_user.name,
             "email": new_user.email,
-            "created_at": new_user.created_at.isoformat()
-            if new_user.created_at
-            else None,
+            "created_at": (
+                new_user.created_at.isoformat() if new_user.created_at else None
+            ),
         }
 
     except Exception as e:

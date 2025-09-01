@@ -114,9 +114,9 @@ def get_user_role_in_club(user_id, club_id):
             "role_id": membership.role.id,
             "role_name": membership.role.role_name,
             "role_description": membership.role.description,
-            "joined_at": membership.joined_at.isoformat()
-            if membership.joined_at
-            else None,
+            "joined_at": (
+                membership.joined_at.isoformat() if membership.joined_at else None
+            ),
         }
 
     except Exception as e:
@@ -168,9 +168,9 @@ def get_users_by_role_in_club(club_id, role_id):
                 "user_name": membership.user.name,
                 "email": membership.user.email,
                 "role_name": role.role_name,
-                "joined_at": membership.joined_at.isoformat()
-                if membership.joined_at
-                else None,
+                "joined_at": (
+                    membership.joined_at.isoformat() if membership.joined_at else None
+                ),
             }
             for membership in memberships
         ]
@@ -195,9 +195,9 @@ def get_all_club_members(club_id):
                 "email": membership.user.email,
                 "role_id": membership.role.id,
                 "role_name": membership.role.role_name,
-                "joined_at": membership.joined_at.isoformat()
-                if membership.joined_at
-                else None,
+                "joined_at": (
+                    membership.joined_at.isoformat() if membership.joined_at else None
+                ),
             }
             for membership in memberships
         ]
@@ -284,9 +284,9 @@ def get_current_user_clubs():
                 "club_name": membership.club.name,
                 "role_id": membership.role.id,
                 "role_name": membership.role.role_name,
-                "joined_at": membership.joined_at.isoformat()
-                if membership.joined_at
-                else None,
+                "joined_at": (
+                    membership.joined_at.isoformat() if membership.joined_at else None
+                ),
             }
             for membership in memberships
         ]

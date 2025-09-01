@@ -191,13 +191,15 @@ def debug_session_info():
                 "active": active_sessions,
                 "expired": expired_sessions,
             },
-            "current_user": {
-                "id": current_user.id if current_user else None,
-                "name": current_user.name if current_user else None,
-                "email": current_user.email if current_user else None,
-            }
-            if current_user
-            else None,
+            "current_user": (
+                {
+                    "id": current_user.id if current_user else None,
+                    "name": current_user.name if current_user else None,
+                    "email": current_user.email if current_user else None,
+                }
+                if current_user
+                else None
+            ),
         }
 
         return debug_info
@@ -231,9 +233,9 @@ def get_session_info():
                 "club_name": membership.club.name,
                 "role_id": membership.role.id,
                 "role_name": membership.role.role_name,
-                "joined_at": membership.joined_at.isoformat()
-                if membership.joined_at
-                else None,
+                "joined_at": (
+                    membership.joined_at.isoformat() if membership.joined_at else None
+                ),
             }
             clubs_info.append(club_info)
 
