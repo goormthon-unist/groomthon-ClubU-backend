@@ -1,4 +1,6 @@
 from flask_restx import Resource, abort, reqparse
+from werkzeug.exceptions import HTTPException, BadRequest
+from flask import request, current_app
 from services.auth_service import (
     create_user,
     authenticate_user,
@@ -21,32 +23,45 @@ class RegisterController(Resource):
     def post(self):
         """회원가입 API"""
         try:
-            parser = reqparse.RequestParser()
-            parser.add_argument("username", type=str, required=True, location="json")
-            parser.add_argument("email", type=str, required=True, location="json")
-            parser.add_argument("password", type=str, required=True, location="json")
-            args = parser.parse_args()
+            # 1) JSON 파싱: 잘못된 JSON이면 BadRequest 유발
+            try:
+                data = request.get_json(force=False, silent=False)
+            except BadRequest:
+                abort(400, "400-00: invalid JSON body")
 
-            # 사용자명 형식 검증
-            is_valid_username, username_message = validate_username(args["username"])
+            if not isinstance(data, dict):
+                abort(400, "400-00: JSON object is required")
+
+            # 2) 필드 추출/검증
+            username = (data.get("username") or "").strip()
+            email = (data.get("email") or "").strip()
+            password = data.get("password")
+
+            if not username:
+                abort(400, "400-01: username is required")
+            if not email:
+                abort(400, "400-02: email is required")
+            if not password:
+                abort(400, "400-03: password is required")
+
+            # 3) 상세 형식 검증
+            is_valid_username, username_message = validate_username(username)
             if not is_valid_username:
-                abort(400, f"400-01: {username_message}")
+                abort(400, f"400-04: {username_message}")
 
-            # 이메일 형식 검증
-            if not validate_email(args["email"]):
-                abort(400, "400-02: 유효하지 않은 이메일 형식입니다.")
+            if not validate_email(email):
+                abort(400, "400-05: 유효하지 않은 이메일 형식입니다.")
 
-            # 비밀번호 강도 검증
-            is_valid_password, password_message = validate_password(args["password"])
+            is_valid_password, password_message = validate_password(password)
             if not is_valid_password:
-                abort(400, f"400-03: {password_message}")
+                abort(400, f"400-06: {password_message}")
 
-            # 사용자 생성
+            # 4) 사용자 생성
             user_data = create_user(
                 {
-                    "username": args["username"],
-                    "email": args["email"],
-                    "password": args["password"],
+                    "username": username,
+                    "email": email,
+                    "password": password,
                 }
             )
 
@@ -56,9 +71,13 @@ class RegisterController(Resource):
                 "data": user_data,
             }, 201
 
+        except HTTPException as he:
+            # 400/401/409 등은 그대로 내보냄 (500으로 덮어쓰지 않음)
+            raise he
         except ValueError as e:
-            abort(400, f"400-04: {str(e)}")
+            abort(400, f"400-07: {str(e)}")
         except Exception as e:
+            current_app.logger.exception("auth.register failed")
             abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
 
 
@@ -68,15 +87,28 @@ class LoginController(Resource):
     def post(self):
         """로그인 API"""
         try:
-            parser = reqparse.RequestParser()
-            parser.add_argument("email", type=str, required=True, location="json")
-            parser.add_argument("password", type=str, required=True, location="json")
-            args = parser.parse_args()
+            # 1) JSON 파싱: 잘못된 JSON이면 BadRequest 유발
+            try:
+                data = request.get_json(force=False, silent=False)
+            except BadRequest:
+                abort(400, "400-00: invalid JSON body")
 
-            # 사용자 인증
-            user_data = authenticate_user(args["email"], args["password"])
+            if not isinstance(data, dict):
+                abort(400, "400-00: JSON object is required")
 
-            # 세션 생성
+            # 2) 필드 추출/검증
+            email = (data.get("email") or "").strip()
+            password = data.get("password")
+
+            if not email:
+                abort(400, "400-01: email is required")
+            if not password:
+                abort(400, "400-02: password is required")
+
+            # 3) 사용자 인증
+            user_data = authenticate_user(email, password)
+
+            # 4) 세션 생성
             session_data = create_session(user_data["user_id"])
 
             response_data = {
@@ -87,9 +119,13 @@ class LoginController(Resource):
 
             return response_data, 200
 
+        except HTTPException as he:
+            # 400/401/409 등은 그대로 내보냄 (500으로 덮어쓰지 않음)
+            raise he
         except ValueError as e:
             abort(401, f"401-01: {str(e)}")
         except Exception as e:
+            current_app.logger.exception("auth.login failed")
             abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
 
 
