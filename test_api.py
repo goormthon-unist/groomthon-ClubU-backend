@@ -4,8 +4,8 @@ ClubU API 테스트 스크립트
 Mock 데이터를 사용하는 API들을 체계적으로 테스트합니다.
 """
 
-import requests
 import json
+import requests
 from datetime import datetime
 
 BASE_URL = "http://localhost:5000/api/v1"
