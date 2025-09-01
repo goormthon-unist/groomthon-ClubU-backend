@@ -29,19 +29,34 @@ def create_app():
     app.config["SESSION_COOKIE_DOMAIN"] = None
     app.config["SESSION_COOKIE_PATH"] = "/"
 
-    # CORS 설정 (HTTPS 환경에 맞춤)
+    # CORS 설정 (개발/프로덕션 환경 모두 지원)
     allowed_origins = [
+        # 프로덕션 도메인
         "https://clubu.co.kr",
         "https://www.clubu.co.kr",
         "https://api.clubu.co.kr",
+        # 개발 환경 (localhost)
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "http://localhost:8080",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:8080",
     ]
 
     CORS(
         app,
         resources={r"/api/*": {"origins": allowed_origins}},
         supports_credentials=True,
-        allow_headers=["Content-Type", "Authorization"],
-        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allow_headers=[
+            "Content-Type", 
+            "Authorization",
+            "X-Requested-With",
+            "Accept",
+            "Origin"
+        ],
+        methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+        expose_headers=["Set-Cookie"]
     )
 
     # DB & Migrate 초기화
