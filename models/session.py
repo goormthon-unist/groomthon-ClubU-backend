@@ -17,4 +17,3 @@ class UserSession(db.Model):
 
     def __repr__(self):
         return f"<UserSession {self.session_id} for User {self.user_id}>"
-        
