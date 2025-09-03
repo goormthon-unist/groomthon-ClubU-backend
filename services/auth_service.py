@@ -78,7 +78,7 @@ def create_user(user_data):
             email=user_data["email"],
             password=generate_password_hash(user_data["password"]),
             student_id=user_data["student_id"],  # 실제 학번
-            department_id=1,  # 임시 학과 ID (나중에 추가 가능)
+            department_id=user_data["department_id"],  # 사용자가 선택한 학과
             phone_number=user_data["phone_number"],  # 실제 전화번호
         )
 

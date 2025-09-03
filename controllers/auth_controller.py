@@ -41,6 +41,7 @@ class RegisterController(Resource):
             password = data.get("password")
             student_id = (data.get("student_id") or "").strip()
             phone_number = (data.get("phone_number") or "").strip()
+            department_id = data.get("department_id")
 
             if not username:
                 abort(400, "400-01: username is required")
@@ -52,6 +53,8 @@ class RegisterController(Resource):
                 abort(400, "400-08: student_id is required")
             if not phone_number:
                 abort(400, "400-09: phone_number is required")
+            if not department_id:
+                abort(400, "400-12: department_id is required")
 
             # 3) 상세 형식 검증
             is_valid_username, username_message = validate_username(username)
@@ -84,6 +87,7 @@ class RegisterController(Resource):
                     "password": password,
                     "student_id": student_id,
                     "phone_number": phone_number,
+                    "department_id": department_id,
                 }
             )
 
