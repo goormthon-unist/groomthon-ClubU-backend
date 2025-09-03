@@ -5,6 +5,7 @@ from controllers.auth_controller import (
     LogoutController,
     SessionDebugController,
     SessionInfoController,
+    UserListController,
 )
 
 # 네임스페이스 등록
@@ -43,5 +44,12 @@ class SessionDebugResource(SessionDebugController):
 @auth_ns.route("/session-info")
 class SessionInfoResource(SessionInfoController):
     """세션 통합 정보 조회 리소스"""
+
+    pass
+
+
+@auth_ns.route("/users")
+class UserListResource(UserListController):
+    """모든 사용자 목록 조회 리소스"""
 
     pass

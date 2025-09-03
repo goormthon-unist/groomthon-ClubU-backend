@@ -88,3 +88,38 @@ def authenticate_user(email, password):
 
     except Exception as e:
         raise Exception(f"사용자 인증 중 오류 발생: {str(e)}")
+
+
+def get_all_users():
+    """모든 사용자 정보 조회"""
+    try:
+        users = User.query.all()
+
+        user_list = []
+        for user in users:
+            user_info = {
+                "user_id": user.id,
+                "name": user.name,
+                "email": user.email,
+                "student_id": user.student_id,
+                "department_id": user.department_id,
+                "phone_number": user.phone_number,
+                "gender": user.gender,
+                "email_verified_at": (
+                    user.email_verified_at.isoformat()
+                    if user.email_verified_at
+                    else None
+                ),
+                "created_at": (
+                    user.created_at.isoformat() if user.created_at else None
+                ),
+                "updated_at": (
+                    user.updated_at.isoformat() if user.updated_at else None
+                ),
+            }
+            user_list.append(user_info)
+
+        return user_list
+
+    except Exception as e:
+        raise Exception(f"사용자 목록 조회 중 오류 발생: {str(e)}")

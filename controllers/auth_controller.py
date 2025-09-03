@@ -7,6 +7,7 @@ from services.auth_service import (
     validate_username,
     validate_email,
     validate_password,
+    get_all_users,
 )
 from services.session_service import (
     create_session,
@@ -193,4 +194,27 @@ class SessionInfoController(Resource):
             return response_data, 200
 
         except Exception as e:
+            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+
+
+class UserListController(Resource):
+    """모든 사용자 목록 조회 컨트롤러"""
+
+    def get(self):
+        """모든 사용자 정보 조회 API"""
+        try:
+            # 모든 사용자 정보 조회
+            users = get_all_users()
+
+            response_data = {
+                "status": "success",
+                "message": "모든 사용자 정보를 조회했습니다.",
+                "count": len(users),
+                "data": users,
+            }
+
+            return response_data, 200
+
+        except Exception as e:
+            current_app.logger.exception("auth.users failed")
             abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
