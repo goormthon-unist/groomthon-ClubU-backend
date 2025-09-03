@@ -1,6 +1,7 @@
 from flask_restx import Resource, abort
 from flask import session
 from werkzeug.exceptions import HTTPException
+from services.session_service import get_current_session
 from services.user_service import (
     get_user_profile,
     get_user_clubs,
@@ -14,10 +15,12 @@ class UserProfileController(Resource):
     def get(self):
         """현재 사용자의 프로필 정보를 반환합니다"""
         try:
-            # 세션에서 user_id 추출
-            user_id = session.get("user_id")
-            if not user_id:
+            # 현재 세션 정보 조회
+            session_data = get_current_session()
+            if not session_data:
                 abort(401, "401-01: 로그인이 필요합니다")
+
+            user_id = session_data["user_id"]
 
             user_data = get_user_profile(user_id)
             if not user_data:
@@ -42,10 +45,12 @@ class UserClubsController(Resource):
     def get(self):
         """현재 사용자가 속한 동아리 목록을 반환합니다"""
         try:
-            # 세션에서 user_id 추출
-            user_id = session.get("user_id")
-            if not user_id:
+            # 현재 세션 정보 조회
+            session_data = get_current_session()
+            if not session_data:
                 abort(401, "401-01: 로그인이 필요합니다")
+
+            user_id = session_data["user_id"]
 
             clubs_data = get_user_clubs(user_id)
 
@@ -72,10 +77,12 @@ class UserApplicationsController(Resource):
     def get(self):
         """현재 사용자가 지원한 동아리 지원서 목록을 반환합니다"""
         try:
-            # 세션에서 user_id 추출
-            user_id = session.get("user_id")
-            if not user_id:
+            # 현재 세션 정보 조회
+            session_data = get_current_session()
+            if not session_data:
                 abort(401, "401-01: 로그인이 필요합니다")
+
+            user_id = session_data["user_id"]
 
             applications_data = get_user_submitted_applications(user_id)
 
