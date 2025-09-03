@@ -33,12 +33,8 @@ def get_user_profile(user_id):
                 "major": department.major,
             },
             "email_verified": user.email_verified_at is not None,
-            "created_at": (
-                user.created_at.isoformat() if user.created_at else None
-            ),
-            "updated_at": (
-                user.updated_at.isoformat() if user.updated_at else None
-            ),
+            "created_at": (user.created_at.isoformat() if user.created_at else None),
+            "updated_at": (user.updated_at.isoformat() if user.updated_at else None),
         }
 
     except Exception as e:
