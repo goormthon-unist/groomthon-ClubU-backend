@@ -15,7 +15,7 @@ def require_admin_user():
         raise ValueError("로그인이 필요합니다")
 
     # 관리자 이메일 계정 확인
-    admin_emails = ["admin@clubu.co.kr"]  # 환경변수로 설정 가능
+    admin_emails = ["admin@unist.ac.kr"]  # 환경변수로 설정 가능
     if current_user.email not in admin_emails:
         raise ValueError("관리자 권한이 필요합니다")
 
