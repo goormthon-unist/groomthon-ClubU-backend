@@ -33,16 +33,12 @@ def create_app():
     app.config["SESSION_COOKIE_DOMAIN"] = None
     app.config["SESSION_COOKIE_PATH"] = "/"
 
-    # 개발 환경에서 CORS 문제 해결을 위한 추가 설정
-    if not is_production:
-        app.config["SESSION_COOKIE_SAMESITE"] = "Lax"  # 개발환경에서는 Lax
-        app.config["SESSION_COOKIE_SECURE"] = False  # 개발환경에서는 HTTP 허용
-
     # CORS 설정 (개발/프로덕션 환경 모두 지원)
     allowed_origins = [
         # 프로덕션 도메인 (클라이언트가 실행되는 도메인)
         "https://clubu.co.kr",
         "https://www.clubu.co.kr",
+        "https://api.clubu.co.kr",
         # 개발 환경 (localhost)
         "http://localhost:3000",
         "http://localhost:5173",
@@ -65,9 +61,6 @@ def create_app():
         ],
         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
         expose_headers=["Set-Cookie"],
-        # 추가 CORS 설정
-        max_age=3600,  # preflight 요청 캐시 시간
-        allow_credentials=True,  # credentials 허용
     )
 
     # DB & Migrate 초기화
