@@ -2,7 +2,7 @@
 관리자 전용 라우트
 """
 
-from flask_restx import Namespace
+from flask_restx import Namespace, Resource
 from controllers.admin_controller import (
     AdminClubMemberRegistrationController,
     AdminClubMemberRemovalController,
@@ -48,7 +48,7 @@ class AdminClubMembersResource(AdminClubMembersController):
 
 # 테스트용 엔드포인트 (권한 확인 없음)
 @admin_ns.route("/test")
-class AdminTestResource:
+class AdminTestResource(Resource):
     """관리자 API 테스트용 리소스"""
 
     def get(self):
