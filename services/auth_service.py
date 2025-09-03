@@ -33,6 +33,30 @@ def validate_username(username):
     return True, "사용자명이 유효합니다."
 
 
+def validate_student_id(student_id):
+    """학번 형식 검증"""
+    if len(student_id) != 8:
+        return False, "학번은 8자리여야 합니다."
+
+    if not student_id.isdigit():
+        return False, "학번은 숫자만 입력 가능합니다."
+
+    return True, "학번이 유효합니다."
+
+
+def validate_phone_number(phone_number):
+    """전화번호 형식 검증"""
+    # 010-1234-5678 형식 또는 01012345678 형식 허용
+    pattern = r"^01[0-9]-?[0-9]{3,4}-?[0-9]{4}$"
+    if not re.match(pattern, phone_number):
+        return (
+            False,
+            "전화번호 형식이 올바르지 않습니다. (예: 010-1234-5678 또는 01012345678)",
+        )
+
+    return True, "전화번호가 유효합니다."
+
+
 def create_user(user_data):
     """새 사용자 생성 (간단한 회원가입용)"""
     try:
@@ -41,14 +65,21 @@ def create_user(user_data):
         if existing_email:
             raise ValueError("이미 등록된 이메일입니다.")
 
+        # 학번 중복 확인
+        existing_student_id = User.query.filter_by(
+            student_id=user_data["student_id"]
+        ).first()
+        if existing_student_id:
+            raise ValueError("이미 등록된 학번입니다.")
+
         # 새 사용자 생성 (필수 필드만)
         new_user = User(
             name=user_data["username"],  # username을 name으로 사용
             email=user_data["email"],
             password=generate_password_hash(user_data["password"]),
-            student_id="00000000",  # 임시 학번
-            department_id=1,  # 임시 학과 ID
-            phone_number="010-0000-0000",  # 임시 전화번호
+            student_id=user_data["student_id"],  # 실제 학번
+            department_id=1,  # 임시 학과 ID (나중에 추가 가능)
+            phone_number=user_data["phone_number"],  # 실제 전화번호
         )
 
         # 데이터베이스에 저장
@@ -59,6 +90,8 @@ def create_user(user_data):
             "user_id": new_user.id,
             "name": new_user.name,
             "email": new_user.email,
+            "student_id": new_user.student_id,
+            "phone_number": new_user.phone_number,
             "created_at": (
                 new_user.created_at.isoformat() if new_user.created_at else None
             ),

@@ -7,6 +7,8 @@ from services.auth_service import (
     validate_username,
     validate_email,
     validate_password,
+    validate_student_id,
+    validate_phone_number,
     get_all_users,
 )
 from services.session_service import (
@@ -37,6 +39,8 @@ class RegisterController(Resource):
             username = (data.get("username") or "").strip()
             email = (data.get("email") or "").strip()
             password = data.get("password")
+            student_id = (data.get("student_id") or "").strip()
+            phone_number = (data.get("phone_number") or "").strip()
 
             if not username:
                 abort(400, "400-01: username is required")
@@ -44,6 +48,10 @@ class RegisterController(Resource):
                 abort(400, "400-02: email is required")
             if not password:
                 abort(400, "400-03: password is required")
+            if not student_id:
+                abort(400, "400-08: student_id is required")
+            if not phone_number:
+                abort(400, "400-09: phone_number is required")
 
             # 3) 상세 형식 검증
             is_valid_username, username_message = validate_username(username)
@@ -57,12 +65,25 @@ class RegisterController(Resource):
             if not is_valid_password:
                 abort(400, f"400-06: {password_message}")
 
+            # 학번과 전화번호 검증
+            is_valid_student_id, student_id_message = validate_student_id(student_id)
+            if not is_valid_student_id:
+                abort(400, f"400-10: {student_id_message}")
+
+            is_valid_phone_number, phone_number_message = validate_phone_number(
+                phone_number
+            )
+            if not is_valid_phone_number:
+                abort(400, f"400-11: {phone_number_message}")
+
             # 4) 사용자 생성
             user_data = create_user(
                 {
                     "username": username,
                     "email": email,
                     "password": password,
+                    "student_id": student_id,
+                    "phone_number": phone_number,
                 }
             )
 
