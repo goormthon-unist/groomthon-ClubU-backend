@@ -8,6 +8,7 @@ from controllers.admin_controller import (
     AdminClubMemberRemovalController,
     AdminRolesController,
     AdminClubMembersController,
+    AdminRoleDetailController,
 )
 
 # 관리자 전용 네임스페이스
@@ -34,6 +35,13 @@ class AdminClubMemberRemovalResource(AdminClubMemberRemovalController):
 @admin_ns.route("/roles")
 class AdminRolesResource(AdminRolesController):
     """역할 목록 조회 리소스 (관리자 전용)"""
+
+    pass
+
+
+@admin_ns.route("/roles/<int:role_id>")
+class AdminRoleDetailResource(AdminRoleDetailController):
+    """역할 상세 관리 리소스 (관리자 전용)"""
 
     pass
 

@@ -9,6 +9,9 @@ from services.admin_service import (
     remove_club_member_admin,
     get_available_roles,
     get_club_members_admin,
+    create_role,
+    update_role,
+    delete_role,
 )
 
 
@@ -121,6 +124,63 @@ class AdminRolesController(Resource):
                 "roles": roles,
             }, 200
 
+        except Exception as e:
+            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+
+    def post(self):
+        """역할 생성 (관리자 전용)"""
+        try:
+            parser = reqparse.RequestParser()
+            parser.add_argument(
+                "role_name",
+                type=str,
+                required=True,
+                location="json",
+                help="역할명이 필요합니다",
+            )
+            args = parser.parse_args()
+
+            role = create_role(args["role_name"])
+            return {"status": "success", "role": role}, 201
+
+        except ValueError as e:
+            abort(400, f"400-23: {str(e)}")
+        except Exception as e:
+            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+
+
+class AdminRoleDetailController(Resource):
+    """관리자 역할 상세 관리 컨트롤러"""
+
+    def patch(self, role_id):
+        """역할명 수정 (관리자 전용)"""
+        try:
+            parser = reqparse.RequestParser()
+            parser.add_argument(
+                "role_name",
+                type=str,
+                required=True,
+                location="json",
+                help="역할명이 필요합니다",
+            )
+            args = parser.parse_args()
+
+            role = update_role(role_id, args["role_name"])
+            return {"status": "success", "role": role}, 200
+
+        except ValueError as e:
+            abort(400, f"400-24: {str(e)}")
+        except Exception as e:
+            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+
+    def delete(self, role_id):
+        """역할 삭제 (관리자 전용)"""
+        try:
+            result = delete_role(role_id)
+            return {"status": "success", **result}, 200
+
+        except ValueError as e:
+            abort(400, f"400-25: {str(e)}")
         except Exception as e:
             abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
 

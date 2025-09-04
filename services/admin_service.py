@@ -159,6 +159,87 @@ def get_available_roles():
         raise Exception(f"역할 목록 조회 중 오류 발생: {str(e)}")
 
 
+def create_role(role_name: str):
+    """역할 생성 (관리자 전용)"""
+    try:
+        require_admin_user()
+
+        if not role_name or not role_name.strip():
+            raise ValueError("role_name 이(가) 필요합니다")
+
+        role_name = role_name.strip()
+
+        # 중복 체크
+        existing = Role.query.filter_by(role_name=role_name).first()
+        if existing:
+            raise ValueError("이미 존재하는 역할입니다")
+
+        new_role = Role(role_name=role_name)
+        db.session.add(new_role)
+        db.session.commit()
+
+        return {"id": new_role.id, "role_name": new_role.role_name}
+
+    except Exception as e:
+        db.session.rollback()
+        raise Exception(f"역할 생성 중 오류 발생: {str(e)}")
+
+
+def update_role(role_id: int, role_name: str):
+    """역할 이름 수정 (관리자 전용)"""
+    try:
+        require_admin_user()
+
+        role = Role.query.get(role_id)
+        if not role:
+            raise ValueError("해당 역할을 찾을 수 없습니다")
+
+        if not role_name or not role_name.strip():
+            raise ValueError("role_name 이(가) 필요합니다")
+
+        role_name = role_name.strip()
+
+        # 이름 중복 체크
+        duplicate = Role.query.filter(
+            Role.role_name == role_name, Role.id != role_id
+        ).first()
+        if duplicate:
+            raise ValueError("이미 존재하는 역할명입니다")
+
+        role.role_name = role_name
+        db.session.commit()
+
+        return {"id": role.id, "role_name": role.role_name}
+
+    except Exception as e:
+        db.session.rollback()
+        raise Exception(f"역할 수정 중 오류 발생: {str(e)}")
+
+
+def delete_role(role_id: int):
+    """역할 삭제 (관리자 전용) – 멤버십 참조 존재 시 제한"""
+    try:
+        require_admin_user()
+
+        role = Role.query.get(role_id)
+        if not role:
+            raise ValueError("해당 역할을 찾을 수 없습니다")
+
+        # 참조 여부 확인 (ClubMember.role_id)
+        in_use = ClubMember.query.filter_by(role_id=role_id).first()
+        if in_use:
+            raise ValueError("해당 역할을 사용하는 동아리원이 있어 삭제할 수 없습니다")
+
+        db.session.delete(role)
+        db.session.commit()
+
+        return {"deleted": True, "id": role_id}
+
+    except Exception as e:
+        db.session.rollback()
+        raise Exception(f"역할 삭제 중 오류 발생: {str(e)}")
+
+
 def get_club_members_admin(club_id):
     """관리자용 동아리원 목록 조회"""
     try:
