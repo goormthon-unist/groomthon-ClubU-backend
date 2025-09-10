@@ -10,6 +10,11 @@ from controllers.admin_controller import (
     AdminClubMembersController,
     AdminRoleDetailController,
 )
+from controllers.application_check_controller import (
+    ClubApplicantsController,
+    ApplicationDetailController,
+    ClubMemberRegistrationController,
+)
 
 # 관리자 전용 네임스페이스
 admin_ns = Namespace("admin", description="시스템 관리자 전용 API")
@@ -50,6 +55,28 @@ class AdminRoleDetailResource(AdminRoleDetailController):
 @admin_ns.route("/clubs/<int:club_id>/members")
 class AdminClubMembersResource(AdminClubMembersController):
     """동아리원 목록 조회 리소스 (관리자 전용)"""
+
+    pass
+
+
+# 지원서 관련 API (관리자 전용)
+@admin_ns.route("/applications")
+class AdminClubApplicantsResource(ClubApplicantsController):
+    """관리자용 동아리 지원자 목록 조회 리소스"""
+
+    pass
+
+
+@admin_ns.route("/applications/<int:application_id>")
+class AdminApplicationDetailResource(ApplicationDetailController):
+    """관리자용 지원서 상세 조회 리소스"""
+
+    pass
+
+
+@admin_ns.route("/members")
+class AdminClubMemberRegistrationResource(ClubMemberRegistrationController):
+    """관리자용 동아리원 등록 리소스"""
 
     pass
 
