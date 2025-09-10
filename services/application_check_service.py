@@ -180,7 +180,9 @@ def register_club_member(
         # 기본값 설정
         if role_id is None:
             # 기본 역할 (일반회원) 찾기
-            default_role = db.session.query(Role).filter(Role.name.like("%회원%")).first()
+            default_role = (
+                db.session.query(Role).filter(Role.name.like("%회원%")).first()
+            )
             role_id = default_role.id if default_role else 3  # 일반회원 역할 ID
 
         if generation is None:
