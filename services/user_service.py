@@ -72,7 +72,7 @@ def get_user_clubs(user_id):
                     "contact": club.contact,
                 },
                 "membership": {
-                    "role": {"id": role.id, "name": role.name},
+                    "role": {"id": role.id, "name": role.role_name},
                     "generation": member.generation,
                     "joined_at": (
                         member.joined_at.isoformat() if member.joined_at else None
