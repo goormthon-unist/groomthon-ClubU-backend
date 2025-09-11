@@ -80,6 +80,7 @@ def create_user(user_data):
             student_id=user_data["student_id"],  # 실제 학번
             department_id=user_data["department_id"],  # 사용자가 선택한 학과
             phone_number=user_data["phone_number"],  # 실제 전화번호
+            gender=user_data.get("gender"),  # 성별 (선택사항)
         )
 
         # 데이터베이스에 저장
@@ -92,6 +93,7 @@ def create_user(user_data):
             "email": new_user.email,
             "student_id": new_user.student_id,
             "phone_number": new_user.phone_number,
+            "gender": new_user.gender,
             "created_at": (
                 new_user.created_at.isoformat() if new_user.created_at else None
             ),

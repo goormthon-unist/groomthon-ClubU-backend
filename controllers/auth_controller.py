@@ -42,6 +42,7 @@ class RegisterController(Resource):
             student_id = (data.get("student_id") or "").strip()
             phone_number = (data.get("phone_number") or "").strip()
             department_id = data.get("department_id")
+            gender = data.get("gender")
 
             if not username:
                 abort(400, "400-01: username is required")
@@ -88,6 +89,7 @@ class RegisterController(Resource):
                     "student_id": student_id,
                     "phone_number": phone_number,
                     "department_id": department_id,
+                    "gender": gender,
                 }
             )
 
