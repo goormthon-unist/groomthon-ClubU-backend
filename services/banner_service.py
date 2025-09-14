@@ -20,7 +20,9 @@ def create_banner(club_id, banner_data, image_file):
             title=banner_data["title"],
             description=banner_data.get("description", ""),
             image_url=image_info["optimized_url"],
-            original_image_url=image_info["original_url"],  # URL은 유지하되 실제 파일은 삭제됨
+            original_image_url=image_info[
+                "original_url"
+            ],  # URL은 유지하되 실제 파일은 삭제됨
             location=banner_data.get("location", "MAIN_TOP"),
             status="PENDING",
             start_date=banner_data.get("start_date"),
@@ -39,12 +41,12 @@ def create_banner(club_id, banner_data, image_file):
             "original_image_url": new_banner.original_image_url,
             "location": new_banner.location,
             "status": new_banner.status,
-            "start_date": new_banner.start_date.isoformat()
-            if new_banner.start_date
-            else None,
-            "end_date": new_banner.end_date.isoformat()
-            if new_banner.end_date
-            else None,
+            "start_date": (
+                new_banner.start_date.isoformat() if new_banner.start_date else None
+            ),
+            "end_date": (
+                new_banner.end_date.isoformat() if new_banner.end_date else None
+            ),
             "created_at": new_banner.created_at.isoformat(),
             "updated_at": new_banner.updated_at.isoformat(),
         }
@@ -77,9 +79,9 @@ def get_banners(status=None, location=None):
                 "original_image_url": banner.original_image_url,
                 "location": banner.location,
                 "status": banner.status,
-                "start_date": banner.start_date.isoformat()
-                if banner.start_date
-                else None,
+                "start_date": (
+                    banner.start_date.isoformat() if banner.start_date else None
+                ),
                 "end_date": banner.end_date.isoformat() if banner.end_date else None,
                 "created_at": banner.created_at.isoformat(),
                 "updated_at": banner.updated_at.isoformat(),
