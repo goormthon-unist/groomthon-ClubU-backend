@@ -13,16 +13,19 @@ banner_ns = Namespace("banners", description="배너 관리 API")
 @banner_ns.route("/banners/")
 class BannerResource(BannerController):
     """배너 관리 리소스"""
+
     pass
 
 
 @banner_ns.route("/banners/<int:banner_id>")
 class BannerDetailResource(BannerDetailController):
     """배너 상세 관리 리소스"""
+
     pass
 
 
 @banner_ns.route("/banners/<int:banner_id>/status")
 class BannerStatusResource(BannerStatusController):
     """배너 상태 관리 리소스"""
+
     pass

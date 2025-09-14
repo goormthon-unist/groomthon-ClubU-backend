@@ -14,7 +14,7 @@ def create_notice(club_id, notice_data):
             club_id=club_id,
             title=notice_data["title"],
             content=notice_data["content"],
-            is_important=notice_data.get("is_important", False)
+            is_important=notice_data.get("is_important", False),
         )
 
         db.session.add(new_notice)
@@ -27,7 +27,7 @@ def create_notice(club_id, notice_data):
             "content": new_notice.content,
             "is_important": new_notice.is_important,
             "created_at": new_notice.created_at.isoformat(),
-            "updated_at": new_notice.updated_at.isoformat()
+            "updated_at": new_notice.updated_at.isoformat(),
         }
 
     except Exception as e:
@@ -43,7 +43,11 @@ def get_club_notices(club_id):
         if not club:
             raise ValueError("해당 동아리를 찾을 수 없습니다")
 
-        notices = Notice.query.filter_by(club_id=club_id).order_by(Notice.created_at.desc()).all()
+        notices = (
+            Notice.query.filter_by(club_id=club_id)
+            .order_by(Notice.created_at.desc())
+            .all()
+        )
 
         return [
             {
@@ -53,7 +57,7 @@ def get_club_notices(club_id):
                 "content": notice.content,
                 "is_important": notice.is_important,
                 "created_at": notice.created_at.isoformat(),
-                "updated_at": notice.updated_at.isoformat()
+                "updated_at": notice.updated_at.isoformat(),
             }
             for notice in notices
         ]
@@ -65,7 +69,12 @@ def get_club_notices(club_id):
 def get_all_notices():
     """전체 공지 목록 조회"""
     try:
-        notices = db.session.query(Notice, Club).join(Club, Notice.club_id == Club.id).order_by(Notice.created_at.desc()).all()
+        notices = (
+            db.session.query(Notice, Club)
+            .join(Club, Notice.club_id == Club.id)
+            .order_by(Notice.created_at.desc())
+            .all()
+        )
 
         return [
             {
@@ -76,7 +85,7 @@ def get_all_notices():
                 "content": notice.content,
                 "is_important": notice.is_important,
                 "created_at": notice.created_at.isoformat(),
-                "updated_at": notice.updated_at.isoformat()
+                "updated_at": notice.updated_at.isoformat(),
             }
             for notice, club in notices
         ]
@@ -88,7 +97,12 @@ def get_all_notices():
 def get_notice_by_id(notice_id):
     """공지 상세 조회"""
     try:
-        notice_data = db.session.query(Notice, Club).join(Club, Notice.club_id == Club.id).filter(Notice.id == notice_id).first()
+        notice_data = (
+            db.session.query(Notice, Club)
+            .join(Club, Notice.club_id == Club.id)
+            .filter(Notice.id == notice_id)
+            .first()
+        )
 
         if not notice_data:
             return None
@@ -103,7 +117,7 @@ def get_notice_by_id(notice_id):
             "content": notice.content,
             "is_important": notice.is_important,
             "created_at": notice.created_at.isoformat(),
-            "updated_at": notice.updated_at.isoformat()
+            "updated_at": notice.updated_at.isoformat(),
         }
 
     except Exception as e:
@@ -133,7 +147,7 @@ def update_notice(notice_id, update_data):
             "content": notice.content,
             "is_important": notice.is_important,
             "created_at": notice.created_at.isoformat(),
-            "updated_at": notice.updated_at.isoformat()
+            "updated_at": notice.updated_at.isoformat(),
         }
 
     except Exception as e:

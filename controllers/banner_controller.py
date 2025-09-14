@@ -25,11 +25,12 @@ class BannerController(Resource):
 
             # 파일 처리
             from flask import request
-            if 'image' not in request.files:
+
+            if "image" not in request.files:
                 abort(400, "400-01: 이미지 파일이 필요합니다")
-            
-            image_file = request.files['image']
-            if image_file.filename == '':
+
+            image_file = request.files["image"]
+            if image_file.filename == "":
                 abort(400, "400-02: 선택된 파일이 없습니다")
 
             banner_data = {
@@ -37,7 +38,7 @@ class BannerController(Resource):
                 "description": args.get("description", ""),
                 "location": args.get("location", "MAIN_TOP"),
                 "start_date": args.get("start_date"),
-                "end_date": args.get("end_date")
+                "end_date": args.get("end_date"),
             }
 
             new_banner = create_banner(args["club_id"], banner_data, image_file)
@@ -57,15 +58,10 @@ class BannerController(Resource):
             args = parser.parse_args()
 
             banners = get_banners(
-                status=args.get("status"),
-                location=args.get("location")
+                status=args.get("status"), location=args.get("location")
             )
-            
-            return {
-                "status": "success",
-                "count": len(banners),
-                "banners": banners
-            }, 200
+
+            return {"status": "success", "count": len(banners), "banners": banners}, 200
 
         except Exception as e:
             abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")

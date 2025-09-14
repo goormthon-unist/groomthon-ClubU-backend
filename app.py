@@ -69,10 +69,10 @@ def create_app():
 
     # 정적 파일 서빙 설정
     from flask import send_from_directory
-    
-    @app.route('/banners/<path:filename>')
+
+    @app.route("/banners/<path:filename>")
     def serve_banner(filename):
-        return send_from_directory('banners', filename)
+        return send_from_directory("banners", filename)
 
     # RESTX API
     api = Api(

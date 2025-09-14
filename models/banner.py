@@ -15,12 +15,12 @@ class Banner(db.Model):
     location = db.Column(
         db.Enum("MAIN_TOP", "MAIN_MIDDLE", "MAIN_BOTTOM", "SIDEBAR"),
         nullable=False,
-        default="MAIN_TOP"
+        default="MAIN_TOP",
     )
     status = db.Column(
         db.Enum("PENDING", "POSTED", "REJECTED", "EXPIRED"),
         nullable=False,
-        default="PENDING"
+        default="PENDING",
     )
     start_date = db.Column(db.DateTime, nullable=True)
     end_date = db.Column(db.DateTime, nullable=True)

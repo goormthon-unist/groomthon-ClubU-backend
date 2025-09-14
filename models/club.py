@@ -21,10 +21,7 @@ class Club(db.Model):
     introduction = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated_at = db.Column(
-        db.DateTime,
-        nullable=False,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
     # 관계 설정

@@ -24,7 +24,7 @@ class ClubNoticeController(Resource):
             notice_data = {
                 "title": args["title"],
                 "content": args["content"],
-                "is_important": args.get("is_important", False)
+                "is_important": args.get("is_important", False),
             }
 
             new_notice = create_notice(club_id, notice_data)
@@ -39,11 +39,7 @@ class ClubNoticeController(Resource):
         """특정 동아리 공지 목록 조회"""
         try:
             notices = get_club_notices(club_id)
-            return {
-                "status": "success",
-                "count": len(notices),
-                "notices": notices
-            }, 200
+            return {"status": "success", "count": len(notices), "notices": notices}, 200
 
         except ValueError as e:
             abort(400, f"400-02: {str(e)}")
@@ -58,11 +54,7 @@ class NoticeController(Resource):
         """전체 공지 목록 조회"""
         try:
             notices = get_all_notices()
-            return {
-                "status": "success",
-                "count": len(notices),
-                "notices": notices
-            }, 200
+            return {"status": "success", "count": len(notices), "notices": notices}, 200
 
         except Exception as e:
             abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")

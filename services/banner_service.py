@@ -24,7 +24,7 @@ def create_banner(club_id, banner_data, image_file):
             location=banner_data.get("location", "MAIN_TOP"),
             status="PENDING",
             start_date=banner_data.get("start_date"),
-            end_date=banner_data.get("end_date")
+            end_date=banner_data.get("end_date"),
         )
 
         db.session.add(new_banner)
@@ -39,10 +39,14 @@ def create_banner(club_id, banner_data, image_file):
             "original_image_url": new_banner.original_image_url,
             "location": new_banner.location,
             "status": new_banner.status,
-            "start_date": new_banner.start_date.isoformat() if new_banner.start_date else None,
-            "end_date": new_banner.end_date.isoformat() if new_banner.end_date else None,
+            "start_date": new_banner.start_date.isoformat()
+            if new_banner.start_date
+            else None,
+            "end_date": new_banner.end_date.isoformat()
+            if new_banner.end_date
+            else None,
             "created_at": new_banner.created_at.isoformat(),
-            "updated_at": new_banner.updated_at.isoformat()
+            "updated_at": new_banner.updated_at.isoformat(),
         }
 
     except Exception as e:
@@ -54,12 +58,12 @@ def get_banners(status=None, location=None):
     """배너 목록 조회"""
     try:
         query = db.session.query(Banner, Club).join(Club, Banner.club_id == Club.id)
-        
+
         if status:
             query = query.filter(Banner.status == status)
         if location:
             query = query.filter(Banner.location == location)
-            
+
         banners = query.order_by(Banner.created_at.desc()).all()
 
         return [
@@ -73,10 +77,12 @@ def get_banners(status=None, location=None):
                 "original_image_url": banner.original_image_url,
                 "location": banner.location,
                 "status": banner.status,
-                "start_date": banner.start_date.isoformat() if banner.start_date else None,
+                "start_date": banner.start_date.isoformat()
+                if banner.start_date
+                else None,
                 "end_date": banner.end_date.isoformat() if banner.end_date else None,
                 "created_at": banner.created_at.isoformat(),
-                "updated_at": banner.updated_at.isoformat()
+                "updated_at": banner.updated_at.isoformat(),
             }
             for banner, club in banners
         ]
@@ -88,7 +94,12 @@ def get_banners(status=None, location=None):
 def get_banner_by_id(banner_id):
     """배너 상세 조회"""
     try:
-        banner_data = db.session.query(Banner, Club).join(Club, Banner.club_id == Club.id).filter(Banner.id == banner_id).first()
+        banner_data = (
+            db.session.query(Banner, Club)
+            .join(Club, Banner.club_id == Club.id)
+            .filter(Banner.id == banner_id)
+            .first()
+        )
 
         if not banner_data:
             return None
@@ -108,7 +119,7 @@ def get_banner_by_id(banner_id):
             "start_date": banner.start_date.isoformat() if banner.start_date else None,
             "end_date": banner.end_date.isoformat() if banner.end_date else None,
             "created_at": banner.created_at.isoformat(),
-            "updated_at": banner.updated_at.isoformat()
+            "updated_at": banner.updated_at.isoformat(),
         }
 
     except Exception as e:
@@ -134,7 +145,7 @@ def update_banner_status(banner_id, status):
             "club_id": banner.club_id,
             "title": banner.title,
             "status": banner.status,
-            "updated_at": banner.updated_at.isoformat()
+            "updated_at": banner.updated_at.isoformat(),
         }
 
     except Exception as e:
