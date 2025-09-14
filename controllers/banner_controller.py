@@ -1,10 +1,10 @@
 from flask_restx import Resource, abort, reqparse
 from services.banner_service import (
     create_banner,
-    get_banners,
-    get_banner_by_id,
-    update_banner_status,
     delete_banner,
+    get_banner_by_id,
+    get_banners,
+    update_banner_status,
 )
 
 
@@ -15,12 +15,27 @@ class BannerController(Resource):
         """배너 등록"""
         try:
             parser = reqparse.RequestParser()
-            parser.add_argument("club_id", type=int, required=True, location="form")
-            parser.add_argument("title", type=str, required=True, location="form")
-            parser.add_argument("description", type=str, location="form")
-            parser.add_argument("location", type=str, location="form")
-            parser.add_argument("start_date", type=str, location="form")
-            parser.add_argument("end_date", type=str, location="form")
+            parser.add_argument(
+                "club_id", type=int, required=True, location="form"
+            )
+            parser.add_argument(
+                "user_id", type=int, required=True, location="form"
+            )
+            parser.add_argument(
+                "title", type=str, required=True, location="form"
+            )
+            parser.add_argument(
+                "description", type=str, location="form"
+            )
+            parser.add_argument(
+                "position", type=str, location="form"
+            )
+            parser.add_argument(
+                "start_date", type=str, required=True, location="form"
+            )
+            parser.add_argument(
+                "end_date", type=str, required=True, location="form"
+            )
             args = parser.parse_args()
 
             # 파일 처리
@@ -36,35 +51,41 @@ class BannerController(Resource):
             banner_data = {
                 "title": args["title"],
                 "description": args.get("description", ""),
-                "location": args.get("location", "MAIN_TOP"),
-                "start_date": args.get("start_date"),
-                "end_date": args.get("end_date"),
+                "position": args.get("position", "TOP"),
+                "start_date": args["start_date"],
+                "end_date": args["end_date"],
             }
 
-            new_banner = create_banner(args["club_id"], banner_data, image_file)
+            new_banner = create_banner(
+                args["club_id"], args["user_id"], banner_data, image_file
+            )
             return {"status": "success", "banner": new_banner}, 201
 
         except ValueError as e:
             abort(400, f"400-03: {str(e)}")
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {e}")
 
     def get(self):
         """배너 목록 조회"""
         try:
             parser = reqparse.RequestParser()
             parser.add_argument("status", type=str, location="args")
-            parser.add_argument("location", type=str, location="args")
+            parser.add_argument("position", type=str, location="args")
             args = parser.parse_args()
 
             banners = get_banners(
-                status=args.get("status"), location=args.get("location")
+                status=args.get("status"), position=args.get("position")
             )
 
-            return {"status": "success", "count": len(banners), "banners": banners}, 200
+            return {
+                "status": "success",
+                "count": len(banners),
+                "banners": banners,
+            }, 200
 
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {e}")
 
 
 class BannerDetailController(Resource):
@@ -80,7 +101,7 @@ class BannerDetailController(Resource):
             return {"status": "success", "banner": banner}, 200
 
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {e}")
 
     def delete(self, banner_id):
         """배너 삭제"""
@@ -91,7 +112,7 @@ class BannerDetailController(Resource):
         except ValueError as e:
             abort(400, f"400-04: {str(e)}")
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {e}")
 
 
 class BannerStatusController(Resource):
@@ -101,7 +122,9 @@ class BannerStatusController(Resource):
         """배너 상태 변경"""
         try:
             parser = reqparse.RequestParser()
-            parser.add_argument("status", type=str, required=True, location="json")
+            parser.add_argument(
+                "status", type=str, required=True, location="json"
+            )
             args = parser.parse_args()
 
             banner = update_banner_status(banner_id, args["status"])
@@ -110,4 +133,4 @@ class BannerStatusController(Resource):
         except ValueError as e:
             abort(400, f"400-05: {str(e)}")
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {e}")

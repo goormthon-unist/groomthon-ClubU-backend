@@ -6,31 +6,36 @@ from . import db
 class Banner(db.Model):
     __tablename__ = "banners"
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    club_id = db.Column(db.Integer, db.ForeignKey("clubs.id"), nullable=False)
-    title = db.Column(db.String(200), nullable=False)
-    description = db.Column(db.Text, nullable=True)
-    image_url = db.Column(db.String(500), nullable=False)
-    original_image_url = db.Column(db.String(500), nullable=False)
-    location = db.Column(
-        db.Enum("MAIN_TOP", "MAIN_MIDDLE", "MAIN_BOTTOM", "SIDEBAR"),
+    id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
+    club_id = db.Column(
+        db.BigInteger, db.ForeignKey("clubs.id"), nullable=False
+    )
+    user_id = db.Column(
+        db.BigInteger, db.ForeignKey("users.id"), nullable=False
+    )
+    file_path = db.Column(db.String(255), nullable=False)
+    position = db.Column(
+        db.Enum("TOP", "BOTTOM", name="banner_position"),
         nullable=False,
-        default="MAIN_TOP",
     )
     status = db.Column(
-        db.Enum("PENDING", "POSTED", "REJECTED", "EXPIRED"),
+        db.Enum(
+            "WAITING", "REJECTED", "POSTED", "ARCHIVED", name="banner_status"
+        ),
         nullable=False,
-        default="PENDING",
+        default="WAITING",
     )
-    start_date = db.Column(db.DateTime, nullable=True)
-    end_date = db.Column(db.DateTime, nullable=True)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = db.Column(
-        db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+    uploaded_at = db.Column(
+        db.DateTime, nullable=False, default=datetime.utcnow
     )
+    start_date = db.Column(db.Date, nullable=False)
+    end_date = db.Column(db.Date, nullable=False)
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=True)
 
     # 관계 설정
     club = db.relationship("Club", backref="banners")
+    user = db.relationship("User", backref="banners")
 
     def __repr__(self):
         return f"<Banner {self.title} (Club {self.club_id})>"

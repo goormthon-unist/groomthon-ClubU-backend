@@ -1,11 +1,11 @@
 from flask_restx import Resource, abort, reqparse
 from services.notice_service import (
     create_notice,
-    get_club_notices,
+    delete_notice,
     get_all_notices,
+    get_club_notices,
     get_notice_by_id,
     update_notice,
-    delete_notice,
 )
 
 
@@ -16,8 +16,15 @@ class ClubNoticeController(Resource):
         """동아리 공지 등록"""
         try:
             parser = reqparse.RequestParser()
-            parser.add_argument("title", type=str, required=True, location="json")
-            parser.add_argument("content", type=str, required=True, location="json")
+            parser.add_argument(
+                "user_id", type=int, required=True, location="json"
+            )
+            parser.add_argument(
+                "title", type=str, required=True, location="json"
+            )
+            parser.add_argument(
+                "content", type=str, required=True, location="json"
+            )
             parser.add_argument("is_important", type=bool, location="json")
             args = parser.parse_args()
 
@@ -27,24 +34,28 @@ class ClubNoticeController(Resource):
                 "is_important": args.get("is_important", False),
             }
 
-            new_notice = create_notice(club_id, notice_data)
+            new_notice = create_notice(club_id, args["user_id"], notice_data)
             return {"status": "success", "notice": new_notice}, 201
 
         except ValueError as e:
             abort(400, f"400-01: {str(e)}")
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {e}")
 
     def get(self, club_id):
         """특정 동아리 공지 목록 조회"""
         try:
             notices = get_club_notices(club_id)
-            return {"status": "success", "count": len(notices), "notices": notices}, 200
+            return {
+                "status": "success",
+                "count": len(notices),
+                "notices": notices,
+            }, 200
 
         except ValueError as e:
             abort(400, f"400-02: {str(e)}")
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {e}")
 
 
 class NoticeController(Resource):
@@ -54,10 +65,14 @@ class NoticeController(Resource):
         """전체 공지 목록 조회"""
         try:
             notices = get_all_notices()
-            return {"status": "success", "count": len(notices), "notices": notices}, 200
+            return {
+                "status": "success",
+                "count": len(notices),
+                "notices": notices,
+            }, 200
 
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {e}")
 
 
 class NoticeDetailController(Resource):
@@ -73,7 +88,7 @@ class NoticeDetailController(Resource):
             return {"status": "success", "notice": notice}, 200
 
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {e}")
 
 
 class ClubNoticeDetailController(Resource):
@@ -99,7 +114,7 @@ class ClubNoticeDetailController(Resource):
         except ValueError as e:
             abort(400, f"400-04: {str(e)}")
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {e}")
 
     def delete(self, club_id, notice_id):
         """동아리 공지 삭제"""
@@ -110,4 +125,4 @@ class ClubNoticeDetailController(Resource):
         except ValueError as e:
             abort(400, f"400-05: {str(e)}")
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {e}")
