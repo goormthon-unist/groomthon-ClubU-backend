@@ -121,6 +121,9 @@ def authenticate_user(email, password):
             "created_at": user.created_at.isoformat() if user.created_at else None,
         }
 
+    except ValueError:
+        # ValueError는 그대로 전달 (401 처리용)
+        raise
     except Exception as e:
         raise Exception(f"사용자 인증 중 오류 발생: {str(e)}")
 
