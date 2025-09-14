@@ -7,12 +7,8 @@ class Notice(db.Model):
     __tablename__ = "notices"
 
     id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
-    club_id = db.Column(
-        db.BigInteger, db.ForeignKey("clubs.id"), nullable=False
-    )
-    user_id = db.Column(
-        db.BigInteger, db.ForeignKey("users.id"), nullable=False
-    )
+    club_id = db.Column(db.BigInteger, db.ForeignKey("clubs.id"), nullable=False)
+    user_id = db.Column(db.BigInteger, db.ForeignKey("users.id"), nullable=False)
     posted_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     title = db.Column(db.String(100), nullable=False)
     content = db.Column(db.Text, nullable=False)

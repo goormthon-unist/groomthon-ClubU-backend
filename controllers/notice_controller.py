@@ -16,15 +16,9 @@ class ClubNoticeController(Resource):
         """동아리 공지 등록"""
         try:
             parser = reqparse.RequestParser()
-            parser.add_argument(
-                "user_id", type=int, required=True, location="json"
-            )
-            parser.add_argument(
-                "title", type=str, required=True, location="json"
-            )
-            parser.add_argument(
-                "content", type=str, required=True, location="json"
-            )
+            parser.add_argument("user_id", type=int, required=True, location="json")
+            parser.add_argument("title", type=str, required=True, location="json")
+            parser.add_argument("content", type=str, required=True, location="json")
             parser.add_argument("is_important", type=bool, location="json")
             args = parser.parse_args()
 

@@ -15,12 +15,8 @@ def create_banner(club_id, user_id, banner_data, image_file):
         image_info = save_banner_image(image_file, club_id)
 
         # 날짜 변환
-        start_date = datetime.strptime(
-            banner_data["start_date"], "%Y-%m-%d"
-        ).date()
-        end_date = datetime.strptime(
-            banner_data["end_date"], "%Y-%m-%d"
-        ).date()
+        start_date = datetime.strptime(banner_data["start_date"], "%Y-%m-%d").date()
+        end_date = datetime.strptime(banner_data["end_date"], "%Y-%m-%d").date()
 
         # 배너 생성
         new_banner = Banner(
@@ -60,9 +56,7 @@ def create_banner(club_id, user_id, banner_data, image_file):
 def get_banners(status=None, position=None):
     """배너 목록 조회"""
     try:
-        query = db.session.query(Banner, Club).join(
-            Club, Banner.club_id == Club.id
-        )
+        query = db.session.query(Banner, Club).join(Club, Banner.club_id == Club.id)
 
         if status:
             query = query.filter(Banner.status == status)

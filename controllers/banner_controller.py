@@ -15,27 +15,13 @@ class BannerController(Resource):
         """배너 등록"""
         try:
             parser = reqparse.RequestParser()
-            parser.add_argument(
-                "club_id", type=int, required=True, location="form"
-            )
-            parser.add_argument(
-                "user_id", type=int, required=True, location="form"
-            )
-            parser.add_argument(
-                "title", type=str, required=True, location="form"
-            )
-            parser.add_argument(
-                "description", type=str, location="form"
-            )
-            parser.add_argument(
-                "position", type=str, location="form"
-            )
-            parser.add_argument(
-                "start_date", type=str, required=True, location="form"
-            )
-            parser.add_argument(
-                "end_date", type=str, required=True, location="form"
-            )
+            parser.add_argument("club_id", type=int, required=True, location="form")
+            parser.add_argument("user_id", type=int, required=True, location="form")
+            parser.add_argument("title", type=str, required=True, location="form")
+            parser.add_argument("description", type=str, location="form")
+            parser.add_argument("position", type=str, location="form")
+            parser.add_argument("start_date", type=str, required=True, location="form")
+            parser.add_argument("end_date", type=str, required=True, location="form")
             args = parser.parse_args()
 
             # 파일 처리
@@ -122,9 +108,7 @@ class BannerStatusController(Resource):
         """배너 상태 변경"""
         try:
             parser = reqparse.RequestParser()
-            parser.add_argument(
-                "status", type=str, required=True, location="json"
-            )
+            parser.add_argument("status", type=str, required=True, location="json")
             args = parser.parse_args()
 
             banner = update_banner_status(banner_id, args["status"])

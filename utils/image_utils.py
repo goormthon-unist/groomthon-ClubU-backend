@@ -14,9 +14,7 @@ def create_banner_directories(club_id):
     return optimized_dir
 
 
-def optimize_image(
-    image_path, output_path, max_width=800, max_height=600, quality=85
-):
+def optimize_image(image_path, output_path, max_width=800, max_height=600, quality=85):
     """이미지 최적화 및 WebP 변환"""
     try:
         with Image.open(image_path) as img:
@@ -46,9 +44,7 @@ def save_banner_image(file, club_id):
 
         # 파일 확장자 확인
         allowed_extensions = {"png", "jpg", "jpeg", "gif", "bmp"}
-        file_ext = (
-            filename.rsplit(".", 1)[1].lower() if "." in filename else ""
-        )
+        file_ext = filename.rsplit(".", 1)[1].lower() if "." in filename else ""
         if file_ext not in allowed_extensions:
             raise ValueError("지원하지 않는 파일 형식입니다")
 
@@ -62,9 +58,7 @@ def save_banner_image(file, club_id):
         optimized_path = os.path.join(optimized_dir, optimized_filename)
 
         # 임시 원본 파일 저장
-        temp_path = os.path.join(
-            optimized_dir, f"temp_{uuid.uuid4()}.{file_ext}"
-        )
+        temp_path = os.path.join(optimized_dir, f"temp_{uuid.uuid4()}.{file_ext}")
         file.save(temp_path)
 
         # 이미지 최적화
@@ -74,9 +68,7 @@ def save_banner_image(file, club_id):
                 os.remove(temp_path)
 
             return {
-                "file_path": (
-                    f"/banners/{club_id}/optimized/{optimized_filename}"
-                ),
+                "file_path": (f"/banners/{club_id}/optimized/{optimized_filename}"),
                 "optimized_path": optimized_path,
             }
         else:
