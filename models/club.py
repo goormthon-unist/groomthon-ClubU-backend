@@ -6,7 +6,7 @@ from . import db
 class Club(db.Model):
     __tablename__ = "clubs"
 
-    id = db.Column(db.BigInteger, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String(100), nullable=False)
     category_id = db.Column(
         db.Integer, db.ForeignKey("club_categories.id"), nullable=False
@@ -19,11 +19,9 @@ class Club(db.Model):
     )
     current_generation = db.Column(db.Integer, nullable=True)
     introduction = db.Column(db.Text, nullable=True)
-    created_at = db.Column(db.TIMESTAMP, nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated_at = db.Column(
-        db.TIMESTAMP,
-        nullable=False,
-        server_default=db.text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"),
+        db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
     # 관계 설정

@@ -14,6 +14,8 @@ from .application_answer import ApplicationAnswer
 from .department import Department
 from .role import Role
 from .session import UserSession
+from .notice import Notice
+from .banner import Banner
 
 __all__ = [
     "db",
@@ -28,4 +30,6 @@ __all__ = [
     "Department",
     "Role",
     "UserSession",
+    "Notice",
+    "Banner",
 ]
