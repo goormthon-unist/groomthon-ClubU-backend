@@ -5,18 +5,21 @@ from models import Application, ApplicationAnswer, ClubApplicationQuestion
 def get_user_profile(user_id):
     """사용자 프로필 정보 조회 (마이페이지용)"""
     try:
-        # 사용자와 학과 정보를 함께 조회
-        user_data = (
-            db.session.query(User, Department)
-            .join(Department, User.department_id == Department.id)
-            .filter(User.id == user_id)
-            .first()
-        )
+        # 먼저 사용자 정보만 조회
+        user = User.query.filter_by(id=user_id).first()
 
-        if not user_data:
+        if not user:
             return None
 
-        user, department = user_data
+        # 학과 정보는 관계를 통해 안전하게 조회 (LEFT JOIN 방식)
+        department_info = None
+        if user.department_id and user.department:
+            department_info = {
+                "id": user.department.id,
+                "degree_course": user.department.degree_course,
+                "college": user.department.college,
+                "major": user.department.major,
+            }
 
         # JSON 변환 (비밀번호 제외)
         return {
@@ -26,12 +29,7 @@ def get_user_profile(user_id):
             "student_id": user.student_id,
             "phone_number": user.phone_number,
             "gender": user.gender,
-            "department": {
-                "id": department.id,
-                "degree_course": department.degree_course,
-                "college": department.college,
-                "major": department.major,
-            },
+            "department": department_info,  # None일 수 있음
             "email_verified": user.email_verified_at is not None,
             "created_at": (user.created_at.isoformat() if user.created_at else None),
             "updated_at": (user.updated_at.isoformat() if user.updated_at else None),
