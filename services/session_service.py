@@ -127,9 +127,12 @@ def deactivate_session(session_id):
     """특정 세션 비활성화"""
     try:
         session_obj = UserSession.query.filter_by(session_id=session_id).first()
+
         if session_obj:
             session_obj.is_active = False
             db.session.commit()
+        else:
+            print("세션을 찾을 수 없습니다")
 
     except Exception as e:
         db.session.rollback()

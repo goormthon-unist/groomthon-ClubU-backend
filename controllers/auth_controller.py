@@ -17,6 +17,7 @@ from services.session_service import (
     clear_flask_session,
     debug_session_info,
     get_current_user,
+    get_current_session,
 )
 
 
@@ -163,15 +164,21 @@ class LogoutController(Resource):
     def post(self):
         """로그아웃 API"""
         try:
+
             # 현재 세션 정보 조회
             current_session = get_current_session()
 
             if current_session:
+                session_id = current_session["session_id"]
+
                 # 세션 비활성화
-                deactivate_session(current_session["session_id"])
+                deactivate_session(session_id)
+            else:
+                print("현재 세션이 없습니다")
 
             # Flask 세션 클리어
             clear_flask_session()
+            print("Flask 세션 클리어 완료")
 
             response_data = {
                 "status": "success",
@@ -181,6 +188,7 @@ class LogoutController(Resource):
             return response_data, 200
 
         except Exception as e:
+            print(f"로그아웃 중 오류 발생: {str(e)}")
             abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
 
 
@@ -220,6 +228,9 @@ class SessionInfoController(Resource):
 
             return response_data, 200
 
+        except HTTPException as he:
+            # 401, 403 등 HTTP 예외는 그대로 전달
+            raise he
         except Exception as e:
             abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
 
