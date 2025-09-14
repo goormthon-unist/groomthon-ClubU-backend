@@ -67,6 +67,13 @@ def create_app():
     db.init_app(app)
     Migrate(app, db)
 
+    # 정적 파일 서빙 설정
+    from flask import send_from_directory
+    
+    @app.route('/banners/<path:filename>')
+    def serve_banner(filename):
+        return send_from_directory('banners', filename)
+
     # RESTX API
     api = Api(
         app,
@@ -80,6 +87,8 @@ def create_app():
     from routes.home_routes import home_ns
     from routes.question_routes import question_ns
     from routes.application_check_submit_routes import application_ns
+    from routes.notice_routes import notice_ns, club_notice_ns
+    from routes.banner_routes import banner_ns
 
     from routes.auth_routes import auth_ns
     from routes.role_routes import role_ns
@@ -91,6 +100,9 @@ def create_app():
     api.add_namespace(home_ns, path="/api/v1/clubs")
     api.add_namespace(question_ns, path="/api/v1")
     api.add_namespace(application_ns, path="/api/v1")
+    api.add_namespace(notice_ns, path="/api/v1")
+    api.add_namespace(club_notice_ns, path="/api/v1")
+    api.add_namespace(banner_ns, path="/api/v1")
     api.add_namespace(auth_ns, path="/api/v1/auth")
     api.add_namespace(role_ns, path="/api/v1/roles")
     api.add_namespace(application_check_ns, path="/api/v1")
