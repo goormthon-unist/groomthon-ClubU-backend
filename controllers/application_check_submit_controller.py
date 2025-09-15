@@ -1,5 +1,6 @@
 from flask_restx import Resource, abort
 from flask import request
+from services.session_service import get_current_session
 from services.application_check_submit_service import (
     get_club_application_questions,
     submit_application,
@@ -38,17 +39,21 @@ class ApplicationSubmitController(Resource):
     def post(self, club_id):
         """동아리 지원서를 제출합니다"""
         try:
+            # 세션 인증 확인
+            session_data = get_current_session()
+            if not session_data:
+                abort(401, "401-01: 로그인이 필요합니다")
+
             # 요청 데이터 파싱
             data = request.get_json()
             if not data:
                 abort(400, "400-01: 요청 데이터가 없습니다")
 
-            user_id = data.get("user_id")
+            # 세션에서 user_id 가져오기 (요청 데이터의 user_id 무시)
+            user_id = session_data["user_id"]
             answers = data.get("answers", [])
 
             # 필수 필드 검증
-            if not user_id:
-                abort(400, "400-02: user_id가 필요합니다")
             if not answers:
                 abort(400, "400-03: 답변 데이터가 필요합니다")
 
