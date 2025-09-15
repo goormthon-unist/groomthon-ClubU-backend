@@ -57,6 +57,8 @@ class RegisterController(Resource):
                 abort(400, "400-09: phone_number is required")
             if not department_id:
                 abort(400, "400-12: department_id is required")
+            if not gender:
+                abort(400, "400-13: gender is required")
 
             # 3) 상세 형식 검증
             is_valid_username, username_message = validate_username(username)
@@ -80,6 +82,14 @@ class RegisterController(Resource):
             )
             if not is_valid_phone_number:
                 abort(400, f"400-11: {phone_number_message}")
+
+            # 성별 유효성 검증
+            valid_genders = ["MALE", "FEMALE", "OTHER"]
+            if gender not in valid_genders:
+                abort(
+                    400,
+                    "400-14: 유효하지 않은 성별입니다. MALE, FEMALE, OTHER 중 하나를 선택해주세요.",
+                )
 
             # 4) 사용자 생성
             user_data = create_user(
