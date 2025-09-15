@@ -1,4 +1,5 @@
 from flask_restx import Resource, abort, reqparse
+from services.session_service import get_current_session
 from services.home_service import (
     get_all_clubs,
     get_club_by_id,
@@ -48,6 +49,11 @@ class ClubUpdateController(Resource):
     def patch(self, club_id):
         """동아리 정보를 수정합니다"""
         try:
+            # 세션 인증 확인
+            session_data = get_current_session()
+            if not session_data:
+                abort(401, "401-01: 로그인이 필요합니다")
+
             parser = reqparse.RequestParser()
             parser.add_argument("name", type=str, location="json")
             parser.add_argument("activity_summary", type=str, location="json")
@@ -75,6 +81,11 @@ class ClubStatusController(Resource):
     def patch(self, club_id):
         """동아리 모집 상태를 변경합니다"""
         try:
+            # 세션 인증 확인
+            session_data = get_current_session()
+            if not session_data:
+                abort(401, "401-01: 로그인이 필요합니다")
+
             parser = reqparse.RequestParser()
             parser.add_argument("status", type=str, required=True, location="json")
             args = parser.parse_args()
@@ -95,6 +106,11 @@ class ClubQuestionsController(Resource):
     def post(self, club_id):
         """동아리 지원서 문항을 추가합니다"""
         try:
+            # 세션 인증 확인
+            session_data = get_current_session()
+            if not session_data:
+                abort(401, "401-01: 로그인이 필요합니다")
+
             parser = reqparse.RequestParser()
             parser.add_argument(
                 "question_text", type=str, required=True, location="json"
@@ -117,6 +133,11 @@ class QuestionController(Resource):
     def patch(self, question_id):
         """지원서 문항을 수정합니다"""
         try:
+            # 세션 인증 확인
+            session_data = get_current_session()
+            if not session_data:
+                abort(401, "401-01: 로그인이 필요합니다")
+
             parser = reqparse.RequestParser()
             parser.add_argument("question_text", type=str, location="json")
             args = parser.parse_args()
@@ -136,6 +157,11 @@ class QuestionController(Resource):
     def delete(self, question_id):
         """지원서 문항을 삭제합니다"""
         try:
+            # 세션 인증 확인
+            session_data = get_current_session()
+            if not session_data:
+                abort(401, "401-01: 로그인이 필요합니다")
+
             result = delete_question(question_id)
             return {"status": "success", "message": result["message"]}, 200
 
@@ -151,6 +177,11 @@ class ClubMembersController(Resource):
     def get(self, club_id):
         """동아리원 목록을 조회합니다"""
         try:
+            # 세션 인증 확인
+            session_data = get_current_session()
+            if not session_data:
+                abort(401, "401-01: 로그인이 필요합니다")
+
             members = get_club_members(club_id)
             return {
                 "status": "success",

@@ -1,4 +1,5 @@
 from flask_restx import Resource, abort, reqparse
+from services.session_service import get_current_session
 from services.notice_service import (
     create_notice,
     delete_notice,
@@ -15,8 +16,12 @@ class ClubNoticeController(Resource):
     def post(self, club_id):
         """동아리 공지 등록"""
         try:
+            # 세션 인증 확인
+            session_data = get_current_session()
+            if not session_data:
+                abort(401, "401-01: 로그인이 필요합니다")
+
             parser = reqparse.RequestParser()
-            parser.add_argument("user_id", type=int, required=True, location="json")
             parser.add_argument("title", type=str, required=True, location="json")
             parser.add_argument("content", type=str, required=True, location="json")
             parser.add_argument("is_important", type=bool, location="json")
@@ -28,7 +33,9 @@ class ClubNoticeController(Resource):
                 "is_important": args.get("is_important", False),
             }
 
-            new_notice = create_notice(club_id, args["user_id"], notice_data)
+            # 세션에서 user_id 가져오기
+            user_id = session_data["user_id"]
+            new_notice = create_notice(club_id, user_id, notice_data)
             return {"status": "success", "notice": new_notice}, 201
 
         except ValueError as e:
@@ -91,6 +98,11 @@ class ClubNoticeDetailController(Resource):
     def patch(self, club_id, notice_id):
         """동아리 공지 수정"""
         try:
+            # 세션 인증 확인
+            session_data = get_current_session()
+            if not session_data:
+                abort(401, "401-01: 로그인이 필요합니다")
+
             parser = reqparse.RequestParser()
             parser.add_argument("title", type=str, location="json")
             parser.add_argument("content", type=str, location="json")
@@ -113,6 +125,11 @@ class ClubNoticeDetailController(Resource):
     def delete(self, club_id, notice_id):
         """동아리 공지 삭제"""
         try:
+            # 세션 인증 확인
+            session_data = get_current_session()
+            if not session_data:
+                abort(401, "401-01: 로그인이 필요합니다")
+
             result = delete_notice(notice_id)
             return {"status": "success", "message": result["message"]}, 200
 

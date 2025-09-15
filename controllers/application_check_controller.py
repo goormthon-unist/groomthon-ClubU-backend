@@ -4,6 +4,7 @@
 
 from flask import request
 from flask_restx import Resource, abort
+from services.session_service import get_current_session
 from services.application_check_service import (
     get_club_applicants,
     get_application_detail,
@@ -17,6 +18,11 @@ class ClubApplicantsController(Resource):
     def get(self):
         """특정 동아리의 지원자 목록을 조회합니다"""
         try:
+            # 세션 인증 확인
+            session_data = get_current_session()
+            if not session_data:
+                abort(401, "401-01: 로그인이 필요합니다")
+
             # 쿼리 파라미터에서 club_id 가져오기
             club_id = request.args.get("club_id", type=int)
             if not club_id:
@@ -41,6 +47,11 @@ class ApplicationDetailController(Resource):
     def get(self, application_id):
         """특정 지원서의 상세 정보를 조회합니다"""
         try:
+            # 세션 인증 확인
+            session_data = get_current_session()
+            if not session_data:
+                abort(401, "401-01: 로그인이 필요합니다")
+
             application_detail = get_application_detail(application_id)
             return {"status": "success", "application": application_detail}, 200
 
@@ -56,6 +67,11 @@ class ClubMemberRegistrationController(Resource):
     def post(self):
         """지원자를 동아리원으로 등록합니다"""
         try:
+            # 세션 인증 확인
+            session_data = get_current_session()
+            if not session_data:
+                abort(401, "401-01: 로그인이 필요합니다")
+
             from flask_restx import reqparse
 
             parser = reqparse.RequestParser()

@@ -1,4 +1,5 @@
 from flask_restx import Resource, abort, reqparse
+from services.session_service import get_current_session
 from services.banner_service import (
     create_banner,
     delete_banner,
@@ -14,9 +15,13 @@ class BannerController(Resource):
     def post(self):
         """배너 등록"""
         try:
+            # 세션 인증 확인
+            session_data = get_current_session()
+            if not session_data:
+                abort(401, "401-01: 로그인이 필요합니다")
+
             parser = reqparse.RequestParser()
             parser.add_argument("club_id", type=int, required=True, location="form")
-            parser.add_argument("user_id", type=int, required=True, location="form")
             parser.add_argument("title", type=str, required=True, location="form")
             parser.add_argument("description", type=str, location="form")
             parser.add_argument("position", type=str, location="form")
@@ -42,8 +47,10 @@ class BannerController(Resource):
                 "end_date": args["end_date"],
             }
 
+            # 세션에서 user_id 가져오기
+            user_id = session_data["user_id"]
             new_banner = create_banner(
-                args["club_id"], args["user_id"], banner_data, image_file
+                args["club_id"], user_id, banner_data, image_file
             )
             return {"status": "success", "banner": new_banner}, 201
 
@@ -92,6 +99,11 @@ class BannerDetailController(Resource):
     def delete(self, banner_id):
         """배너 삭제"""
         try:
+            # 세션 인증 확인
+            session_data = get_current_session()
+            if not session_data:
+                abort(401, "401-01: 로그인이 필요합니다")
+
             result = delete_banner(banner_id)
             return {"status": "success", "message": result["message"]}, 200
 
@@ -107,6 +119,11 @@ class BannerStatusController(Resource):
     def patch(self, banner_id):
         """배너 상태 변경"""
         try:
+            # 세션 인증 확인
+            session_data = get_current_session()
+            if not session_data:
+                abort(401, "401-01: 로그인이 필요합니다")
+
             parser = reqparse.RequestParser()
             parser.add_argument("status", type=str, required=True, location="json")
             args = parser.parse_args()
