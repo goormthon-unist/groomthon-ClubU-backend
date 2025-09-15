@@ -164,7 +164,6 @@ class LogoutController(Resource):
     def post(self):
         """로그아웃 API"""
         try:
-
             # 현재 세션 정보 조회
             current_session = get_current_session()
 
