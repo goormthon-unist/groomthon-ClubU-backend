@@ -207,6 +207,11 @@ class SessionDebugController(Resource):
     def get(self):
         """현재 세션 상태 디버깅 정보를 반환합니다"""
         try:
+            # 세션 인증 확인
+            session_data = get_current_session()
+            if not session_data:
+                abort(401, "401-01: 로그인이 필요합니다")
+
             debug_info = debug_session_info()
 
             return {"status": "success", "debug_info": debug_info}, 200
@@ -250,6 +255,11 @@ class UserListController(Resource):
     def get(self):
         """모든 사용자 정보 조회 API"""
         try:
+            # 세션 인증 확인
+            session_data = get_current_session()
+            if not session_data:
+                abort(401, "401-01: 로그인이 필요합니다")
+
             # 모든 사용자 정보 조회
             users = get_all_users()
 
