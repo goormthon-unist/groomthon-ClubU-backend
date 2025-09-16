@@ -1,0 +1,169 @@
+"""
+권한 검사 데코레이터
+컨트롤러에서 @require_permission("permission_key") 형태로 사용
+"""
+
+from functools import wraps
+from flask import abort, request
+from services.permission_service import permission_service
+
+
+def require_permission(permission_key: str, club_id_param: str = None):
+    """
+    권한 검사 데코레이터
+
+    사용법:
+        @require_permission("clubs.update")
+        def put(self, club_id):
+            # 권한 검사 통과 후 실행되는 코드
+            pass
+
+        @require_permission("clubs.members", club_id_param="club_id")
+        def get(self, club_id):
+            # club_id 파라미터를 동아리 컨텍스트로 사용
+            pass
+
+    Args:
+        permission_key: 권한 키 (config/permission_policy.py에 정의된 키)
+        club_id_param: 동아리 ID 파라미터명 (kwargs에서 추출하여 컨텍스트로 사용)
+    """
+
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            # 동아리 컨텍스트 추출
+            club_id = None
+            if club_id_param and club_id_param in kwargs:
+                try:
+                    club_id = int(kwargs[club_id_param])
+                except (ValueError, TypeError):
+                    abort(400, f"Invalid {club_id_param} parameter")
+
+            # 권한 검사 실행
+            result = permission_service.check_permission(
+                permission_key, club_id=club_id
+            )
+
+            if not result["has_permission"]:
+                # 권한 부족 시 HTTP 상태 코드 결정
+                if not result["user_id"]:
+                    # 로그인 필요
+                    abort(401, result["message"])
+                else:
+                    # 권한 부족
+                    abort(403, result["message"])
+
+            # 권한 검사 통과 - 원래 함수 실행
+            return f(*args, **kwargs)
+
+        return decorated_function
+
+    return decorator
+
+
+def require_any_permission(*permission_keys: str):
+    """
+    여러 권한 중 하나라도 있으면 통과하는 데코레이터
+
+    사용법:
+        @require_any_permission("clubs.update", "clubs.delete")
+        def put(self, club_id):
+            pass
+
+    Args:
+        *permission_keys: 권한 키들 (하나라도 통과하면 OK)
+    """
+
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            # 모든 권한 검사
+            results = []
+            for permission_key in permission_keys:
+                result = permission_service.check_permission(permission_key)
+                results.append(result)
+                if result["has_permission"]:
+                    # 하나라도 통과하면 OK
+                    return f(*args, **kwargs)
+
+            # 모든 권한 검사 실패
+            if not any(r["user_id"] for r in results):
+                # 로그인 필요
+                abort(401, "로그인이 필요합니다")
+            else:
+                # 권한 부족
+                required_roles = set()
+                for result in results:
+                    required_roles.update(result["required_roles"])
+                abort(403, f"권한이 부족합니다. 필요 권한: {', '.join(required_roles)}")
+
+        return decorated_function
+
+    return decorator
+
+
+def require_all_permissions(*permission_keys: str):
+    """
+    모든 권한이 있어야 통과하는 데코레이터
+
+    사용법:
+        @require_all_permissions("clubs.update", "clubs.members")
+        def put(self, club_id):
+            pass
+
+    Args:
+        *permission_keys: 권한 키들 (모두 있어야 통과)
+    """
+
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            # 모든 권한 검사
+            results = []
+            for permission_key in permission_keys:
+                result = permission_service.check_permission(permission_key)
+                results.append(result)
+                if not result["has_permission"]:
+                    # 하나라도 실패하면 중단
+                    if not result["user_id"]:
+                        abort(401, result["message"])
+                    else:
+                        abort(403, result["message"])
+
+            # 모든 권한 검사 통과
+            return f(*args, **kwargs)
+
+        return decorated_function
+
+    return decorator
+
+
+def optional_permission(permission_key: str):
+    """
+    권한이 있으면 추가 정보를 제공하는 데코레이터
+    권한이 없어도 실행되지만, request 객체에 권한 정보를 추가
+
+    사용법:
+        @optional_permission("clubs.update")
+        def get(self, club_id):
+            if hasattr(request, 'user_has_permission'):
+                # 권한이 있는 경우의 추가 로직
+                pass
+    """
+
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            # 권한 검사 실행
+            result = permission_service.check_permission(permission_key)
+
+            # request 객체에 권한 정보 추가
+            request.user_has_permission = result["has_permission"]
+            request.user_permission_info = result
+
+            # 권한 여부와 관계없이 함수 실행
+            return f(*args, **kwargs)
+
+        return decorated_function
+
+    return decorator
