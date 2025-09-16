@@ -1,6 +1,7 @@
 import re
+from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import db, User
+from models import db, User, Role, ClubMember
 
 
 def validate_email(email):
@@ -85,6 +86,21 @@ def create_user(user_data):
 
         # 데이터베이스에 저장
         db.session.add(new_user)
+        db.session.flush()  # ID 생성
+
+        # 기본 STUDENT 역할 부여 (전역 역할)
+        student_role = Role.query.filter_by(role_name='STUDENT').first()
+        if not student_role:
+            raise Exception("STUDENT 역할이 존재하지 않습니다. 시스템 관리자에게 문의하세요.")
+
+        club_member = ClubMember(
+            user_id=new_user.id,
+            club_id=None,  # 전역 역할 (NULL)
+            role_id=student_role.id,
+            generation=1,  # 기본값
+            joined_at=datetime.utcnow()
+        )
+        db.session.add(club_member)
         db.session.commit()
 
         return {
@@ -94,6 +110,7 @@ def create_user(user_data):
             "student_id": new_user.student_id,
             "phone_number": new_user.phone_number,
             "gender": new_user.gender,
+            "role": "STUDENT",  # 부여된 역할 정보 추가
             "created_at": (
                 new_user.created_at.isoformat() if new_user.created_at else None
             ),
