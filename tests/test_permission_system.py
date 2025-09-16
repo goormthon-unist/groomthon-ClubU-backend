@@ -192,6 +192,7 @@ class TestPermissionIntegration:
             ("notices.club_create", {"CLUB_PRESIDENT", "UNION_ADMIN", "DEVELOPER"}),
             ("banners.create", {"CLUB_PRESIDENT", "UNION_ADMIN", "DEVELOPER"}),
             ("banners.update_status", {"UNION_ADMIN", "DEVELOPER"}),
+            ("admin.user_role_change", {"DEVELOPER"}),
         ]
 
         for permission_key, expected_roles in test_cases:
@@ -209,6 +210,17 @@ class TestPermissionIntegration:
             with patch("services.session_service.get_current_user", return_value=None):
                 result = service.check_permission("nonexistent.permission")
                 assert result["required_roles"] == {"STUDENT"}
+
+    def test_club_context_permission(self):
+        """동아리 컨텍스트 권한 검사 테스트"""
+        # 동아리 컨텍스트 파라미터가 제대로 전달되는지 확인
+        service = PermissionService()
+
+        # check_permission 메서드가 club_id 파라미터를 받는지 확인
+        import inspect
+
+        sig = inspect.signature(service.check_permission)
+        assert "club_id" in sig.parameters
 
 
 if __name__ == "__main__":

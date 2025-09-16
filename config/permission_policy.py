@@ -94,6 +94,11 @@ PERMISSION_POLICY = {
         "allowed_roles": {"UNION_ADMIN", "DEVELOPER"},
         "description": "배너 상태 수정 (PATCH /api/v1/banners/{id}/status)",
     },
+    # ===== DEVELOPER만 접근 가능한 API들 =====
+    "admin.user_role_change": {
+        "allowed_roles": {"DEVELOPER"},
+        "description": "사용자 권한 변경 (POST /api/v1/admin/users/{user_id}/roles)",
+    },
 }
 
 

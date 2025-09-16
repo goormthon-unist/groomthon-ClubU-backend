@@ -8,7 +8,7 @@ from flask import abort, request
 from services.permission_service import permission_service
 
 
-def require_permission(permission_key: str):
+def require_permission(permission_key: str, club_id_param: str = None):
     """
     권한 검사 데코레이터
 
@@ -18,15 +18,31 @@ def require_permission(permission_key: str):
             # 권한 검사 통과 후 실행되는 코드
             pass
 
+        @require_permission("clubs.members", club_id_param="club_id")
+        def get(self, club_id):
+            # club_id 파라미터를 동아리 컨텍스트로 사용
+            pass
+
     Args:
         permission_key: 권한 키 (config/permission_policy.py에 정의된 키)
+        club_id_param: 동아리 ID 파라미터명 (kwargs에서 추출하여 컨텍스트로 사용)
     """
 
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
+            # 동아리 컨텍스트 추출
+            club_id = None
+            if club_id_param and club_id_param in kwargs:
+                try:
+                    club_id = int(kwargs[club_id_param])
+                except (ValueError, TypeError):
+                    abort(400, f"Invalid {club_id_param} parameter")
+
             # 권한 검사 실행
-            result = permission_service.check_permission(permission_key)
+            result = permission_service.check_permission(
+                permission_key, club_id=club_id
+            )
 
             if not result["has_permission"]:
                 # 권한 부족 시 HTTP 상태 코드 결정

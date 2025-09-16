@@ -16,7 +16,10 @@ class PermissionService:
         self._user_roles_cache = {}  # 간단한 메모리 캐시
 
     def check_permission(
-        self, permission_key: str, user_id: Optional[int] = None
+        self,
+        permission_key: str,
+        user_id: Optional[int] = None,
+        club_id: Optional[int] = None,
     ) -> Dict[str, Any]:
         """
         권한 검사 메인 메서드
@@ -24,9 +27,10 @@ class PermissionService:
         Args:
             permission_key: 권한 키 (예: 'clubs.update')
             user_id: 사용자 ID (None이면 현재 세션 사용자)
+            club_id: 동아리 ID (특정 동아리 컨텍스트에서 권한 검사)
 
         Returns:
-            Dict with keys: has_permission, message, user_id, user_roles, required_roles
+            Dict with keys: has_permission, message, user_id, user_roles, required_roles, club_id
         """
         try:
             # 1. 권한 정책 조회
@@ -55,8 +59,13 @@ class PermissionService:
                     }
                 user_id = current_user.id
 
-            # 3. 사용자 권한 조회
-            user_roles = self.get_user_roles(user_id)
+            # 3. 사용자 권한 조회 (동아리 컨텍스트 고려)
+            if club_id is not None:
+                # 특정 동아리 컨텍스트에서 권한 검사
+                user_roles = self.get_user_roles_in_club(user_id, club_id)
+            else:
+                # 전역 권한 검사
+                user_roles = self.get_user_roles(user_id)
 
             # 4. 권한 검사
             has_permission = bool(user_roles.intersection(required_roles))
@@ -74,6 +83,7 @@ class PermissionService:
                 "user_id": user_id,
                 "user_roles": user_roles,
                 "required_roles": required_roles,
+                "club_id": club_id,
             }
 
         except Exception as e:
@@ -84,6 +94,7 @@ class PermissionService:
                 "user_id": user_id,
                 "user_roles": set(),
                 "required_roles": set(),
+                "club_id": club_id,
             }
 
     def get_user_roles(self, user_id: int) -> Set[str]:
@@ -149,6 +160,35 @@ class PermissionService:
         except Exception as e:
             current_app.logger.exception(
                 f"클럽 권한 조회 중 오류 발생: user_id={user_id}, club_id={club_id}"
+            )
+            return set()
+
+    def get_user_roles_in_club(self, user_id: int, club_id: int) -> Set[str]:
+        """
+        특정 동아리에서의 사용자 권한 조회 (전역 권한 + 동아리 권한)
+
+        Args:
+            user_id: 사용자 ID
+            club_id: 동아리 ID
+
+        Returns:
+            해당 동아리에서 유효한 모든 권한 (전역 + 동아리별)
+        """
+        try:
+            # 1. 전역 권한 조회
+            global_roles = self.get_user_global_roles(user_id)
+
+            # 2. 해당 동아리 권한 조회
+            club_roles = self.get_user_club_roles(user_id, club_id)
+
+            # 3. 전역 권한과 동아리 권한 합치기
+            all_roles = global_roles.union(club_roles)
+
+            return all_roles
+
+        except Exception as e:
+            current_app.logger.exception(
+                f"동아리 컨텍스트 권한 조회 중 오류 발생: user_id={user_id}, club_id={club_id}"
             )
             return set()
 
