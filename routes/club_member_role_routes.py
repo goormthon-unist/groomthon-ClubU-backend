@@ -93,8 +93,8 @@ class ClubMembersListResource(ClubMembersListController):
 
 
 @club_member_role_ns.route("/<int:club_id>/members/<int:user_id>/role")
-class ClubMemberRoleChangeResource(ClubMemberRoleChangeController):
-    """동아리 멤버 권한 변경 리소스"""
+class ClubMemberRoleResource(ClubMemberRoleChangeController, ClubMemberRolesController):
+    """동아리 멤버 권한 관리 리소스 (변경 + 조회)"""
 
     @club_member_role_ns.doc("change_club_member_role")
     @club_member_role_ns.expect(club_member_role_change_model)
@@ -118,12 +118,7 @@ class ClubMemberRoleChangeResource(ClubMemberRoleChangeController):
         - 멤버를 간부로 승격: {"role_name": "CLUB_OFFICER"}
         - 간부를 회장으로 승격: {"role_name": "CLUB_PRESIDENT", "generation": 3}
         """
-        return super().post(club_id, user_id)
-
-
-@club_member_role_ns.route("/<int:club_id>/members/<int:user_id>/role")
-class ClubMemberRolesResource(ClubMemberRolesController):
-    """동아리 멤버 권한 조회 리소스"""
+        return ClubMemberRoleChangeController.post(self, club_id, user_id)
 
     @club_member_role_ns.doc("get_club_member_roles")
     @club_member_role_ns.response(200, "권한 조회 성공")
@@ -135,7 +130,7 @@ class ClubMemberRolesResource(ClubMemberRolesController):
 
         특정 사용자의 동아리 내 권한 정보를 조회합니다.
         """
-        return super().get(club_id, user_id)
+        return ClubMemberRolesController.get(self, club_id, user_id)
 
 
 @club_member_role_ns.route("/roles")

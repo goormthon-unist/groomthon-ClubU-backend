@@ -2,7 +2,6 @@ from flask_restx import Namespace
 from controllers.role_controller import (
     RoleListController,
     RoleDetailController,
-    RoleCreateController,
     ClubMemberRoleController,
     ClubRoleUsersController,
     ClubMembersController,
@@ -18,13 +17,6 @@ role_ns = Namespace("roles", description="역할 관리 API")
 @role_ns.route("/")
 class RoleListResource(RoleListController):
     """역할 목록 조회 리소스"""
-
-    pass
-
-
-@role_ns.route("/create")
-class RoleCreateResource(RoleCreateController):
-    """역할 생성 리소스"""
 
     pass
 
