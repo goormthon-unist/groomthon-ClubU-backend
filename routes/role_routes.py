@@ -50,11 +50,10 @@ class ClubRoleUsersResource(ClubRoleUsersController):
     pass
 
 
-@role_ns.route("/clubs/<int:club_id>/users/<int:user_id>")
-class ClubMemberRoleResource(ClubMemberRoleController):
-    """동아리 멤버 역할 관리 리소스"""
-
-    pass
+# @role_ns.route("/clubs/<int:club_id>/users/<int:user_id>")
+# class ClubMemberRoleResource(ClubMemberRoleController):
+#     """동아리 멤버 역할 관리 리소스 (DEPRECATED - use /api/v1/clubs/{club_id}/members/{user_id}/role instead)"""
+#     pass
 
 
 @role_ns.route("/clubs/<int:club_id>/my-permission")

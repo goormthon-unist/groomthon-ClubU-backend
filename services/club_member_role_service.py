@@ -6,6 +6,92 @@
 from typing import Optional, Dict, Any, List
 from datetime import datetime
 from models import db, User, ClubMember, Role, Club
+from config.permission_policy import ROLE_HIERARCHY
+
+
+def register_club_member(
+    club_id: int,
+    user_id: int,
+    role_name: str,
+    generation: Optional[int] = None,
+    other_info: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    동아리 멤버 직접 등록 (지원서 없이)
+
+    Args:
+        club_id: 동아리 ID
+        user_id: 사용자 ID
+        role_name: 역할명 (CLUB_MEMBER, CLUB_OFFICER, CLUB_PRESIDENT)
+        generation: 기수 (선택사항)
+        other_info: 기타 정보 (선택사항)
+
+    Returns:
+        Dict with success status and data
+    """
+    try:
+        # 1. 동아리 존재 확인
+        club = Club.query.get(club_id)
+        if not club:
+            raise ValueError(f"동아리 ID {club_id}가 존재하지 않습니다.")
+
+        # 2. 사용자 존재 확인
+        user = User.query.get(user_id)
+        if not user:
+            raise ValueError(f"사용자 ID {user_id}가 존재하지 않습니다.")
+
+        # 3. 역할 존재 확인 (동아리 내 역할만 허용)
+        allowed_roles = ["CLUB_MEMBER", "CLUB_OFFICER", "CLUB_PRESIDENT"]
+        if role_name not in allowed_roles:
+            raise ValueError(
+                f"동아리 내에서 허용되지 않는 역할입니다. 허용된 역할: {', '.join(allowed_roles)}"
+            )
+
+        role = Role.query.filter_by(role_name=role_name).first()
+        if not role:
+            raise ValueError(f"역할 '{role_name}'이 존재하지 않습니다.")
+
+        # 4. 이미 동아리 멤버인지 확인
+        existing_membership = ClubMember.query.filter_by(
+            user_id=user_id, club_id=club_id
+        ).first()
+
+        if existing_membership:
+            raise ValueError("이미 해당 동아리의 회원입니다.")
+
+        # 5. 기본값 설정
+        if generation is None:
+            generation = club.current_generation if club.current_generation else 1
+
+        # 6. 동아리 멤버 등록
+        new_membership = ClubMember(
+            user_id=user_id,
+            club_id=club_id,
+            role_id=role.id,
+            generation=generation,
+            other_info=other_info,
+            joined_at=datetime.utcnow(),
+        )
+
+        db.session.add(new_membership)
+        db.session.commit()
+
+        return {
+            "success": True,
+            "message": f"사용자 {user.name}을(를) {club.name} 동아리의 {role_name}으로 등록했습니다.",
+            "data": {
+                "membership_id": new_membership.id,
+                "user_id": user_id,
+                "club_id": club_id,
+                "role_name": role_name,
+                "generation": generation,
+                "joined_at": new_membership.joined_at.isoformat(),
+            },
+        }
+
+    except Exception as e:
+        db.session.rollback()
+        raise Exception(f"동아리 멤버 등록 중 오류 발생: {str(e)}")
 
 
 def change_club_member_role(
