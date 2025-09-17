@@ -30,10 +30,13 @@ class RegisterController(Resource):
             # 1) JSON 파싱: 잘못된 JSON이면 BadRequest 유발
             try:
                 data = request.get_json(force=False, silent=False)
-            except BadRequest:
+                current_app.logger.info(f"Register request data: {data}")
+            except BadRequest as e:
+                current_app.logger.error(f"JSON parsing error: {str(e)}")
                 abort(400, "400-00: invalid JSON body")
 
             if not isinstance(data, dict):
+                current_app.logger.error("Request data is not a dict")
                 abort(400, "400-00: JSON object is required")
 
             # 2) 필드 추출/검증
@@ -45,47 +48,72 @@ class RegisterController(Resource):
             department_id = data.get("department_id")
             gender = data.get("gender")
 
+            current_app.logger.info(
+                f"Extracted fields - username: {username}, email: {email}, student_id: {student_id}, phone_number: {phone_number}, department_id: {department_id}, gender: {gender}"
+            )
+
             if not username:
+                current_app.logger.error("Username is missing")
                 abort(400, "400-01: username is required")
             if not email:
+                current_app.logger.error("Email is missing")
                 abort(400, "400-02: email is required")
             if not password:
+                current_app.logger.error("Password is missing")
                 abort(400, "400-03: password is required")
             if not student_id:
+                current_app.logger.error("Student ID is missing")
                 abort(400, "400-08: student_id is required")
             if not phone_number:
+                current_app.logger.error("Phone number is missing")
                 abort(400, "400-09: phone_number is required")
             if not department_id:
+                current_app.logger.error("Department ID is missing")
                 abort(400, "400-12: department_id is required")
             if not gender:
+                current_app.logger.error("Gender is missing")
                 abort(400, "400-13: gender is required")
 
             # 3) 상세 형식 검증
             is_valid_username, username_message = validate_username(username)
             if not is_valid_username:
+                current_app.logger.error(
+                    f"Username validation failed: {username_message}"
+                )
                 abort(400, f"400-04: {username_message}")
 
             if not validate_email(email):
+                current_app.logger.error(f"Email validation failed: {email}")
                 abort(400, "400-05: 유효하지 않은 이메일 형식입니다.")
 
             is_valid_password, password_message = validate_password(password)
             if not is_valid_password:
+                current_app.logger.error(
+                    f"Password validation failed: {password_message}"
+                )
                 abort(400, f"400-06: {password_message}")
 
             # 학번과 전화번호 검증
             is_valid_student_id, student_id_message = validate_student_id(student_id)
             if not is_valid_student_id:
+                current_app.logger.error(
+                    f"Student ID validation failed: {student_id_message}"
+                )
                 abort(400, f"400-10: {student_id_message}")
 
             is_valid_phone_number, phone_number_message = validate_phone_number(
                 phone_number
             )
             if not is_valid_phone_number:
+                current_app.logger.error(
+                    f"Phone number validation failed: {phone_number_message}"
+                )
                 abort(400, f"400-11: {phone_number_message}")
 
             # 성별 유효성 검증
             valid_genders = ["MALE", "FEMALE", "OTHER"]
             if gender not in valid_genders:
+                current_app.logger.error(f"Gender validation failed: {gender}")
                 abort(
                     400,
                     "400-14: 유효하지 않은 성별입니다. MALE, FEMALE, OTHER 중 하나를 선택해주세요.",
@@ -112,8 +140,10 @@ class RegisterController(Resource):
 
         except HTTPException as he:
             # 400/401/409 등은 그대로 내보냄 (500으로 덮어쓰지 않음)
+            current_app.logger.error(f"HTTP Exception in register: {he}")
             raise he
         except ValueError as e:
+            current_app.logger.error(f"ValueError in register: {str(e)}")
             abort(400, f"400-07: {str(e)}")
         except Exception as e:
             current_app.logger.exception("auth.register failed")
