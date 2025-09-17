@@ -8,7 +8,7 @@ class ClubMember(db.Model):
 
     id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
     user_id = db.Column(db.BigInteger, db.ForeignKey("users.id"), nullable=False)
-    club_id = db.Column(db.BigInteger, db.ForeignKey("clubs.id"), nullable=False)
+    club_id = db.Column(db.BigInteger, db.ForeignKey("clubs.id"), nullable=True)
     role_id = db.Column(db.Integer, db.ForeignKey("roles.id"), nullable=False)
     generation = db.Column(db.Integer, nullable=False)
     other_info = db.Column(db.Text, nullable=True)

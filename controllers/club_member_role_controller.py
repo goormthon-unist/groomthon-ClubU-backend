@@ -9,7 +9,7 @@ from services.club_member_role_service import (
     change_club_member_role,
     get_club_member_roles,
     get_club_available_roles,
-    get_club_members_list
+    get_club_members_list,
 )
 from utils.permission_decorator import require_permission
 
@@ -21,11 +21,11 @@ class ClubMemberRoleChangeController(Resource):
     def post(self, club_id, user_id):
         """
         동아리 멤버 권한 변경
-        
+
         Args:
             club_id: 동아리 ID
             user_id: 사용자 ID
-        
+
         Body:
             {
                 "role_name": "CLUB_MEMBER" | "CLUB_OFFICER" | "CLUB_PRESIDENT",
@@ -54,14 +54,14 @@ class ClubMemberRoleChangeController(Resource):
                 user_id=user_id,
                 role_name=role_name,
                 generation=generation,
-                other_info=other_info
+                other_info=other_info,
             )
 
             if result["success"]:
                 return {
                     "status": "success",
                     "message": result["message"],
-                    "data": result["data"]
+                    "data": result["data"],
                 }, 200
             else:
                 abort(400, result["message"])
@@ -80,7 +80,7 @@ class ClubMemberRolesController(Resource):
     def get(self, club_id, user_id):
         """
         동아리 내 특정 사용자의 역할 조회
-        
+
         Args:
             club_id: 동아리 ID
             user_id: 사용자 ID
@@ -93,7 +93,7 @@ class ClubMemberRolesController(Resource):
                 return {
                     "status": "success",
                     "message": result["message"],
-                    "data": result["data"]
+                    "data": result["data"],
                 }, 200
             else:
                 abort(400, result["message"])
@@ -121,7 +121,7 @@ class ClubAvailableRolesController(Resource):
                 return {
                     "status": "success",
                     "message": result["message"],
-                    "data": result["data"]
+                    "data": result["data"],
                 }, 200
             else:
                 abort(400, result["message"])
@@ -138,7 +138,7 @@ class ClubMembersListController(Resource):
     def get(self, club_id):
         """
         동아리 멤버 목록 조회 (권한별 정렬)
-        
+
         Args:
             club_id: 동아리 ID
         """
@@ -150,7 +150,7 @@ class ClubMembersListController(Resource):
                 return {
                     "status": "success",
                     "message": result["message"],
-                    "data": result["data"]
+                    "data": result["data"],
                 }, 200
             else:
                 abort(400, result["message"])
@@ -160,5 +160,3 @@ class ClubMembersListController(Resource):
         except Exception as e:
             current_app.logger.exception("club.members_list failed")
             abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
-
-
