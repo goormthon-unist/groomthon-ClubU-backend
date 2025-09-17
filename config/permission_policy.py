@@ -94,6 +94,19 @@ PERMISSION_POLICY = {
         "allowed_roles": {"UNION_ADMIN", "DEVELOPER"},
         "description": "배너 상태 수정 (PATCH /api/v1/banners/{id}/status)",
     },
+    # ===== CLUB_PRESIDENT만 접근 가능한 API들 (동아리 내 권한 관리) =====
+    "clubs.member_role_change": {
+        "allowed_roles": {"CLUB_PRESIDENT", "DEVELOPER"},
+        "description": "동아리 멤버 권한 변경 (POST /api/v1/clubs/{club_id}/members/{user_id}/role)",
+    },
+    "clubs.member_roles_list": {
+        "allowed_roles": {"CLUB_PRESIDENT", "DEVELOPER"},
+        "description": "동아리 멤버 권한 조회 (GET /api/v1/clubs/{club_id}/members/{user_id}/role)",
+    },
+    "clubs.members_list": {
+        "allowed_roles": {"CLUB_PRESIDENT", "DEVELOPER"},
+        "description": "동아리 멤버 목록 조회 (GET /api/v1/clubs/{club_id}/members/roles)",
+    },
     # ===== DEVELOPER만 접근 가능한 API들 =====
     "admin.user_role_change": {
         "allowed_roles": {"DEVELOPER"},
