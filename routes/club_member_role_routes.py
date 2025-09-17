@@ -3,7 +3,7 @@
 동아리 회장이 자신의 동아리 내에서만 멤버 권한을 변경할 수 있도록 제한
 """
 
-from flask_restx import Namespace
+from flask_restx import Namespace, fields
 from controllers.club_member_role_controller import (
     ClubMemberRegistrationController,
     ClubMemberRoleChangeController,
@@ -15,6 +15,34 @@ from controllers.club_member_role_controller import (
 # 네임스페이스 정의
 club_member_role_ns = Namespace("clubs", description="동아리 멤버 권한 관리 API")
 
+# Request Body 모델 정의
+club_member_registration_model = club_member_role_ns.model(
+    "ClubMemberRegistration",
+    {
+        "user_id": fields.Integer(required=True, description="사용자 ID"),
+        "role_name": fields.String(
+            required=True,
+            description="역할명 (CLUB_MEMBER, CLUB_OFFICER, CLUB_PRESIDENT)",
+            enum=["CLUB_MEMBER", "CLUB_OFFICER", "CLUB_PRESIDENT"],
+        ),
+        "generation": fields.Integer(required=False, description="기수 (선택사항)"),
+        "other_info": fields.String(required=False, description="기타 정보 (선택사항)"),
+    },
+)
+
+club_member_role_change_model = club_member_role_ns.model(
+    "ClubMemberRoleChange",
+    {
+        "role_name": fields.String(
+            required=True,
+            description="새로운 역할명 (CLUB_MEMBER, CLUB_OFFICER, CLUB_PRESIDENT)",
+            enum=["CLUB_MEMBER", "CLUB_OFFICER", "CLUB_PRESIDENT"],
+        ),
+        "generation": fields.Integer(required=False, description="기수 (선택사항)"),
+        "other_info": fields.String(required=False, description="기타 정보 (선택사항)"),
+    },
+)
+
 
 # 라우트 등록
 @club_member_role_ns.route("/<int:club_id>/members")
@@ -22,6 +50,7 @@ class ClubMemberRegistrationResource(ClubMemberRegistrationController):
     """동아리 멤버 직접 등록 리소스"""
 
     @club_member_role_ns.doc("register_club_member")
+    @club_member_role_ns.expect(club_member_registration_model)
     @club_member_role_ns.response(201, "멤버 등록 성공")
     @club_member_role_ns.response(400, "잘못된 요청")
     @club_member_role_ns.response(401, "로그인이 필요합니다")
@@ -68,6 +97,7 @@ class ClubMemberRoleChangeResource(ClubMemberRoleChangeController):
     """동아리 멤버 권한 변경 리소스"""
 
     @club_member_role_ns.doc("change_club_member_role")
+    @club_member_role_ns.expect(club_member_role_change_model)
     @club_member_role_ns.response(200, "권한 변경 성공")
     @club_member_role_ns.response(400, "잘못된 요청")
     @club_member_role_ns.response(401, "로그인이 필요합니다")

@@ -3,7 +3,7 @@
 DEVELOPER 권한을 가진 관리자만 접근 가능
 """
 
-from flask_restx import Namespace
+from flask_restx import Namespace, fields
 from controllers.admin_user_role_controller import (
     AdminUserRoleChangeController,
     AdminUserRolesController,
@@ -13,6 +13,19 @@ from controllers.admin_user_role_controller import (
 # 네임스페이스 등록
 admin_user_role_ns = Namespace("admin", description="관리자용 사용자 권한 관리 API")
 
+# Request Body 모델 정의
+admin_user_role_change_model = admin_user_role_ns.model(
+    "AdminUserRoleChange",
+    {
+        "club_id": fields.Integer(
+            required=False, description="동아리 ID (선택사항, null이면 전역 권한)"
+        ),
+        "role_name": fields.String(required=True, description="새로운 역할명 (필수)"),
+        "generation": fields.Integer(required=False, description="기수 (선택사항)"),
+        "other_info": fields.String(required=False, description="기타 정보 (선택사항)"),
+    },
+)
+
 
 # API 엔드포인트 등록
 @admin_user_role_ns.route("/users/<int:user_id>/roles")
@@ -20,6 +33,7 @@ class AdminUserRoleChangeResource(AdminUserRoleChangeController):
     """사용자 권한 변경 리소스"""
 
     @admin_user_role_ns.doc("change_user_role")
+    @admin_user_role_ns.expect(admin_user_role_change_model)
     @admin_user_role_ns.response(200, "권한 변경 성공")
     @admin_user_role_ns.response(400, "잘못된 요청")
     @admin_user_role_ns.response(401, "로그인이 필요합니다")
