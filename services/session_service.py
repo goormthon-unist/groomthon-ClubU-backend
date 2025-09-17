@@ -219,6 +219,7 @@ def get_session_info():
         current_app.logger.info("get_session_info: Starting session info retrieval")
 
         # 1. 현재 세션 정보 조회
+        current_app.logger.info("get_session_info: Step 1 - Getting current session")
         session_data = get_current_session()
         current_app.logger.info(f"get_session_info: Session data: {session_data}")
         if not session_data:
@@ -226,6 +227,7 @@ def get_session_info():
             return None
 
         # 2. 사용자 정보 조회
+        current_app.logger.info("get_session_info: Step 2 - Getting current user")
         user = get_current_user()
         current_app.logger.info(
             f"get_session_info: User data: {user.id if user else None}"
@@ -235,15 +237,22 @@ def get_session_info():
             return None
 
         # 3. 사용자의 동아리 멤버십 정보 조회
+        current_app.logger.info("get_session_info: Step 3 - Getting club memberships")
         from models.club_member import ClubMember
 
         current_app.logger.info(
             f"get_session_info: Querying memberships for user_id: {user.id}"
         )
-        memberships = ClubMember.query.filter_by(user_id=user.id).all()
-        current_app.logger.info(
-            f"get_session_info: Found {len(memberships)} memberships"
-        )
+        try:
+            memberships = ClubMember.query.filter_by(user_id=user.id).all()
+            current_app.logger.info(
+                f"get_session_info: Found {len(memberships)} memberships"
+            )
+        except Exception as e:
+            current_app.logger.error(
+                f"get_session_info: Error querying memberships: {str(e)}"
+            )
+            raise
 
         clubs_info = []
         for membership in memberships:
@@ -289,6 +298,7 @@ def get_session_info():
                 raise
 
         # 4. 통합 정보 구성
+        current_app.logger.info("get_session_info: Step 4 - Creating session info")
         session_info = {
             "session": {
                 "session_id": session_data["session_id"],
@@ -316,4 +326,6 @@ def get_session_info():
         from flask import current_app
 
         current_app.logger.exception("get_session_info: Exception occurred")
+        current_app.logger.error(f"get_session_info: Exception details: {str(e)}")
+        current_app.logger.error(f"get_session_info: Exception type: {type(e)}")
         raise Exception(f"세션 통합 정보 조회 중 오류 발생: {str(e)}")

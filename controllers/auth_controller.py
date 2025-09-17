@@ -284,6 +284,8 @@ class SessionInfoController(Resource):
             raise he
         except Exception as e:
             current_app.logger.exception("Exception in session-info")
+            current_app.logger.error(f"Exception details: {str(e)}")
+            current_app.logger.error(f"Exception type: {type(e)}")
             abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
 
 
