@@ -214,33 +214,79 @@ def debug_session_info():
 def get_session_info():
     """현재 세션의 통합 정보 조회 (세션 + 사용자 + 권한 + 동아리)"""
     try:
+        from flask import current_app
+
+        current_app.logger.info("get_session_info: Starting session info retrieval")
+
         # 1. 현재 세션 정보 조회
         session_data = get_current_session()
+        current_app.logger.info(f"get_session_info: Session data: {session_data}")
         if not session_data:
+            current_app.logger.warning("get_session_info: No session data found")
             return None
 
         # 2. 사용자 정보 조회
         user = get_current_user()
+        current_app.logger.info(
+            f"get_session_info: User data: {user.id if user else None}"
+        )
         if not user:
+            current_app.logger.warning("get_session_info: No user found")
             return None
 
         # 3. 사용자의 동아리 멤버십 정보 조회
         from models.club_member import ClubMember
 
+        current_app.logger.info(
+            f"get_session_info: Querying memberships for user_id: {user.id}"
+        )
         memberships = ClubMember.query.filter_by(user_id=user.id).all()
+        current_app.logger.info(
+            f"get_session_info: Found {len(memberships)} memberships"
+        )
 
         clubs_info = []
         for membership in memberships:
-            club_info = {
-                "club_id": membership.club.id,
-                "club_name": membership.club.name,
-                "role_id": membership.role.id,
-                "role_name": membership.role.role_name,
-                "joined_at": (
-                    membership.joined_at.isoformat() if membership.joined_at else None
-                ),
-            }
-            clubs_info.append(club_info)
+            try:
+                current_app.logger.info(
+                    f"get_session_info: Processing membership: {membership.id}, club_id: {membership.club_id}"
+                )
+
+                # club_id가 None인 경우 (전역 역할) 처리
+                if membership.club_id is None:
+                    club_info = {
+                        "club_id": None,
+                        "club_name": "전역 역할",
+                        "role_id": membership.role.id,
+                        "role_name": membership.role.role_name,
+                        "joined_at": (
+                            membership.joined_at.isoformat()
+                            if membership.joined_at
+                            else None
+                        ),
+                    }
+                else:
+                    club_info = {
+                        "club_id": membership.club.id,
+                        "club_name": membership.club.name,
+                        "role_id": membership.role.id,
+                        "role_name": membership.role.role_name,
+                        "joined_at": (
+                            membership.joined_at.isoformat()
+                            if membership.joined_at
+                            else None
+                        ),
+                    }
+                clubs_info.append(club_info)
+                current_app.logger.info(
+                    f"get_session_info: Added club info: {club_info}"
+                )
+
+            except Exception as e:
+                current_app.logger.error(
+                    f"get_session_info: Error processing membership {membership.id}: {str(e)}"
+                )
+                raise
 
         # 4. 통합 정보 구성
         session_info = {
@@ -263,7 +309,11 @@ def get_session_info():
             "total_clubs": len(clubs_info),
         }
 
+        current_app.logger.info("get_session_info: Successfully created session info")
         return session_info
 
     except Exception as e:
+        from flask import current_app
+
+        current_app.logger.exception("get_session_info: Exception occurred")
         raise Exception(f"세션 통합 정보 조회 중 오류 발생: {str(e)}")

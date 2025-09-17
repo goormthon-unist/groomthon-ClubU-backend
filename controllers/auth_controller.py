@@ -258,10 +258,15 @@ class SessionInfoController(Resource):
         try:
             from services.session_service import get_session_info
 
+            current_app.logger.info("Starting session info retrieval")
+
             # 세션 통합 정보 조회
             session_info = get_session_info()
 
+            current_app.logger.info(f"Session info result: {session_info}")
+
             if not session_info:
+                current_app.logger.warning("No session info found - user not logged in")
                 abort(401, "401-01: 로그인이 필요합니다")
 
             response_data = {
@@ -270,12 +275,15 @@ class SessionInfoController(Resource):
                 "data": session_info,
             }
 
+            current_app.logger.info("Session info retrieved successfully")
             return response_data, 200
 
         except HTTPException as he:
             # 401, 403 등 HTTP 예외는 그대로 전달
+            current_app.logger.error(f"HTTP Exception in session-info: {he}")
             raise he
         except Exception as e:
+            current_app.logger.exception("Exception in session-info")
             abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
 
 
