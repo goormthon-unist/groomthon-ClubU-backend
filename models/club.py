@@ -19,15 +19,24 @@ class Club(db.Model):
     )
     current_generation = db.Column(db.Integer, nullable=True)
     introduction = db.Column(db.Text, nullable=True)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    logo_image = db.Column(db.Text, nullable=True)
+    introduction_image = db.Column(db.Text, nullable=True)
+    created_at = db.Column(
+        db.DateTime, nullable=False, default=datetime.utcnow
+    )
     updated_at = db.Column(
-        db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+        db.DateTime,
+        nullable=False,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
     )
 
     # 관계 설정
     category = db.relationship("ClubCategory", back_populates="clubs")
     members = db.relationship("ClubMember", back_populates="club")
-    questions = db.relationship("ClubApplicationQuestion", back_populates="club")
+    questions = db.relationship(
+        "ClubApplicationQuestion", back_populates="club"
+    )
     applications = db.relationship("Application", back_populates="club")
 
     def __repr__(self):
