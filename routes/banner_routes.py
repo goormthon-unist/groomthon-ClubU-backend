@@ -20,7 +20,9 @@ banner_create_model = banner_ns.model(
             required=True, description="시작 날짜 (YYYY-MM-DD)"
         ),
         "end_date": fields.String(required=True, description="종료 날짜 (YYYY-MM-DD)"),
-        "image": fields.Raw(required=True, description="배너 이미지 파일"),
+        "image": fields.Raw(
+            required=True, description="배너 이미지 파일 (파일 업로드)"
+        ),
     },
 )
 
@@ -35,7 +37,7 @@ banner_status_model = banner_ns.model(
 
 
 # 배너 관리 엔드포인트
-@banner_ns.route("/banners/")
+@banner_ns.route("/")
 class BannerResource(BannerController):
     """배너 관리 리소스"""
 
@@ -45,14 +47,14 @@ class BannerResource(BannerController):
         return super().post()
 
 
-@banner_ns.route("/banners/<int:banner_id>")
+@banner_ns.route("/<int:banner_id>")
 class BannerDetailResource(BannerDetailController):
     """배너 상세 관리 리소스"""
 
     pass
 
 
-@banner_ns.route("/banners/<int:banner_id>/status")
+@banner_ns.route("/<int:banner_id>/status")
 class BannerStatusResource(BannerStatusController):
     """배너 상태 관리 리소스"""
 
