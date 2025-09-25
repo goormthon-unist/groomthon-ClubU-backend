@@ -74,6 +74,10 @@ def create_app():
     def serve_banner(filename):
         return send_from_directory("banners", filename)
 
+    @app.route("/clubs/<path:filename>")
+    def serve_club_image(filename):
+        return send_from_directory("clubs", filename)
+
     # RESTX API
     api = Api(
         app,
@@ -98,6 +102,7 @@ def create_app():
     from routes.admin_user_role_routes import admin_user_role_ns
     from routes.club_member_role_routes import club_member_role_ns
     from routes.department_routes import department_ns
+    from routes.club_info_routes import club_info_ns
     from routes import init_app as init_routes
 
     api.add_namespace(home_ns, path="/api/v1/clubs")
@@ -114,6 +119,7 @@ def create_app():
     api.add_namespace(admin_user_role_ns, path="/api/v1/admin")
     api.add_namespace(club_member_role_ns, path="/api/v1/clubs")
     api.add_namespace(department_ns, path="/api/v1/departments")
+    api.add_namespace(club_info_ns, path="/api/v1/clubs")
     init_routes(app)
 
     return app
