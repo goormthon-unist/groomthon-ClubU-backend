@@ -19,8 +19,11 @@ class Club(db.Model):
     )
     current_generation = db.Column(db.Integer, nullable=True)
     introduction = db.Column(db.Text, nullable=True)
+    recruitment_start = db.Column(db.Date, nullable=True)
+    recruitment_finish = db.Column(db.Date, nullable=True)
     logo_image = db.Column(db.Text, nullable=True)
     introduction_image = db.Column(db.Text, nullable=True)
+    club_room = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated_at = db.Column(
         db.DateTime,
