@@ -128,9 +128,7 @@ def update_club_introduction_image(club_id, image_file):
 
     except Exception as e:
         db.session.rollback()
-        raise Exception(
-            f"동아리 소개글 이미지 업데이트 중 오류 발생: {e}"
-        )
+        raise Exception(f"동아리 소개글 이미지 업데이트 중 오류 발생: {e}")
 
 
 def delete_club_introduction_image(club_id):
@@ -157,9 +155,7 @@ def delete_club_introduction_image(club_id):
 
     except Exception as e:
         db.session.rollback()
-        raise Exception(
-            f"동아리 소개글 이미지 삭제 중 오류 발생: {e}"
-        )
+        raise Exception(f"동아리 소개글 이미지 삭제 중 오류 발생: {e}")
 
 
 def check_club_president_permission(user_id, club_id):
