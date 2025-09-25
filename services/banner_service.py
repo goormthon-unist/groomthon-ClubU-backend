@@ -6,12 +6,20 @@ from utils.image_utils import delete_banner_image, save_banner_image
 def create_banner(club_id, user_id, banner_data, image_file):
     """배너 생성"""
     try:
+        from flask import current_app
+
+        current_app.logger.info(
+            f"Creating banner for club_id: {club_id}, user_id: {user_id}"
+        )
+
         # 동아리 존재 확인
         club = Club.query.get(club_id)
         if not club:
+            current_app.logger.error(f"Club not found: {club_id}")
             raise ValueError("해당 동아리를 찾을 수 없습니다")
 
         # 이미지 저장 및 최적화
+        current_app.logger.info(f"Saving banner image for club_id: {club_id}")
         image_info = save_banner_image(image_file, club_id)
 
         # 날짜 변환
@@ -34,6 +42,8 @@ def create_banner(club_id, user_id, banner_data, image_file):
         db.session.add(new_banner)
         db.session.commit()
 
+        current_app.logger.info(f"Banner created successfully: {new_banner.id}")
+
         return {
             "id": new_banner.id,
             "club_id": new_banner.club_id,
@@ -49,7 +59,10 @@ def create_banner(club_id, user_id, banner_data, image_file):
         }
 
     except Exception as e:
+        from flask import current_app
+
         db.session.rollback()
+        current_app.logger.exception(f"Banner creation failed: {str(e)}")
         raise Exception(f"배너 생성 중 오류 발생: {e}")
 
 

@@ -37,9 +37,16 @@ def optimize_image(image_path, output_path, max_width=800, max_height=600, quali
 def save_banner_image(file, club_id):
     """배너 이미지 저장 및 최적화"""
     try:
+        from flask import current_app
+
+        current_app.logger.info(
+            f"Saving banner image: {file.filename} for club_id: {club_id}"
+        )
+
         # 파일명 보안 처리
         filename = secure_filename(file.filename)
         if not filename:
+            current_app.logger.error("Invalid filename")
             raise ValueError("유효하지 않은 파일명입니다")
 
         # 파일 확장자 확인
@@ -53,6 +60,7 @@ def save_banner_image(file, club_id):
 
         # 디렉토리 생성
         optimized_dir = create_banner_directories(club_id)
+        current_app.logger.info(f"Created directory: {optimized_dir}")
 
         # 최적화된 파일 저장 경로
         optimized_path = os.path.join(optimized_dir, optimized_filename)
@@ -60,6 +68,7 @@ def save_banner_image(file, club_id):
         # 임시 원본 파일 저장
         temp_path = os.path.join(optimized_dir, f"temp_{uuid.uuid4()}.{file_ext}")
         file.save(temp_path)
+        current_app.logger.info(f"Saved temp file: {temp_path}")
 
         # 이미지 최적화
         if optimize_image(temp_path, optimized_path):
@@ -67,6 +76,9 @@ def save_banner_image(file, club_id):
             if os.path.exists(temp_path):
                 os.remove(temp_path)
 
+            current_app.logger.info(
+                f"Banner image saved successfully: {optimized_path}"
+            )
             return {
                 "file_path": (f"/banners/{club_id}/optimized/{optimized_filename}"),
                 "optimized_path": optimized_path,
@@ -75,9 +87,13 @@ def save_banner_image(file, club_id):
             # 최적화 실패 시 임시 파일 삭제
             if os.path.exists(temp_path):
                 os.remove(temp_path)
+            current_app.logger.error("Image optimization failed")
             raise ValueError("이미지 최적화에 실패했습니다")
 
     except Exception as e:
+        from flask import current_app
+
+        current_app.logger.exception(f"Banner image save failed: {e}")
         raise Exception(f"이미지 저장 중 오류 발생: {e}")
 
 

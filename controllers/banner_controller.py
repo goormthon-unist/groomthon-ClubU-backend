@@ -80,6 +80,9 @@ class BannerController(Resource):
         except ValueError as e:
             abort(400, f"400-08: {str(e)}")
         except Exception as e:
+            from flask import current_app
+
+            current_app.logger.exception("Banner creation failed")
             abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {e}")
 
     def get(self):
