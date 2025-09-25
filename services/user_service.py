@@ -68,6 +68,19 @@ def get_user_clubs(user_id):
                     "introduction": club.introduction,
                     "president_name": club.president_name,
                     "contact": club.contact,
+                    "recruitment_start": (
+                        club.recruitment_start.isoformat()
+                        if club.recruitment_start
+                        else None
+                    ),
+                    "recruitment_finish": (
+                        club.recruitment_finish.isoformat()
+                        if club.recruitment_finish
+                        else None
+                    ),
+                    "logo_image": club.logo_image,
+                    "introduction_image": club.introduction_image,
+                    "club_room": club.club_room,
                 },
                 "membership": {
                     "role": {"id": role.id, "name": role.role_name},

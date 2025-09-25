@@ -22,6 +22,23 @@ def get_all_clubs():
                 "activity_summary": club.activity_summary,
                 "category": {"id": category.id, "name": category.name},
                 "recruitment_status": club.recruitment_status,
+                "president_name": club.president_name,
+                "contact": club.contact,
+                "current_generation": club.current_generation,
+                "introduction": club.introduction,
+                "recruitment_start": (
+                    club.recruitment_start.isoformat()
+                    if club.recruitment_start
+                    else None
+                ),
+                "recruitment_finish": (
+                    club.recruitment_finish.isoformat()
+                    if club.recruitment_finish
+                    else None
+                ),
+                "logo_image": club.logo_image,
+                "introduction_image": club.introduction_image,
+                "club_room": club.club_room,
                 "created_at": (
                     club.created_at.isoformat() if club.created_at else None
                 ),
@@ -61,6 +78,17 @@ def get_club_by_id(club_id):
             "recruitment_status": club.recruitment_status,
             "president_name": club.president_name,
             "contact": club.contact,
+            "current_generation": club.current_generation,
+            "introduction": club.introduction,
+            "recruitment_start": (
+                club.recruitment_start.isoformat() if club.recruitment_start else None
+            ),
+            "recruitment_finish": (
+                club.recruitment_finish.isoformat() if club.recruitment_finish else None
+            ),
+            "logo_image": club.logo_image,
+            "introduction_image": club.introduction_image,
+            "club_room": club.club_room,
             "created_at": (club.created_at.isoformat() if club.created_at else None),
             "updated_at": (club.updated_at.isoformat() if club.updated_at else None),
         }
@@ -248,6 +276,19 @@ def get_open_clubs():
                 "current_generation": club.current_generation,
                 "president_name": club.president_name,
                 "contact": club.contact,
+                "recruitment_start": (
+                    club.recruitment_start.isoformat()
+                    if club.recruitment_start
+                    else None
+                ),
+                "recruitment_finish": (
+                    club.recruitment_finish.isoformat()
+                    if club.recruitment_finish
+                    else None
+                ),
+                "logo_image": club.logo_image,
+                "introduction_image": club.introduction_image,
+                "club_room": club.club_room,
                 "created_at": (
                     club.created_at.strftime("%Y-%m-%dT%H:%M:%SZ")
                     if club.created_at

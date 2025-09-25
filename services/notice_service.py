@@ -1,4 +1,4 @@
-from models import Club, Notice, db
+from models import Club, Notice, NoticeAsset, db
 
 
 def create_notice(club_id, user_id, notice_data):
@@ -39,7 +39,7 @@ def create_notice(club_id, user_id, notice_data):
 
 
 def get_club_notices(club_id):
-    """특정 동아리의 공지 목록 조회"""
+    """특정 동아리의 공지 목록 조회 (첨부파일 포함)"""
     try:
         # 동아리 존재 확인
         club = Club.query.get(club_id)
@@ -52,27 +52,43 @@ def get_club_notices(club_id):
             .all()
         )
 
-        return [
-            {
-                "id": notice.id,
-                "club_id": notice.club_id,
-                "user_id": notice.user_id,
-                "title": notice.title,
-                "content": notice.content,
-                "status": notice.status,
-                "is_important": notice.is_important,
-                "views": notice.views,
-                "posted_at": notice.posted_at.isoformat(),
-            }
-            for notice in notices
-        ]
+        result = []
+        for notice in notices:
+            # 각 공지의 첨부파일 조회
+            assets = NoticeAsset.query.filter_by(notices_id=notice.id).all()
+            attachments = [
+                {
+                    "id": asset.id,
+                    "asset_type": asset.asset_type,
+                    "file_url": asset.file_url,
+                    "created_at": asset.created_at.isoformat(),
+                }
+                for asset in assets
+            ]
+
+            result.append(
+                {
+                    "id": notice.id,
+                    "club_id": notice.club_id,
+                    "user_id": notice.user_id,
+                    "title": notice.title,
+                    "content": notice.content,
+                    "status": notice.status,
+                    "is_important": notice.is_important,
+                    "views": notice.views,
+                    "posted_at": notice.posted_at.isoformat(),
+                    "attachments": attachments,
+                }
+            )
+
+        return result
 
     except Exception as e:
         raise Exception(f"동아리 공지 조회 중 오류 발생: {e}")
 
 
 def get_all_notices():
-    """전체 공지 목록 조회"""
+    """전체 공지 목록 조회 (첨부파일 포함)"""
     try:
         notices = (
             db.session.query(Notice, Club)
@@ -82,28 +98,44 @@ def get_all_notices():
             .all()
         )
 
-        return [
-            {
-                "id": notice.id,
-                "club_id": notice.club_id,
-                "user_id": notice.user_id,
-                "club_name": club.name,
-                "title": notice.title,
-                "content": notice.content,
-                "status": notice.status,
-                "is_important": notice.is_important,
-                "views": notice.views,
-                "posted_at": notice.posted_at.isoformat(),
-            }
-            for notice, club in notices
-        ]
+        result = []
+        for notice, club in notices:
+            # 각 공지의 첨부파일 조회
+            assets = NoticeAsset.query.filter_by(notices_id=notice.id).all()
+            attachments = [
+                {
+                    "id": asset.id,
+                    "asset_type": asset.asset_type,
+                    "file_url": asset.file_url,
+                    "created_at": asset.created_at.isoformat(),
+                }
+                for asset in assets
+            ]
+
+            result.append(
+                {
+                    "id": notice.id,
+                    "club_id": notice.club_id,
+                    "user_id": notice.user_id,
+                    "club_name": club.name,
+                    "title": notice.title,
+                    "content": notice.content,
+                    "status": notice.status,
+                    "is_important": notice.is_important,
+                    "views": notice.views,
+                    "posted_at": notice.posted_at.isoformat(),
+                    "attachments": attachments,
+                }
+            )
+
+        return result
 
     except Exception as e:
         raise Exception(f"전체 공지 조회 중 오류 발생: {e}")
 
 
 def get_notice_by_id(notice_id):
-    """공지 상세 조회"""
+    """공지 상세 조회 (첨부파일 포함)"""
     try:
         notice_data = (
             db.session.query(Notice, Club)
@@ -121,6 +153,18 @@ def get_notice_by_id(notice_id):
         notice.views += 1
         db.session.commit()
 
+        # 첨부파일 조회
+        assets = NoticeAsset.query.filter_by(notices_id=notice_id).all()
+        attachments = [
+            {
+                "id": asset.id,
+                "asset_type": asset.asset_type,
+                "file_url": asset.file_url,
+                "created_at": asset.created_at.isoformat(),
+            }
+            for asset in assets
+        ]
+
         return {
             "id": notice.id,
             "club_id": notice.club_id,
@@ -132,6 +176,7 @@ def get_notice_by_id(notice_id):
             "is_important": notice.is_important,
             "views": notice.views,
             "posted_at": notice.posted_at.isoformat(),
+            "attachments": attachments,
         }
 
     except Exception as e:
