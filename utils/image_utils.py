@@ -187,3 +187,167 @@ def delete_club_image(file_path):
     except Exception as e:
         print(f"이미지 삭제 중 오류 발생: {e}")
         return False
+
+
+def create_notice_directories(notice_id):
+    """공지사항 파일 저장을 위한 디렉토리 생성"""
+    base_dir = "notices"
+    notice_dir = os.path.join(base_dir, str(notice_id))
+    images_dir = os.path.join(notice_dir, "images")
+    files_dir = os.path.join(notice_dir, "files")
+
+    os.makedirs(images_dir, exist_ok=True)
+    os.makedirs(files_dir, exist_ok=True)
+
+    return images_dir, files_dir
+
+
+def save_notice_image(file, notice_id):
+    """공지사항 이미지 저장 및 최적화"""
+    try:
+        from flask import current_app
+
+        current_app.logger.info(
+            f"Saving notice image: {file.filename} for notice_id: {notice_id}"
+        )
+
+        # 파일명 보안 처리
+        filename = secure_filename(file.filename)
+        if not filename:
+            current_app.logger.error("Invalid filename")
+            raise ValueError("유효하지 않은 파일명입니다")
+
+        # 파일 확장자 확인
+        allowed_extensions = {"png", "jpg", "jpeg", "gif", "bmp"}
+        file_ext = filename.rsplit(".", 1)[1].lower() if "." in filename else ""
+        if file_ext not in allowed_extensions:
+            raise ValueError("지원하지 않는 파일 형식입니다")
+
+        # 고유한 파일명 생성 (WebP로 저장)
+        optimized_filename = f"{uuid.uuid4()}.webp"
+
+        # 디렉토리 생성
+        images_dir, files_dir = create_notice_directories(notice_id)
+        current_app.logger.info(f"Created directory: {images_dir}")
+
+        # 최적화된 파일 저장 경로
+        optimized_path = os.path.join(images_dir, optimized_filename)
+
+        # 임시 원본 파일 저장
+        temp_path = os.path.join(images_dir, f"temp_{uuid.uuid4()}.{file_ext}")
+        file.save(temp_path)
+        current_app.logger.info(f"Saved temp file: {temp_path}")
+
+        # 이미지 최적화
+        if optimize_image(temp_path, optimized_path):
+            # 임시 파일 삭제
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+
+            current_app.logger.info(
+                f"Notice image saved successfully: {optimized_path}"
+            )
+            return {
+                "file_path": f"/notices/{notice_id}/images/{optimized_filename}",
+                "optimized_path": optimized_path,
+            }
+        else:
+            # 최적화 실패 시 임시 파일 삭제
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+            current_app.logger.error("Image optimization failed")
+            raise ValueError("이미지 최적화에 실패했습니다")
+
+    except Exception as e:
+        from flask import current_app
+
+        current_app.logger.exception(f"Notice image save failed: {e}")
+        raise Exception(f"이미지 저장 중 오류 발생: {e}")
+
+
+def save_notice_file(file, notice_id):
+    """공지사항 문서 파일 저장 (엑셀, 워드, 한글, PPT 등)"""
+    try:
+        from flask import current_app
+
+        current_app.logger.info(
+            f"Saving notice file: {file.filename} for notice_id: {notice_id}"
+        )
+
+        # 파일명 보안 처리
+        filename = secure_filename(file.filename)
+        if not filename:
+            current_app.logger.error("Invalid filename")
+            raise ValueError("유효하지 않은 파일명입니다")
+
+        # 파일 확장자 확인
+        allowed_extensions = {
+            # Microsoft Office
+            "doc",
+            "docx",
+            "xls",
+            "xlsx",
+            "ppt",
+            "pptx",
+            # 한글과컴퓨터
+            "hwp",
+            "hwpx",
+            # 기타 문서
+            "pdf",
+            "txt",
+            "rtf",
+            # 압축 파일
+            "zip",
+            "rar",
+            "7z",
+        }
+        file_ext = filename.rsplit(".", 1)[1].lower() if "." in filename else ""
+        if file_ext not in allowed_extensions:
+            raise ValueError("지원하지 않는 파일 형식입니다")
+
+        # 파일 크기 제한 (50MB)
+        file.seek(0, 2)  # 파일 끝으로 이동
+        file_size = file.tell()
+        file.seek(0)  # 파일 시작으로 이동
+
+        if file_size > 50 * 1024 * 1024:  # 50MB
+            raise ValueError("파일 크기가 너무 큽니다 (최대 50MB)")
+
+        # 고유한 파일명 생성 (원본 확장자 유지)
+        unique_filename = f"{uuid.uuid4()}.{file_ext}"
+
+        # 디렉토리 생성
+        images_dir, files_dir = create_notice_directories(notice_id)
+        current_app.logger.info(f"Created directory: {files_dir}")
+
+        # 파일 저장 경로
+        file_path = os.path.join(files_dir, unique_filename)
+
+        # 파일 저장
+        file.save(file_path)
+        current_app.logger.info(f"Notice file saved successfully: {file_path}")
+
+        return {
+            "file_path": f"/notices/{notice_id}/files/{unique_filename}",
+            "original_filename": filename,
+            "file_size": file_size,
+        }
+
+    except Exception as e:
+        from flask import current_app
+
+        current_app.logger.exception(f"Notice file save failed: {e}")
+        raise Exception(f"파일 저장 중 오류 발생: {e}")
+
+
+def delete_notice_asset(file_path):
+    """공지사항 첨부파일 삭제"""
+    try:
+        if file_path and os.path.exists(file_path):
+            os.remove(file_path)
+            print(f"공지사항 첨부파일 삭제: {file_path}")
+
+        return True
+    except Exception as e:
+        print(f"첨부파일 삭제 중 오류 발생: {e}")
+        return False

@@ -78,6 +78,10 @@ def create_app():
     def serve_club_image(filename):
         return send_from_directory("clubs", filename)
 
+    @app.route("/notices/<path:filename>")
+    def serve_notice_asset(filename):
+        return send_from_directory("notices", filename)
+
     # RESTX API
     api = Api(
         app,

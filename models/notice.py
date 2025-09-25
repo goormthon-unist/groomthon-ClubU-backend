@@ -19,8 +19,6 @@ class Notice(db.Model):
     )
     is_important = db.Column(db.Boolean, nullable=False, default=False)
     views = db.Column(db.BigInteger, nullable=False, default=0)
-    notice_image = db.Column(db.Text, nullable=True, comment="공지 이미지")
-    notice_file = db.Column(db.Text, nullable=True, comment="공지 파일")
 
     # 관계 설정
     club = db.relationship("Club", backref="notices")

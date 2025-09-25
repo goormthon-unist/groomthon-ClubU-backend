@@ -15,6 +15,7 @@ from .department import Department
 from .role import Role
 from .session import UserSession
 from .notice import Notice
+from .notice_asset import NoticeAsset
 from .banner import Banner
 
 __all__ = [
@@ -31,5 +32,6 @@ __all__ = [
     "Role",
     "UserSession",
     "Notice",
+    "NoticeAsset",
     "Banner",
 ]
