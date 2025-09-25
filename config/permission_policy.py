@@ -7,6 +7,7 @@
 ROLE_HIERARCHY = {
     "STUDENT": 1,
     "CLUB_MEMBER": 2,
+    "CLUB_MEMBER_REST": 2.5,
     "CLUB_OFFICER": 3,
     "CLUB_PRESIDENT": 4,
     "UNION_ADMIN": 5,
