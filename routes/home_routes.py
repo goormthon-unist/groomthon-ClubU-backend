@@ -1,4 +1,4 @@
-from flask_restx import Namespace
+from flask_restx import Namespace, fields
 from controllers.home_controller import (
     ClubListController,
     ClubUpdateController,
@@ -10,6 +10,21 @@ from controllers.home_controller import (
 
 # 네임스페이스 등록
 home_ns = Namespace("clubs", description="동아리 관리 API")
+
+# Swagger 모델 정의
+club_question_create_model = home_ns.model(
+    "ClubQuestionCreate",
+    {
+        "question_text": fields.String(required=True, description="지원서 질문 내용"),
+    },
+)
+
+club_question_update_model = home_ns.model(
+    "ClubQuestionUpdate",
+    {
+        "question_text": fields.String(required=True, description="수정할 질문 내용"),
+    },
+)
 
 
 # API 엔드포인트 등록
@@ -38,7 +53,10 @@ class ClubStatusResource(ClubStatusController):
 class ClubQuestionsResource(ClubQuestionsController):
     """동아리 지원서 문항 추가 리소스"""
 
-    pass
+    @home_ns.expect(club_question_create_model)
+    def post(self, club_id):
+        """동아리 지원서 문항 추가"""
+        return super().post(club_id)
 
 
 @home_ns.route("/<int:club_id>/members")
@@ -94,4 +112,7 @@ class OpenClubsResource(ClubListController):
 class QuestionResource(QuestionController):
     """지원서 문항 수정/삭제 리소스"""
 
-    pass
+    @home_ns.expect(club_question_update_model)
+    def patch(self, question_id):
+        """지원서 문항 수정"""
+        return super().patch(question_id)
