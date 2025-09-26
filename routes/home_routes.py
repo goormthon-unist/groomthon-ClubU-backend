@@ -241,6 +241,20 @@ class QuestionResource(QuestionController):
     """지원서 문항 수정/삭제 리소스"""
 
     @home_ns.expect(club_question_update_model)
+    @home_ns.doc("update_question")
+    @home_ns.response(200, "문항 수정 성공")
+    @home_ns.response(400, "잘못된 요청")
+    @home_ns.response(401, "로그인이 필요합니다")
+    @home_ns.response(500, "서버 내부 오류")
     def patch(self, question_id):
         """지원서 문항 수정"""
         return super().patch(question_id)
+
+    @home_ns.doc("delete_question")
+    @home_ns.response(200, "문항 삭제 성공")
+    @home_ns.response(400, "잘못된 요청")
+    @home_ns.response(401, "로그인이 필요합니다")
+    @home_ns.response(500, "서버 내부 오류")
+    def delete(self, question_id):
+        """지원서 문항 삭제"""
+        return super().delete(question_id)

@@ -1,6 +1,5 @@
 from flask_restx import Namespace, fields
 from controllers.application_check_submit_controller import (
-    ClubApplicationQuestionsController,
     ApplicationSubmitController,
 )
 
@@ -33,11 +32,6 @@ application_submit_model = application_ns.model(
 
 
 # API 엔드포인트 등록
-@application_ns.route("/clubs/<int:club_id>/application/questions")
-class ClubApplicationQuestionsResource(ClubApplicationQuestionsController):
-    """동아리 지원 질문 조회 리소스"""
-
-    pass
 
 
 @application_ns.route("/applications/<int:club_id>")
