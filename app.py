@@ -116,7 +116,7 @@ def create_app():
     api.add_namespace(notice_ns, path="/api/v1")
     api.add_namespace(club_notice_ns, path="/api/v1/clubs")
     api.add_namespace(notice_asset_ns, path="/api/v1")
-    api.add_namespace(banner_ns, path="/api/v1")
+    api.add_namespace(banner_ns, path="/api/v1/banners")
     api.add_namespace(auth_ns, path="/api/v1/auth")
     api.add_namespace(role_ns, path="/api/v1/roles")
     api.add_namespace(application_check_ns, path="/api/v1")
