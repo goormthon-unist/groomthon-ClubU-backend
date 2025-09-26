@@ -30,7 +30,7 @@ club_status_model = home_ns.model(
     "ClubStatus",
     {
         "status": fields.String(
-            required=True, description="동아리 모집 상태", enum=["recruiting", "closed"]
+            required=True, description="동아리 모집 상태", enum=["OPEN", "CLOSED"]
         ),
     },
 )

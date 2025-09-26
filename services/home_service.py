@@ -133,7 +133,7 @@ def update_club_status(club_id, status):
         if not club:
             raise ValueError("해당 동아리를 찾을 수 없습니다")
 
-        if status not in ["recruiting", "closed"]:
+        if status not in ["OPEN", "CLOSED"]:
             raise ValueError("유효하지 않은 모집 상태입니다")
 
         club.recruitment_status = status
