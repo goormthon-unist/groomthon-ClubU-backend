@@ -100,9 +100,14 @@ club_status_response_model = home_ns.model(
     "ClubStatusResponse",
     {
         "status": fields.String(description="응답 상태", example="success"),
-        "message": fields.String(description="응답 메시지", example="동아리 모집 상태가 성공적으로 변경되었습니다."),
+        "message": fields.String(
+            description="응답 메시지",
+            example="동아리 모집 상태가 성공적으로 변경되었습니다.",
+        ),
         "club_id": fields.Integer(description="동아리 ID", example=1),
-        "recruitment_status": fields.String(description="변경된 모집 상태", example="CLOSED", enum=["OPEN", "CLOSED"]),
+        "recruitment_status": fields.String(
+            description="변경된 모집 상태", example="CLOSED", enum=["OPEN", "CLOSED"]
+        ),
     },
 )
 

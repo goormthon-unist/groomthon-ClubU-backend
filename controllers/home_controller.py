@@ -93,10 +93,10 @@ class ClubStatusController(Resource):
 
             update_club_status(club_id, status)
             return {
-                "status": "success", 
+                "status": "success",
                 "message": "동아리 모집 상태가 성공적으로 변경되었습니다.",
                 "club_id": club_id,
-                "recruitment_status": status
+                "recruitment_status": status,
             }, 200
 
         except ValueError as e:
