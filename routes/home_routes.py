@@ -26,6 +26,85 @@ club_question_update_model = home_ns.model(
     },
 )
 
+club_status_model = home_ns.model(
+    "ClubStatus",
+    {
+        "status": fields.String(
+            required=True, description="동아리 모집 상태", enum=["recruiting", "closed"]
+        ),
+    },
+)
+
+club_response_model = home_ns.model(
+    "ClubResponse",
+    {
+        "status": fields.String(description="응답 상태", example="success"),
+        "club": fields.Nested(
+            home_ns.model(
+                "Club",
+                {
+                    "id": fields.Integer(description="동아리 ID", example=1),
+                    "name": fields.String(
+                        description="동아리명", example="구름톤 유니브"
+                    ),
+                    "category_id": fields.Integer(description="카테고리 ID", example=1),
+                    "activity_summary": fields.String(
+                        description="활동 요약", example="IT 동아리"
+                    ),
+                    "president_name": fields.String(
+                        description="회장명", example="홍길동"
+                    ),
+                    "contact": fields.String(
+                        description="연락처", example="010-1234-5678"
+                    ),
+                    "recruitment_status": fields.String(
+                        description="모집 상태", example="OPEN", enum=["OPEN", "CLOSED"]
+                    ),
+                    "current_generation": fields.Integer(
+                        description="현재 기수", example=1
+                    ),
+                    "introduction": fields.String(
+                        description="소개글", example="동아리 소개글"
+                    ),
+                    "recruitment_start": fields.String(
+                        description="모집 시작일", example="2025-01-01"
+                    ),
+                    "recruitment_finish": fields.String(
+                        description="모집 마감일", example="2025-12-31"
+                    ),
+                    "logo_image": fields.String(
+                        description="로고 이미지 경로",
+                        example="/clubs/1/images/logo.webp",
+                    ),
+                    "introduction_image": fields.String(
+                        description="소개 이미지 경로",
+                        example="/clubs/1/images/intro.webp",
+                    ),
+                    "club_room": fields.String(
+                        description="동아리실", example="공학관 101호"
+                    ),
+                    "created_at": fields.String(
+                        description="생성일", example="2025-01-01T00:00:00"
+                    ),
+                    "updated_at": fields.String(
+                        description="수정일", example="2025-01-01T12:00:00"
+                    ),
+                },
+            ),
+            description="동아리 정보",
+        ),
+    },
+)
+
+error_response_model = home_ns.model(
+    "ErrorResponse",
+    {
+        "message": fields.String(
+            description="에러 메시지", example="400-05: 유효하지 않은 모집 상태입니다"
+        ),
+    },
+)
+
 
 # API 엔드포인트 등록
 @home_ns.route("/")
@@ -46,7 +125,15 @@ class ClubDetailResource(ClubUpdateController):
 class ClubStatusResource(ClubStatusController):
     """동아리 모집 상태 변경 리소스"""
 
-    pass
+    @home_ns.expect(club_status_model)
+    @home_ns.doc("update_club_status")
+    @home_ns.response(200, "동아리 상태 변경 성공", club_response_model)
+    @home_ns.response(400, "잘못된 요청", error_response_model)
+    @home_ns.response(401, "로그인이 필요합니다", error_response_model)
+    @home_ns.response(500, "서버 내부 오류", error_response_model)
+    def patch(self, club_id):
+        """동아리 모집 상태 변경"""
+        return super().patch(club_id)
 
 
 @home_ns.route("/<int:club_id>/application/questions")
