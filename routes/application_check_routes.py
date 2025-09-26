@@ -10,10 +10,12 @@ from controllers.application_check_controller import (
 )
 
 # 네임스페이스 등록
-application_check_ns = Namespace("applications", description="지원서 확인 관리 API")
+application_check_ns = Namespace(
+    "application-check", description="지원서 확인 관리 API"
+)
 
 
-@application_check_ns.route("/")
+@application_check_ns.route("/applications")
 class ClubApplicantsResource(ClubApplicantsController):
     """동아리 지원자 목록 조회 리소스"""
 
