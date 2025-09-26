@@ -26,6 +26,27 @@ club_question_update_model = home_ns.model(
     },
 )
 
+question_response_model = home_ns.model(
+    "QuestionResponse",
+    {
+        "status": fields.String(description="응답 상태", example="success"),
+        "question": fields.Nested(
+            home_ns.model(
+                "Question",
+                {
+                    "id": fields.Integer(description="문항 ID", example=90003),
+                    "club_id": fields.Integer(description="동아리 ID", example=9000),
+                    "question_text": fields.String(
+                        description="문항 내용", example="새로운 질문입니다."
+                    ),
+                    "order": fields.Integer(description="문항 순서", example=4),
+                },
+            ),
+            description="문항 정보",
+        ),
+    },
+)
+
 club_status_model = home_ns.model(
     "ClubStatus",
     {
@@ -156,8 +177,13 @@ class ClubQuestionsResource(ClubQuestionsController):
     """동아리 지원서 문항 추가 리소스"""
 
     @home_ns.expect(club_question_create_model)
+    @home_ns.doc("add_club_question")
+    @home_ns.response(201, "문항 추가 성공", question_response_model)
+    @home_ns.response(400, "잘못된 요청")
+    @home_ns.response(401, "로그인이 필요합니다")
+    @home_ns.response(500, "서버 내부 오류")
     def post(self, club_id):
-        """동아리 지원서 문항 추가"""
+        """동아리 지원서 문항 추가 (맨 아래에 추가됨)"""
         return super().post(club_id)
 
 
