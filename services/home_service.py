@@ -139,7 +139,7 @@ def update_club_status(club_id, status):
         club.recruitment_status = status
         db.session.commit()
 
-        return get_club_by_id(club_id)
+        return True
 
     except Exception as e:
         db.session.rollback()

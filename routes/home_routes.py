@@ -96,6 +96,16 @@ club_response_model = home_ns.model(
     },
 )
 
+club_status_response_model = home_ns.model(
+    "ClubStatusResponse",
+    {
+        "status": fields.String(description="응답 상태", example="success"),
+        "message": fields.String(description="응답 메시지", example="동아리 모집 상태가 성공적으로 변경되었습니다."),
+        "club_id": fields.Integer(description="동아리 ID", example=1),
+        "recruitment_status": fields.String(description="변경된 모집 상태", example="CLOSED", enum=["OPEN", "CLOSED"]),
+    },
+)
+
 error_response_model = home_ns.model(
     "ErrorResponse",
     {
@@ -127,7 +137,7 @@ class ClubStatusResource(ClubStatusController):
 
     @home_ns.expect(club_status_model)
     @home_ns.doc("update_club_status")
-    @home_ns.response(200, "동아리 상태 변경 성공", club_response_model)
+    @home_ns.response(200, "동아리 상태 변경 성공", club_status_response_model)
     @home_ns.response(400, "잘못된 요청", error_response_model)
     @home_ns.response(401, "로그인이 필요합니다", error_response_model)
     @home_ns.response(500, "서버 내부 오류", error_response_model)
