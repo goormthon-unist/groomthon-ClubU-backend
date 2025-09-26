@@ -46,10 +46,8 @@ def get_club_applicants(club_id):
 
             applicant_info = {
                 "application_id": application.id,
-                "user_id": user.id,
                 "name": user.name,
                 "student_id": user.student_id,
-                "email": user.email,
                 "phone_number": user.phone_number,
                 "gender": user.gender,
                 "department": (
@@ -68,7 +66,6 @@ def get_club_applicants(club_id):
                     if application.submitted_at
                     else None
                 ),
-                "answer_count": len(application.answers),
             }
             applicants.append(applicant_info)
 
