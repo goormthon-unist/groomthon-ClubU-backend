@@ -7,6 +7,9 @@ from controllers.home_controller import (
     ClubMembersController,
     QuestionController,
 )
+from controllers.application_check_submit_controller import (
+    ClubApplicationQuestionsController,
+)
 
 # 네임스페이스 등록
 home_ns = Namespace("clubs", description="동아리 관리 API")
@@ -43,6 +46,33 @@ question_response_model = home_ns.model(
                 },
             ),
             description="문항 정보",
+        ),
+    },
+)
+
+questions_list_response_model = home_ns.model(
+    "QuestionsListResponse",
+    {
+        "status": fields.String(description="응답 상태", example="success"),
+        "club_id": fields.Integer(description="동아리 ID", example=9000),
+        "count": fields.Integer(description="문항 개수", example=3),
+        "questions": fields.List(
+            fields.Nested(
+                home_ns.model(
+                    "QuestionItem",
+                    {
+                        "id": fields.Integer(description="문항 ID", example=90000),
+                        "question_text": fields.String(
+                            description="문항 내용",
+                            example="지원하게 된 계기가 무엇인가요?",
+                        ),
+                        "question_order": fields.Integer(
+                            description="문항 순서", example=1
+                        ),
+                    },
+                )
+            ),
+            description="문항 목록",
         ),
     },
 )
@@ -173,8 +203,17 @@ class ClubStatusResource(ClubStatusController):
 
 
 @home_ns.route("/<int:club_id>/application/questions")
-class ClubQuestionsResource(ClubQuestionsController):
-    """동아리 지원서 문항 추가 리소스"""
+class ClubQuestionsResource(
+    ClubApplicationQuestionsController, ClubQuestionsController
+):
+    """동아리 지원서 문항 관리 리소스"""
+
+    @home_ns.doc("get_club_questions")
+    @home_ns.response(200, "문항 목록 조회 성공", questions_list_response_model)
+    @home_ns.response(500, "서버 내부 오류")
+    def get(self, club_id):
+        """동아리 지원서 문항 목록 조회"""
+        return ClubApplicationQuestionsController.get(self, club_id)
 
     @home_ns.expect(club_question_create_model)
     @home_ns.doc("add_club_question")
@@ -184,7 +223,7 @@ class ClubQuestionsResource(ClubQuestionsController):
     @home_ns.response(500, "서버 내부 오류")
     def post(self, club_id):
         """동아리 지원서 문항 추가 (맨 아래에 추가됨)"""
-        return super().post(club_id)
+        return ClubQuestionsController.post(self, club_id)
 
 
 @home_ns.route("/<int:club_id>/members")
