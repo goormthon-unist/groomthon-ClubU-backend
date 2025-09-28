@@ -25,8 +25,7 @@ COPY routes/ ./routes/
 COPY services/ ./services/
 COPY utils/ ./utils/
 COPY migrations/ ./migrations/
-COPY static/ ./static/
-COPY templates/ ./templates/
+# static/과 templates/ 폴더는 선택적 (존재하지 않을 수 있음)
 
 # 포트 5000 노출
 EXPOSE 5000
