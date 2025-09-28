@@ -15,8 +15,18 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 애플리케이션 코드 복사
-COPY . .
+# 애플리케이션 코드 복사 (필요한 파일들만)
+COPY app.py .
+COPY config.py .
+COPY config/ ./config/
+COPY controllers/ ./controllers/
+COPY models/ ./models/
+COPY routes/ ./routes/
+COPY services/ ./services/
+COPY utils/ ./utils/
+COPY migrations/ ./migrations/
+COPY static/ ./static/
+COPY templates/ ./templates/
 
 # 포트 5000 노출
 EXPOSE 5000
