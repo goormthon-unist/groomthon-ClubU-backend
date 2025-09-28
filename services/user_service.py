@@ -65,19 +65,8 @@ def get_user_clubs(user_id):
                     "category": {"id": category.id, "name": category.name},
                     "recruitment_status": club.recruitment_status,
                     "current_generation": club.current_generation,
-                    "introduction": club.introduction,
                     "president_name": club.president_name,
                     "contact": club.contact,
-                    "recruitment_start": (
-                        club.recruitment_start.isoformat()
-                        if club.recruitment_start
-                        else None
-                    ),
-                    "recruitment_finish": (
-                        club.recruitment_finish.isoformat()
-                        if club.recruitment_finish
-                        else None
-                    ),
                     "logo_image": club.logo_image,
                     "introduction_image": club.introduction_image,
                     "club_room": club.club_room,
