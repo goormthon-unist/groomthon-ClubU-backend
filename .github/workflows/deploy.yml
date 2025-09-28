@@ -53,6 +53,9 @@ jobs:
             --restart unless-stopped \
             -p 5000:5000 \
             --env-file /home/ubuntu/.env \
+            -v /home/ubuntu/groomthon-ClubU-backend/banners:/app/banners \
+            -v /home/ubuntu/groomthon-ClubU-backend/clubs:/app/clubs \
+            -v /home/ubuntu/groomthon-ClubU-backend/notices:/app/notices \
             clubu-backend
           
           # 사용하지 않는 Docker 이미지 정리

@@ -48,6 +48,9 @@ sudo docker run -d \
     --restart unless-stopped \
     -p 5000:5000 \
     --env-file "$ENV_FILE" \
+    -v /home/ubuntu/groomthon-ClubU-backend/banners:/app/banners \
+    -v /home/ubuntu/groomthon-ClubU-backend/clubs:/app/clubs \
+    -v /home/ubuntu/groomthon-ClubU-backend/notices:/app/notices \
     "$IMAGE_NAME"
 
 echo "컨테이너 상태 확인..."
