@@ -21,6 +21,9 @@ if [ -d "$APP_DIR" ]; then
     echo "최신 코드 가져오기..."
     git fetch origin
     git reset --hard origin/main
+    
+    # 기존 이미지 폴더 제거 (리포 밖으로 분리)
+    rm -rf banners clubs notices
 else
     echo "애플리케이션 디렉토리가 없습니다. 리포지토리 클론..."
     cd /home/ubuntu
@@ -48,9 +51,9 @@ sudo docker run -d \
     --restart unless-stopped \
     -p 5000:5000 \
     --env-file "$ENV_FILE" \
-    -v /home/ubuntu/groomthon-ClubU-backend/banners:/app/banners \
-    -v /home/ubuntu/groomthon-ClubU-backend/clubs:/app/clubs \
-    -v /home/ubuntu/groomthon-ClubU-backend/notices:/app/notices \
+    -v /var/clubu/banners:/app/banners \
+    -v /var/clubu/clubs:/app/clubs \
+    -v /var/clubu/notices:/app/notices \
     "$IMAGE_NAME"
 
 echo "컨테이너 상태 확인..."
