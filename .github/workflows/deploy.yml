@@ -44,7 +44,7 @@ jobs:
           sudo docker stop clubu-backend-container || true
           sudo docker rm clubu-backend-container || true
           
-          # 새 컨테이너 실행 (심링크 방식)
+          # 새 컨테이너 실행 (Dockerfile에서 심링크 자동 생성)
           sudo docker run -d \
             --name clubu-backend-container \
             --restart unless-stopped \
@@ -52,13 +52,7 @@ jobs:
             --env-file /home/ubuntu/.env \
             --user 1000:1000 \
             -v /var/clubu:/data \
-            clubu-backend \
-            bash -lc 'rm -rf /app/{banners,clubs,notices,cache} 2>/dev/null || true; \
-                      ln -s /data/banners /app/banners; \
-                      ln -s /data/clubs /app/clubs; \
-                      ln -s /data/notices /app/notices; \
-                      ln -s /data/cache /app/cache; \
-                      exec python app.py'
+            clubu-backend
           
           # 사용하지 않는 Docker 이미지 정리
           sudo docker image prune -f

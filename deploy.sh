@@ -51,9 +51,8 @@ sudo docker run -d \
     --restart unless-stopped \
     -p 5000:5000 \
     --env-file "$ENV_FILE" \
-    -v /var/clubu/banners:/app/banners \
-    -v /var/clubu/clubs:/app/clubs \
-    -v /var/clubu/notices:/app/notices \
+    --user 1000:1000 \
+    -v /var/clubu:/data \
     "$IMAGE_NAME"
 
 echo "컨테이너 상태 확인..."
