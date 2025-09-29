@@ -217,16 +217,20 @@ def save_notice_image(file, notice_id):
         )
 
         # 파일명 보안 처리
-        filename = secure_filename(file.filename)
-        if not filename:
-            current_app.logger.error("Invalid filename")
-            raise ValueError("유효하지 않은 파일명입니다")
+        original_filename = file.filename
+
+        # 한글 파일명 처리를 위해 확장자를 먼저 추출
+        if "." in original_filename:
+            file_ext = original_filename.rsplit(".", 1)[1].lower()
+        else:
+            file_ext = ""
 
         # 파일 확장자 확인
         allowed_extensions = {"png", "jpg", "jpeg", "gif", "bmp"}
-        file_ext = filename.rsplit(".", 1)[1].lower() if "." in filename else ""
         if file_ext not in allowed_extensions:
-            raise ValueError("지원하지 않는 파일 형식입니다")
+            raise ValueError(
+                f"지원하지 않는 이미지 형식입니다. 허용된 형식: {', '.join(allowed_extensions)}. 업로드한 파일: {original_filename} (확장자: '{file_ext}')"
+            )
 
         # 고유한 파일명 생성 (WebP로 저장)
         optimized_filename = f"{uuid.uuid4()}.webp"
@@ -281,10 +285,17 @@ def save_notice_file(file, notice_id):
 
         # 파일명 보안 처리
         original_filename = file.filename
-        filename = secure_filename(file.filename)
+
+        # 한글 파일명 처리를 위해 확장자를 먼저 추출
+        if "." in original_filename:
+            file_ext = original_filename.rsplit(".", 1)[1].lower()
+            # 확장자만으로 파일명 생성 (한글 문제 해결)
+            filename = f"uploaded_file.{file_ext}"
+        else:
+            filename = "uploaded_file"
 
         current_app.logger.info(f"Original filename: {original_filename}")
-        current_app.logger.info(f"Secured filename: {filename}")
+        current_app.logger.info(f"Processed filename: {filename}")
 
         if not filename:
             current_app.logger.error("Invalid filename")
@@ -327,14 +338,13 @@ def save_notice_file(file, notice_id):
             "apk",  # 안드로이드 앱
             "ipa",  # iOS 앱
         }
-        file_ext = filename.rsplit(".", 1)[1].lower() if "." in filename else ""
-
-        current_app.logger.info(f"Extracted file extension: '{file_ext}'")
+        # 이미 위에서 추출한 확장자 사용
+        current_app.logger.info(f"File extension: '{file_ext}'")
         current_app.logger.info(f"Allowed extensions: {allowed_extensions}")
 
         if file_ext not in allowed_extensions:
             raise ValueError(
-                f"지원하지 않는 파일 형식입니다. 허용된 형식: {', '.join(sorted(allowed_extensions))}. 업로드한 파일: {filename} (확장자: '{file_ext}')"
+                f"지원하지 않는 파일 형식입니다. 허용된 형식: {', '.join(sorted(allowed_extensions))}. 업로드한 파일: {original_filename} (확장자: '{file_ext}')"
             )
 
         # 파일 크기 제한 (50MB)
