@@ -1,66 +1,80 @@
 #!/bin/bash
+set -euo pipefail
 
-# ClubU Backend 배포 스크립트
-# EC2 인스턴스에서 실행되는 스크립트
-
-set -euo pipefail  # 에러 전파 확실히
+# --- 동시 배포 방지 ---
+exec 9>/tmp/clubu-deploy.lock
+flock -n 9 || { echo "다른 배포 진행 중. 종료"; exit 1; }
 
 echo "=== ClubU Backend 배포 시작 ==="
 
-# 변수 설정
 APP_DIR="/home/ubuntu/groomthon-ClubU-backend"
 CONTAINER_NAME="clubu-backend-container"
 IMAGE_NAME="clubu-backend"
 ENV_FILE="/home/ubuntu/.env"
 
-# 기존 컨테이너 중지 및 제거 (먼저 실행)
-echo "기존 컨테이너 중지 및 제거..."
-sudo docker stop "$CONTAINER_NAME" 2>/dev/null || echo "실행 중인 컨테이너가 없습니다."
-sudo docker rm "$CONTAINER_NAME" 2>/dev/null || echo "제거할 컨테이너가 없습니다."
+echo "기존 컨테이너 중지/제거..."
+# 컨테이너 강제 종료
+sudo docker rm -f "$CONTAINER_NAME" 2>/dev/null || true
 
-# 애플리케이션 디렉토리로 이동 또는 클론
+# 컨테이너 완전 제거 대기 (최대 ~10초)
+echo "컨테이너 완전 제거 대기..."
+for i in {1..10}; do
+  if ! sudo docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+    break
+  fi
+  sleep 1
+done
+
+# (선택) 점유 디버그: lsof/fuser로 디렉터리 점유 여부 체크
+echo "[DEBUG] 디렉터리 점유 프로세스 확인:"
+command -v lsof >/dev/null && lsof +D "$APP_DIR/banners" || true
+command -v lsof >/dev/null && lsof +D "$APP_DIR/clubs"   || true
+command -v lsof >/dev/null && lsof +D "$APP_DIR/notices" || true
+
 if [ -d "$APP_DIR" ]; then
-    echo "애플리케이션 디렉토리로 이동: $APP_DIR"
-    cd "$APP_DIR"
-    
-    echo "최신 코드 가져오기..."
-    git fetch origin
-    git reset --hard origin/main
-    
-    # 소스 디렉터리는 건드리지 않음 (런타임 데이터는 컨테이너에서 관리)
+  echo "애플리케이션 디렉토리로 이동: $APP_DIR"
+  cd "$APP_DIR"
+  echo "최신 코드 가져오기..."
+  git fetch origin
+  git reset --hard origin/main
+  
+  # 혹시 남아있는 "호스트 rm" 코드 탐지
+  echo "[DEBUG] 호스트 rm 코드 검사:"
+  grep -RnE 'rm -rf .*banners|rm -rf .*clubs|rm -rf .*notices' . || true
+  
+  # 안전한 정리: 런타임 폴더는 제외하고 정리
+  echo "불필요한 파일 정리..."
+  git clean -fdx -e banners/ -e clubs/ -e notices/ || true
 else
-    echo "애플리케이션 디렉토리가 없습니다. 리포지토리 클론..."
-    cd /home/ubuntu
-    git clone https://github.com/goormthon-unist/groomthon-ClubU-backend.git
-    cd "$APP_DIR"
+  echo "리포지토리 클론..."
+  cd /home/ubuntu
+  git clone https://github.com/goormthon-unist/groomthon-ClubU-backend.git
+  cd "$APP_DIR"
 fi
 
-# 런타임 데이터 디렉터리 생성 (소스 디렉터리 내부)
 echo "런타임 데이터 디렉터리 준비..."
 mkdir -p "$APP_DIR/banners" "$APP_DIR/clubs" "$APP_DIR/notices"
-chmod 0777 "$APP_DIR/banners" "$APP_DIR/clubs" "$APP_DIR/notices"
+chmod 0777 "$APP_DIR"/{banners,clubs,notices}
 
-# 환경 파일 확인
 if [ ! -f "$ENV_FILE" ]; then
-    echo "환경 파일이 없습니다: $ENV_FILE"
-    echo "env.example을 참고하여 /home/ubuntu/.env 파일을 생성해주세요."
-    exit 1
+  echo "환경 파일이 없습니다: $ENV_FILE"
+  exit 1
 fi
 
 echo "Docker 이미지 빌드..."
 sudo docker build -t "$IMAGE_NAME" .
 
-echo "새 컨테이너 실행..."
+echo "컨테이너 실행..."
 sudo docker run -d \
-    --name "$CONTAINER_NAME" \
-    --restart unless-stopped \
-    -p 5000:5000 \
-    --env-file "$ENV_FILE" \
-    --mount type=bind,source="$APP_DIR/banners",target=/data/banners \
-    --mount type=bind,source="$APP_DIR/clubs",target=/data/clubs \
-    --mount type=bind,source="$APP_DIR/notices",target=/data/notices \
-    --entrypoint /bin/bash \
-    "$IMAGE_NAME" -lc 'set -e;
+  --name "$CONTAINER_NAME" \
+  --restart unless-stopped \
+  -p 5000:5000 \
+  --env-file "$ENV_FILE" \
+  --mount type=bind,source="$APP_DIR/banners",target=/data/banners \
+  --mount type=bind,source="$APP_DIR/clubs",target=/data/clubs \
+  --mount type=bind,source="$APP_DIR/notices",target=/data/notices \
+  --entrypoint /bin/bash \
+  "$IMAGE_NAME" -lc 'set -e;
     rm -rf /app/{banners,clubs,notices,cache} 2>/dev/null || true;
     ln -s /data/banners /app/banners;
     ln -s /data/clubs   /app/clubs;
@@ -69,24 +83,22 @@ sudo docker run -d \
 
 echo "컨테이너 상태 확인..."
 for i in {1..10}; do
-  if sudo docker ps | grep -q "$CONTAINER_NAME"; then
-    ok=1; break
-  fi
+  if sudo docker ps | grep -q "$CONTAINER_NAME"; then ok=1; break; fi
   sleep 1
 done
 
 if [ "${ok:-0}" -eq 1 ]; then
-  echo "✅ 컨테이너가 성공적으로 실행되었습니다!"
+  echo "✅ 컨테이너 실행 OK"
   sudo docker logs "$CONTAINER_NAME" --tail 80 || true
 else
-  echo "❌ 컨테이너 실행에 실패했습니다."
+  echo "❌ 컨테이너 실행 실패"
   sudo docker logs "$CONTAINER_NAME" || true
   exit 1
 fi
 
-echo "사용하지 않는 Docker 이미지 정리..."
+echo "이미지 정리..."
 sudo docker image prune -f
 
 echo "=== 배포 완료! ==="
-echo "API 엔드포인트: http://3.39.193.78:5000"
-echo "도메인 엔드포인트: https://api.clubu.co.kr"
+echo "API: http://3.39.193.78:5000"
+echo "도메인: https://api.clubu.co.kr"
