@@ -280,7 +280,12 @@ def save_notice_file(file, notice_id):
         )
 
         # 파일명 보안 처리
+        original_filename = file.filename
         filename = secure_filename(file.filename)
+
+        current_app.logger.info(f"Original filename: {original_filename}")
+        current_app.logger.info(f"Secured filename: {filename}")
+
         if not filename:
             current_app.logger.error("Invalid filename")
             raise ValueError("유효하지 않은 파일명입니다")
@@ -301,14 +306,36 @@ def save_notice_file(file, notice_id):
             "pdf",
             "txt",
             "rtf",
+            "md",  # Markdown
+            "csv",  # CSV 파일
+            "json",  # JSON 파일
             # 압축 파일
             "zip",
             "rar",
             "7z",
+            "tar",
+            "gz",
+            # 이미지 파일 (파일 업로드에서도 허용)
+            "jpg",
+            "jpeg",
+            "png",
+            "gif",
+            "bmp",
+            "webp",
+            # 기타
+            "exe",  # 실행 파일
+            "apk",  # 안드로이드 앱
+            "ipa",  # iOS 앱
         }
         file_ext = filename.rsplit(".", 1)[1].lower() if "." in filename else ""
+
+        current_app.logger.info(f"Extracted file extension: '{file_ext}'")
+        current_app.logger.info(f"Allowed extensions: {allowed_extensions}")
+
         if file_ext not in allowed_extensions:
-            raise ValueError("지원하지 않는 파일 형식입니다")
+            raise ValueError(
+                f"지원하지 않는 파일 형식입니다. 허용된 형식: {', '.join(sorted(allowed_extensions))}. 업로드한 파일: {filename} (확장자: '{file_ext}')"
+            )
 
         # 파일 크기 제한 (50MB)
         file.seek(0, 2)  # 파일 끝으로 이동
