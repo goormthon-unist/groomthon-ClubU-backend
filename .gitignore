@@ -144,3 +144,8 @@ Thumbs.db
 # Logs
 logs/
 *.log
+
+# Runtime data directories (uploaded files)
+banners/
+clubs/
+notices/
