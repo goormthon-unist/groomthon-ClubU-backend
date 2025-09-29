@@ -45,16 +45,20 @@ def save_banner_image(file, club_id):
         )
 
         # 파일명 보안 처리
-        filename = secure_filename(file.filename)
-        if not filename:
-            current_app.logger.error("Invalid filename")
-            raise ValueError("유효하지 않은 파일명입니다")
+        original_filename = file.filename
+
+        # 한글 파일명 처리를 위해 확장자를 먼저 추출
+        if "." in original_filename:
+            file_ext = original_filename.rsplit(".", 1)[1].lower()
+        else:
+            file_ext = ""
 
         # 파일 확장자 확인
         allowed_extensions = {"png", "jpg", "jpeg", "gif", "bmp"}
-        file_ext = filename.rsplit(".", 1)[1].lower() if "." in filename else ""
         if file_ext not in allowed_extensions:
-            raise ValueError("지원하지 않는 파일 형식입니다")
+            raise ValueError(
+                f"지원하지 않는 이미지 형식입니다. 허용된 형식: {', '.join(allowed_extensions)}. 업로드한 파일: {original_filename} (확장자: '{file_ext}')"
+            )
 
         # 고유한 파일명 생성 (WebP로 저장)
         optimized_filename = f"{uuid.uuid4()}.webp"
@@ -131,15 +135,20 @@ def save_club_image(file, club_id, image_type):
     """동아리 이미지 저장 및 최적화 (로고 또는 소개글 이미지)"""
     try:
         # 파일명 보안 처리
-        filename = secure_filename(file.filename)
-        if not filename:
-            raise ValueError("유효하지 않은 파일명입니다")
+        original_filename = file.filename
+
+        # 한글 파일명 처리를 위해 확장자를 먼저 추출
+        if "." in original_filename:
+            file_ext = original_filename.rsplit(".", 1)[1].lower()
+        else:
+            file_ext = ""
 
         # 파일 확장자 확인
         allowed_extensions = {"png", "jpg", "jpeg", "gif", "bmp"}
-        file_ext = filename.rsplit(".", 1)[1].lower() if "." in filename else ""
         if file_ext not in allowed_extensions:
-            raise ValueError("지원하지 않는 파일 형식입니다")
+            raise ValueError(
+                f"지원하지 않는 이미지 형식입니다. 허용된 형식: {', '.join(allowed_extensions)}. 업로드한 파일: {original_filename} (확장자: '{file_ext}')"
+            )
 
         # 이미지 타입 검증
         if image_type not in ["logo", "introduction"]:
