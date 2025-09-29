@@ -183,12 +183,16 @@ def get_notice_by_id(notice_id):
         raise Exception(f"공지 상세 조회 중 오류 발생: {e}")
 
 
-def update_notice(notice_id, update_data):
+def update_notice(notice_id, update_data, club_id=None):
     """공지 수정"""
     try:
         notice = Notice.query.get(notice_id)
         if not notice:
             raise ValueError("해당 공지를 찾을 수 없습니다")
+
+        # club_id가 제공된 경우 해당 동아리의 공지인지 확인
+        if club_id is not None and notice.club_id != club_id:
+            raise ValueError("해당 동아리의 공지가 아닙니다")
 
         # 업데이트 가능한 필드들
         allowed_fields = ["title", "content", "is_important"]
@@ -216,12 +220,16 @@ def update_notice(notice_id, update_data):
         raise Exception(f"공지 수정 중 오류 발생: {e}")
 
 
-def delete_notice(notice_id):
+def delete_notice(notice_id, club_id=None):
     """공지 삭제 (상태를 DELETE로 변경)"""
     try:
         notice = Notice.query.get(notice_id)
         if not notice:
             raise ValueError("해당 공지를 찾을 수 없습니다")
+
+        # club_id가 제공된 경우 해당 동아리의 공지인지 확인
+        if club_id is not None and notice.club_id != club_id:
+            raise ValueError("해당 동아리의 공지가 아닙니다")
 
         notice.status = "DELETE"
         db.session.commit()

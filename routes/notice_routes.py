@@ -33,6 +33,7 @@ class ClubNoticeResource(ClubNoticeController):
     @club_notice_ns.response(201, "공지 등록 성공")
     @club_notice_ns.response(400, "잘못된 요청")
     @club_notice_ns.response(401, "로그인이 필요합니다")
+    @club_notice_ns.response(403, "CLUB_PRESIDENT 권한이 필요합니다")
     @club_notice_ns.response(500, "서버 내부 오류")
     def post(self, club_id):
         """동아리 공지 등록"""
@@ -43,7 +44,27 @@ class ClubNoticeResource(ClubNoticeController):
 class ClubNoticeDetailResource(ClubNoticeDetailController):
     """동아리 공지 상세 관리 리소스"""
 
-    pass
+    @club_notice_ns.doc("update_club_notice")
+    @club_notice_ns.expect(club_notice_model)
+    @club_notice_ns.response(200, "공지 수정 성공")
+    @club_notice_ns.response(400, "잘못된 요청")
+    @club_notice_ns.response(401, "로그인이 필요합니다")
+    @club_notice_ns.response(403, "CLUB_PRESIDENT 권한이 필요합니다")
+    @club_notice_ns.response(404, "공지를 찾을 수 없습니다")
+    @club_notice_ns.response(500, "서버 내부 오류")
+    def patch(self, club_id, notice_id):
+        """동아리 공지 수정"""
+        return super().patch(club_id, notice_id)
+
+    @club_notice_ns.doc("delete_club_notice")
+    @club_notice_ns.response(200, "공지 삭제 성공")
+    @club_notice_ns.response(401, "로그인이 필요합니다")
+    @club_notice_ns.response(403, "CLUB_PRESIDENT 권한이 필요합니다")
+    @club_notice_ns.response(404, "공지를 찾을 수 없습니다")
+    @club_notice_ns.response(500, "서버 내부 오류")
+    def delete(self, club_id, notice_id):
+        """동아리 공지 삭제"""
+        return super().delete(club_id, notice_id)
 
 
 # 전체 공지 관리 엔드포인트

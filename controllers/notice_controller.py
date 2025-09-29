@@ -8,11 +8,13 @@ from services.notice_service import (
     get_notice_by_id,
     update_notice,
 )
+from utils.permission_decorator import require_permission
 
 
 class ClubNoticeController(Resource):
     """동아리 공지 관리 컨트롤러"""
 
+    @require_permission("notices.club_create", club_id_param="club_id")
     def post(self, club_id):
         """동아리 공지 등록"""
         try:
@@ -95,6 +97,7 @@ class NoticeDetailController(Resource):
 class ClubNoticeDetailController(Resource):
     """동아리 공지 상세 관리 컨트롤러"""
 
+    @require_permission("notices.club_update", club_id_param="club_id")
     def patch(self, club_id, notice_id):
         """동아리 공지 수정"""
         try:
@@ -114,7 +117,7 @@ class ClubNoticeDetailController(Resource):
             if not update_data:
                 abort(400, "400-03: 수정할 데이터가 없습니다")
 
-            notice = update_notice(notice_id, update_data)
+            notice = update_notice(notice_id, update_data, club_id)
             return {"status": "success", "notice": notice}, 200
 
         except ValueError as e:
@@ -122,6 +125,7 @@ class ClubNoticeDetailController(Resource):
         except Exception as e:
             abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {e}")
 
+    @require_permission("notices.club_delete", club_id_param="club_id")
     def delete(self, club_id, notice_id):
         """동아리 공지 삭제"""
         try:
@@ -130,7 +134,7 @@ class ClubNoticeDetailController(Resource):
             if not session_data:
                 abort(401, "401-01: 로그인이 필요합니다")
 
-            result = delete_notice(notice_id)
+            result = delete_notice(notice_id, club_id)
             return {"status": "success", "message": result["message"]}, 200
 
         except ValueError as e:
