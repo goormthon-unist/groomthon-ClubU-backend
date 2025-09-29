@@ -24,7 +24,10 @@ def create_notice_asset(notice_id, asset_type, file):
 
         # DB에 첨부파일 정보 저장
         notice_asset = NoticeAsset(
-            notices_id=notice_id, asset_type=asset_type, file_url=result["file_path"]
+            notices_id=notice_id,
+            asset_type=asset_type,
+            file_url=result["file_path"],
+            original_filename=result.get("original_filename"),
         )
 
         db.session.add(notice_asset)
@@ -35,6 +38,7 @@ def create_notice_asset(notice_id, asset_type, file):
             "notice_id": notice_id,
             "asset_type": asset_type,
             "file_url": result["file_path"],
+            "original_filename": notice_asset.original_filename,
             "created_at": notice_asset.created_at.isoformat(),
         }
 
@@ -54,6 +58,7 @@ def get_notice_assets(notice_id):
                 "notice_id": asset.notices_id,
                 "asset_type": asset.asset_type,
                 "file_url": asset.file_url,
+                "original_filename": asset.original_filename,
                 "created_at": asset.created_at.isoformat(),
             }
             for asset in assets
@@ -138,6 +143,7 @@ def update_notice_asset(asset_id, asset_type, file):
             "notice_id": asset.notices_id,
             "asset_type": asset.asset_type,
             "file_url": asset.file_url,
+            "original_filename": asset.original_filename,
             "created_at": asset.created_at.isoformat(),
         }
 

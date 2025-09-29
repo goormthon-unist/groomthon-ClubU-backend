@@ -89,6 +89,7 @@ def save_banner_image(file, club_id):
                     f"/{current_app.config.get('BANNERS_DIR', 'banners')}/{club_id}/optimized/{optimized_filename}"
                 ),
                 "optimized_path": optimized_path,
+                "original_filename": original_filename,
             }
         else:
             # 최적화 실패 시 임시 파일 삭제
@@ -176,6 +177,7 @@ def save_club_image(file, club_id, image_type):
             return {
                 "file_path": f"/{current_app.config.get('CLUBS_DIR', 'clubs')}/{club_id}/images/{optimized_filename}",
                 "optimized_path": optimized_path,
+                "original_filename": original_filename,
             }
         else:
             # 최적화 실패 시 임시 파일 삭제
@@ -268,6 +270,7 @@ def save_notice_image(file, notice_id):
             return {
                 "file_path": f"/{current_app.config.get('NOTICES_DIR', 'notices')}/{notice_id}/images/{optimized_filename}",
                 "optimized_path": optimized_path,
+                "original_filename": original_filename,
             }
         else:
             # 최적화 실패 시 임시 파일 삭제
