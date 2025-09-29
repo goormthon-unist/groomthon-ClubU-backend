@@ -42,17 +42,34 @@ SECRET_KEY=your-very-secret-key-here
 
 # MySQL RDS 데이터베이스 설정
 DATABASE_URL=mysql+pymysql://username:password@your-rds-endpoint:3306/database_name
+
+# 파일 저장 경로 설정 (Docker 컨테이너에서 사용)
+BANNERS_DIR=/data/banners
+CLUBS_DIR=/data/clubs
+NOTICES_DIR=/data/notices
 ```
 
-### 4. 자동 배포 프로세스
+### 4. Docker 볼륨 마운트 설정
+
+배포 스크립트는 다음과 같은 볼륨 마운트를 사용합니다:
+
+```bash
+# 각 디렉토리를 별도로 마운트
+--mount type=bind,source=/home/ubuntu/groomthon-ClubU-backend/banners,target=/data/banners
+--mount type=bind,source=/home/ubuntu/groomthon-ClubU-backend/clubs,target=/data/clubs
+--mount type=bind,source=/home/ubuntu/groomthon-ClubU-backend/notices,target=/data/notices
+```
+
+컨테이너 시작 시 심볼릭 링크를 생성하여 `/app` 디렉토리에서 접근 가능하도록 합니다.
+
+### 5. 자동 배포 프로세스
 
 1. `main` 브랜치에 코드를 push하면 자동으로 배포가 시작됩니다
 2. GitHub Actions가 다음 단계를 실행합니다:
-   - 코드 테스트 및 린팅
    - EC2 인스턴스에 SSH 접속
    - 최신 코드 가져오기
    - Docker 이미지 빌드
-   - 컨테이너 재시작
+   - 컨테이너 재시작 (새로운 볼륨 마운트 설정 적용)
 
 ## 🔧 수동 배포
 

@@ -17,6 +17,11 @@ class Config:
         "pool_pre_ping": True,
     }
 
+    # 파일 저장 경로 설정
+    BANNERS_DIR = os.getenv("BANNERS_DIR", "banners")
+    CLUBS_DIR = os.getenv("CLUBS_DIR", "clubs")
+    NOTICES_DIR = os.getenv("NOTICES_DIR", "notices")
+
 
 class DevelopmentConfig(Config):
     DEBUG = True

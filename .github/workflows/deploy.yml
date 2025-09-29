@@ -3,58 +3,21 @@ name: Deploy to EC2
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v4
-    
     - name: Deploy to EC2
-      uses: appleboy/ssh-action@v1.0.0
+      uses: appleboy/ssh-action@v1.0.3
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USERNAME }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          set -e
-          echo "== whoami ==" && whoami
-          echo "== docker version ==" && docker --version || sudo docker --version
-          echo "== pwd ==" && pwd
-          # --- 아래부터 기존 배포 스크립트 ---
-            
-
-          # 애플리케이션 디렉토리로 이동
-          cd /home/ubuntu/groomthon-ClubU-backend || {
-            echo "Directory not found. Cloning repository..."
-            cd /home/ubuntu
-            git clone https://github.com/${{ github.repository }}.git groomthon-ClubU-backend
-            cd groomthon-ClubU-backend
-          }
-          
-          # 최신 코드 가져오기
-          git fetch origin
-          git reset --hard origin/main
-          
-          # Docker 이미지 빌드
-          sudo docker build -t clubu-backend .
-          
-          # 기존 컨테이너 중지 및 제거
-          sudo docker stop clubu-backend-container || true
-          sudo docker rm clubu-backend-container || true
-          
-          # 새 컨테이너 실행 (Dockerfile에서 심링크 자동 생성)
-          sudo docker run -d \
-            --name clubu-backend-container \
-            --restart unless-stopped \
-            -p 5000:5000 \
-            --env-file /home/ubuntu/.env \
-            --user 1000:1000 \
-            -v /var/clubu:/data \
-            clubu-backend
-          
-          # 사용하지 않는 Docker 이미지 정리
-          sudo docker image prune -f
-          
-          echo "Deployment completed successfully!"
+          cd /home/ubuntu/groomthon-ClubU-backend
+          chmod +x deploy.sh
+          ./deploy.sh

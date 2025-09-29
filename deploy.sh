@@ -51,9 +51,16 @@ sudo docker run -d \
     --restart unless-stopped \
     -p 5000:5000 \
     --env-file "$ENV_FILE" \
-    --user 1000:1000 \
-    -v /var/clubu:/data \
-    "$IMAGE_NAME"
+    --mount type=bind,source="$APP_DIR/banners",target=/data/banners \
+    --mount type=bind,source="$APP_DIR/clubs",target=/data/clubs \
+    --mount type=bind,source="$APP_DIR/notices",target=/data/notices \
+    --entrypoint /bin/bash \
+    "$IMAGE_NAME" -lc 'set -e;
+    rm -rf /app/{banners,clubs,notices,cache} 2>/dev/null || true;
+    ln -s /data/banners /app/banners;
+    ln -s /data/clubs   /app/clubs;
+    ln -s /data/notices /app/notices;
+    exec python app.py'
 
 echo "컨테이너 상태 확인..."
 sleep 5

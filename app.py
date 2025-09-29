@@ -72,15 +72,18 @@ def create_app():
 
     @app.route("/banners/<path:filename>")
     def serve_banner(filename):
-        return send_from_directory("banners", filename)
+        banners_dir = app.config.get("BANNERS_DIR", "banners")
+        return send_from_directory(banners_dir, filename)
 
     @app.route("/clubs/<path:filename>")
     def serve_club_image(filename):
-        return send_from_directory("clubs", filename)
+        clubs_dir = app.config.get("CLUBS_DIR", "clubs")
+        return send_from_directory(clubs_dir, filename)
 
     @app.route("/notices/<path:filename>")
     def serve_notice_asset(filename):
-        return send_from_directory("notices", filename)
+        notices_dir = app.config.get("NOTICES_DIR", "notices")
+        return send_from_directory(notices_dir, filename)
 
     # RESTX API
     api = Api(

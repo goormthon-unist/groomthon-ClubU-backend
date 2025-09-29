@@ -2,11 +2,12 @@ import os
 import uuid
 from PIL import Image
 from werkzeug.utils import secure_filename
+from flask import current_app
 
 
 def create_banner_directories(club_id):
     """배너 저장을 위한 디렉토리 생성"""
-    base_dir = "banners"
+    base_dir = current_app.config.get("BANNERS_DIR", "banners")
     optimized_dir = os.path.join(base_dir, str(club_id), "optimized")
 
     os.makedirs(optimized_dir, exist_ok=True)
@@ -80,7 +81,9 @@ def save_banner_image(file, club_id):
                 f"Banner image saved successfully: {optimized_path}"
             )
             return {
-                "file_path": (f"/banners/{club_id}/optimized/{optimized_filename}"),
+                "file_path": (
+                    f"/{current_app.config.get('BANNERS_DIR', 'banners')}/{club_id}/optimized/{optimized_filename}"
+                ),
                 "optimized_path": optimized_path,
             }
         else:
@@ -113,7 +116,7 @@ def delete_banner_image(file_path):
 
 def create_club_directories(club_id):
     """동아리 이미지 저장을 위한 디렉토리 생성"""
-    base_dir = "clubs"
+    base_dir = current_app.config.get("CLUBS_DIR", "clubs")
     club_dir = os.path.join(base_dir, str(club_id))
     images_dir = os.path.join(club_dir, "images")
     original_dir = os.path.join(club_dir, "original")
@@ -162,7 +165,7 @@ def save_club_image(file, club_id, image_type):
                 os.remove(temp_path)
 
             return {
-                "file_path": f"/clubs/{club_id}/images/{optimized_filename}",
+                "file_path": f"/{current_app.config.get('CLUBS_DIR', 'clubs')}/{club_id}/images/{optimized_filename}",
                 "optimized_path": optimized_path,
             }
         else:
@@ -191,7 +194,7 @@ def delete_club_image(file_path):
 
 def create_notice_directories(notice_id):
     """공지사항 파일 저장을 위한 디렉토리 생성"""
-    base_dir = "notices"
+    base_dir = current_app.config.get("NOTICES_DIR", "notices")
     notice_dir = os.path.join(base_dir, str(notice_id))
     images_dir = os.path.join(notice_dir, "images")
     files_dir = os.path.join(notice_dir, "files")
@@ -248,7 +251,7 @@ def save_notice_image(file, notice_id):
                 f"Notice image saved successfully: {optimized_path}"
             )
             return {
-                "file_path": f"/notices/{notice_id}/images/{optimized_filename}",
+                "file_path": f"/{current_app.config.get('NOTICES_DIR', 'notices')}/{notice_id}/images/{optimized_filename}",
                 "optimized_path": optimized_path,
             }
         else:
@@ -328,7 +331,7 @@ def save_notice_file(file, notice_id):
         current_app.logger.info(f"Notice file saved successfully: {file_path}")
 
         return {
-            "file_path": f"/notices/{notice_id}/files/{unique_filename}",
+            "file_path": f"/{current_app.config.get('NOTICES_DIR', 'notices')}/{notice_id}/files/{unique_filename}",
             "original_filename": filename,
             "file_size": file_size,
         }
