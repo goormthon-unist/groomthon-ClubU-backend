@@ -19,11 +19,18 @@ club_member_role_ns = Namespace("clubs", description="동아리 멤버 권한 �
 club_member_registration_model = club_member_role_ns.model(
     "ClubMemberRegistration",
     {
-        "user_id": fields.Integer(required=True, description="사용자 ID"),
+        "student_id": fields.String(required=True, description="학번"),
+        "name": fields.String(required=True, description="이름"),
         "role_name": fields.String(
             required=True,
-            description="역할명 (CLUB_MEMBER, CLUB_OFFICER, CLUB_PRESIDENT)",
-            enum=["CLUB_MEMBER", "CLUB_OFFICER", "CLUB_PRESIDENT"],
+            description="역할명 (CLUB_MEMBER, CLUB_OFFICER, CLUB_PRESIDENT, CLUB_MEMBER_REST, STUDENT)",
+            enum=[
+                "CLUB_MEMBER",
+                "CLUB_OFFICER",
+                "CLUB_PRESIDENT",
+                "CLUB_MEMBER_REST",
+                "STUDENT",
+            ],
         ),
         "generation": fields.Integer(required=False, description="기수 (선택사항)"),
         "other_info": fields.String(required=False, description="기타 정보 (선택사항)"),
@@ -35,8 +42,14 @@ club_member_role_change_model = club_member_role_ns.model(
     {
         "role_name": fields.String(
             required=True,
-            description="새로운 역할명 (CLUB_MEMBER, CLUB_OFFICER, CLUB_PRESIDENT)",
-            enum=["CLUB_MEMBER", "CLUB_OFFICER", "CLUB_PRESIDENT"],
+            description="새로운 역할명 (CLUB_MEMBER, CLUB_OFFICER, CLUB_PRESIDENT, CLUB_MEMBER_REST, STUDENT)",
+            enum=[
+                "CLUB_MEMBER",
+                "CLUB_OFFICER",
+                "CLUB_PRESIDENT",
+                "CLUB_MEMBER_REST",
+                "STUDENT",
+            ],
         ),
         "generation": fields.Integer(required=False, description="기수 (선택사항)"),
         "other_info": fields.String(required=False, description="기타 정보 (선택사항)"),
@@ -58,19 +71,21 @@ class ClubMemberRegistrationResource(ClubMemberRegistrationController):
     @club_member_role_ns.response(500, "서버 내부 오류")
     def post(self, club_id):
         """
-        동아리 멤버 직접 등록 (지원서 없이)
+        개선된 동아리 멤버 등록 (학번과 이름으로 검색)
 
         요청 본문:
         {
-            "user_id": 123,                    // 사용자 ID (필수)
-            "role_name": "CLUB_MEMBER",        // 역할명 (필수): CLUB_MEMBER, CLUB_OFFICER, CLUB_PRESIDENT
+            "student_id": "20240001",          // 학번 (필수)
+            "name": "김지원",                  // 이름 (필수)
+            "role_name": "CLUB_MEMBER",        // 역할명 (필수): CLUB_MEMBER, CLUB_OFFICER, CLUB_PRESIDENT, CLUB_MEMBER_REST, STUDENT
             "generation": 1,                   // 기수 (선택사항)
             "other_info": "신입"               // 기타 정보 (선택사항)
         }
 
         예시:
-        - 일반 멤버 등록: {"user_id": 123, "role_name": "CLUB_MEMBER"}
-        - 간부 등록: {"user_id": 456, "role_name": "CLUB_OFFICER", "generation": 2}
+        - 일반 멤버 등록: {"student_id": "20240001", "name": "김지원", "role_name": "CLUB_MEMBER"}
+        - 휴동중 처리: {"student_id": "20240001", "name": "김지원", "role_name": "CLUB_MEMBER_REST", "other_info": "군입대"}
+        - 탈퇴 처리: {"student_id": "20240001", "name": "김지원", "role_name": "STUDENT", "other_info": "개인사정"}
         """
         return super().post(club_id)
 
@@ -109,14 +124,15 @@ class ClubMemberRoleResource(ClubMemberRoleChangeController, ClubMemberRolesCont
 
         요청 본문:
         {
-            "role_name": "CLUB_OFFICER",       // 새로운 역할명 (필수): CLUB_MEMBER, CLUB_OFFICER, CLUB_PRESIDENT
+            "role_name": "CLUB_OFFICER",       // 새로운 역할명 (필수): CLUB_MEMBER, CLUB_OFFICER, CLUB_PRESIDENT, CLUB_MEMBER_REST, STUDENT
             "generation": 2,                   // 기수 (선택사항)
             "other_info": "기획부장"           // 기타 정보 (선택사항)
         }
 
         예시:
         - 멤버를 간부로 승격: {"role_name": "CLUB_OFFICER"}
-        - 간부를 회장으로 승격: {"role_name": "CLUB_PRESIDENT", "generation": 3}
+        - 휴동중으로 변경: {"role_name": "CLUB_MEMBER_REST", "other_info": "군입대"}
+        - 탈퇴 처리: {"role_name": "STUDENT", "other_info": "개인사정"}
         """
         return ClubMemberRoleChangeController.post(self, club_id, user_id)
 

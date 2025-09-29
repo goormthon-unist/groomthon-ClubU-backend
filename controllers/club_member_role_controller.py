@@ -6,7 +6,7 @@
 from flask_restx import Resource, abort, reqparse
 from flask import request, current_app
 from services.club_member_role_service import (
-    register_club_member,
+    register_club_member_improved,
     change_club_member_role,
     get_club_member_roles,
     get_club_available_roles,
@@ -21,15 +21,16 @@ class ClubMemberRegistrationController(Resource):
     @require_permission("clubs.member_role_change", club_id_param="club_id")
     def post(self, club_id):
         """
-        동아리 멤버 직접 등록 (지원서 없이)
+        개선된 동아리 멤버 등록 (학번과 이름으로 검색)
 
         Args:
             club_id: 동아리 ID
 
         Body:
             {
-                "user_id": 123,
-                "role_name": "CLUB_MEMBER" | "CLUB_OFFICER" | "CLUB_PRESIDENT",
+                "student_id": "20240001",
+                "name": "김지원",
+                "role_name": "CLUB_MEMBER" | "CLUB_OFFICER" | "CLUB_PRESIDENT" | "CLUB_MEMBER_REST" | "STUDENT",
                 "generation": 1,  // 선택사항
                 "other_info": "기타 정보"  // 선택사항
             }
@@ -41,22 +42,26 @@ class ClubMemberRegistrationController(Resource):
                 abort(400, "400-00: JSON body is required")
 
             # 필수 필드 검증
-            user_id = data.get("user_id")
+            student_id = data.get("student_id")
+            name = data.get("name")
             role_name = data.get("role_name")
 
-            if not user_id:
-                abort(400, "400-01: user_id is required")
+            if not student_id:
+                abort(400, "400-01: student_id is required")
+            if not name:
+                abort(400, "400-02: name is required")
             if not role_name:
-                abort(400, "400-02: role_name is required")
+                abort(400, "400-03: role_name is required")
 
             # 선택 필드
             generation = data.get("generation")
             other_info = data.get("other_info")
 
-            # 동아리 멤버 등록 실행
-            result = register_club_member(
+            # 개선된 동아리 멤버 등록 실행
+            result = register_club_member_improved(
                 club_id=club_id,
-                user_id=user_id,
+                student_id=student_id,
+                name=name,
                 role_name=role_name,
                 generation=generation,
                 other_info=other_info,
@@ -72,7 +77,7 @@ class ClubMemberRegistrationController(Resource):
                 abort(400, result["message"])
 
         except ValueError as e:
-            abort(400, f"400-03: {str(e)}")
+            abort(400, f"400-04: {str(e)}")
         except Exception as e:
             current_app.logger.exception("club.member_registration failed")
             abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")

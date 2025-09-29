@@ -7,22 +7,25 @@ from typing import Optional, Dict, Any, List
 from datetime import datetime
 from models import db, User, ClubMember, Role, Club
 from config.permission_policy import ROLE_HIERARCHY
+from .user_search_service import find_user_by_student_id_and_name
 
 
-def register_club_member(
+def register_club_member_improved(
     club_id: int,
-    user_id: int,
+    student_id: str,
+    name: str,
     role_name: str,
     generation: Optional[int] = None,
     other_info: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
-    동아리 멤버 직접 등록 (지원서 없이)
+    개선된 동아리 멤버 등록 (학번과 이름으로 검색)
 
     Args:
         club_id: 동아리 ID
-        user_id: 사용자 ID
-        role_name: 역할명 (CLUB_MEMBER, CLUB_OFFICER, CLUB_PRESIDENT)
+        student_id: 학번
+        name: 이름
+        role_name: 역할명 (CLUB_MEMBER, CLUB_OFFICER, CLUB_PRESIDENT, CLUB_INACTIVE)
         generation: 기수 (선택사항)
         other_info: 기타 정보 (선택사항)
 
@@ -30,18 +33,24 @@ def register_club_member(
         Dict with success status and data
     """
     try:
-        # 1. 동아리 존재 확인
+        # 1. 사용자 검색 및 검증
+        user_search_result = find_user_by_student_id_and_name(student_id, name)
+        user_id = user_search_result["user_id"]
+        user_name = user_search_result["name"]
+
+        # 2. 동아리 존재 확인
         club = Club.query.get(club_id)
         if not club:
             raise ValueError(f"동아리 ID {club_id}가 존재하지 않습니다.")
 
-        # 2. 사용자 존재 확인
-        user = User.query.get(user_id)
-        if not user:
-            raise ValueError(f"사용자 ID {user_id}가 존재하지 않습니다.")
-
-        # 3. 역할 존재 확인 (동아리 내 역할만 허용)
-        allowed_roles = ["CLUB_MEMBER", "CLUB_OFFICER", "CLUB_PRESIDENT"]
+        # 3. 역할 존재 확인 (휴동중 포함)
+        allowed_roles = [
+            "CLUB_MEMBER",
+            "CLUB_OFFICER",
+            "CLUB_PRESIDENT",
+            "CLUB_MEMBER_REST",
+            "STUDENT",
+        ]
         if role_name not in allowed_roles:
             raise ValueError(
                 f"동아리 내에서 허용되지 않는 역할입니다. 허용된 역할: {', '.join(allowed_roles)}"
@@ -51,41 +60,68 @@ def register_club_member(
         if not role:
             raise ValueError(f"역할 '{role_name}'이 존재하지 않습니다.")
 
-        # 4. 이미 동아리 멤버인지 확인
+        # 4. 기존 멤버십 확인
         existing_membership = ClubMember.query.filter_by(
             user_id=user_id, club_id=club_id
         ).first()
 
         if existing_membership:
-            raise ValueError("이미 해당 동아리의 회원입니다.")
+            if role_name == "STUDENT":
+                # STUDENT로 설정 시 해당 동아리에서 완전히 제거
+                # 전역 STUDENT 역할은 이미 존재하므로 별도 처리 불필요
+                db.session.delete(existing_membership)
+                db.session.commit()
+                message = f"사용자 {user_name}({student_id})이(가) {club.name} 동아리에서 탈퇴되었습니다."
+            else:
+                # 기존 멤버십 업데이트 (휴동중에서 복귀 등)
+                existing_membership.role_id = role.id
+                if generation is not None:
+                    existing_membership.generation = generation
+                if other_info is not None:
+                    existing_membership.other_info = other_info
+                existing_membership.updated_at = datetime.utcnow()
 
-        # 5. 기본값 설정
-        if generation is None:
-            generation = club.current_generation if club.current_generation else 1
+                db.session.commit()
 
-        # 6. 동아리 멤버 등록
-        new_membership = ClubMember(
-            user_id=user_id,
-            club_id=club_id,
-            role_id=role.id,
-            generation=generation,
-            other_info=other_info,
-            joined_at=datetime.utcnow(),
-        )
+                action = (
+                    "변경" if existing_membership.role_id != role.id else "업데이트"
+                )
+                message = f"사용자 {user_name}({student_id})의 동아리 역할이 '{role_name}'으로 {action}되었습니다."
+        else:
+            if role_name == "STUDENT":
+                # STUDENT로 설정 시 이미 탈퇴 상태
+                # 전역 STUDENT 역할은 이미 존재하므로 별도 처리 불필요
+                message = f"사용자 {user_name}({student_id})은(는) 이미 {club.name} 동아리에서 탈퇴한 상태입니다."
+            else:
+                # 새 멤버십 생성
+                if generation is None:
+                    generation = (
+                        club.current_generation if club.current_generation else 1
+                    )
 
-        db.session.add(new_membership)
-        db.session.commit()
+                new_membership = ClubMember(
+                    user_id=user_id,
+                    club_id=club_id,
+                    role_id=role.id,
+                    generation=generation,
+                    other_info=other_info,
+                    joined_at=datetime.utcnow(),
+                )
 
+                db.session.add(new_membership)
+                db.session.commit()
+
+                message = f"사용자 {user_name}({student_id})을(를) {club.name} 동아리의 {role_name}으로 등록했습니다."
+
+        # 간소화된 응답
         return {
             "success": True,
-            "message": f"사용자 {user.name}을(를) {club.name} 동아리의 {role_name}으로 등록했습니다.",
+            "message": message,
             "data": {
-                "membership_id": new_membership.id,
                 "user_id": user_id,
-                "club_id": club_id,
+                "name": user_name,
+                "student_id": student_id,
                 "role_name": role_name,
-                "generation": generation,
-                "joined_at": new_membership.joined_at.isoformat(),
             },
         }
 
@@ -126,7 +162,13 @@ def change_club_member_role(
             raise ValueError(f"사용자 ID {user_id}가 존재하지 않습니다.")
 
         # 3. 역할 존재 확인 (동아리 내 역할만 허용)
-        allowed_roles = ["CLUB_MEMBER", "CLUB_OFFICER", "CLUB_PRESIDENT"]
+        allowed_roles = [
+            "CLUB_MEMBER",
+            "CLUB_OFFICER",
+            "CLUB_PRESIDENT",
+            "CLUB_MEMBER_REST",
+            "STUDENT",
+        ]
         if role_name not in allowed_roles:
             raise ValueError(
                 f"동아리 내에서 허용되지 않는 역할입니다. 허용된 역할: {', '.join(allowed_roles)}"
@@ -142,58 +184,97 @@ def change_club_member_role(
         ).first()
 
         if existing_membership:
-            # 기존 멤버십 업데이트
-            existing_membership.role_id = role.id
-            if generation is not None:
-                existing_membership.generation = generation
-            if other_info is not None:
-                existing_membership.other_info = other_info
-            existing_membership.updated_at = datetime.utcnow()
+            if role_name == "STUDENT":
+                # STUDENT로 설정 시 해당 동아리에서 완전히 제거
+                # 전역 STUDENT 역할은 이미 존재하므로 별도 처리 불필요
+                db.session.delete(existing_membership)
+                db.session.commit()
 
-            db.session.commit()
+                return {
+                    "success": True,
+                    "message": f"동아리 멤버가 '{role_name}'으로 변경되어 {club.name} 동아리에서 탈퇴되었습니다.",
+                    "data": {
+                        "user_id": user_id,
+                        "user_name": user.name,
+                        "club_id": club_id,
+                        "club_name": club.name,
+                        "role_name": role_name,
+                        "generation": None,
+                        "other_info": other_info,
+                        "updated_at": datetime.utcnow().isoformat(),
+                    },
+                }
+            else:
+                # 기존 멤버십 업데이트
+                existing_membership.role_id = role.id
+                if generation is not None:
+                    existing_membership.generation = generation
+                if other_info is not None:
+                    existing_membership.other_info = other_info
+                existing_membership.updated_at = datetime.utcnow()
 
-            return {
-                "success": True,
-                "message": f"동아리 멤버 권한이 '{role_name}'으로 변경되었습니다.",
-                "data": {
-                    "user_id": user_id,
-                    "user_name": user.name,
-                    "club_id": club_id,
-                    "club_name": club.name,
-                    "role_name": role_name,
-                    "generation": existing_membership.generation,
-                    "other_info": existing_membership.other_info,
-                    "updated_at": existing_membership.updated_at.isoformat(),
-                },
-            }
+                db.session.commit()
+
+                return {
+                    "success": True,
+                    "message": f"동아리 멤버 권한이 '{role_name}'으로 변경되었습니다.",
+                    "data": {
+                        "user_id": user_id,
+                        "user_name": user.name,
+                        "club_id": club_id,
+                        "club_name": club.name,
+                        "role_name": role_name,
+                        "generation": existing_membership.generation,
+                        "other_info": existing_membership.other_info,
+                        "updated_at": existing_membership.updated_at.isoformat(),
+                    },
+                }
         else:
-            # 새 멤버십 생성
-            new_membership = ClubMember(
-                user_id=user_id,
-                club_id=club_id,
-                role_id=role.id,
-                generation=generation or 1,
-                other_info=other_info,
-                joined_at=datetime.utcnow(),
-            )
+            if role_name == "STUDENT":
+                # STUDENT로 설정 시 이미 탈퇴 상태
+                # 전역 STUDENT 역할은 이미 존재하므로 별도 처리 불필요
+                return {
+                    "success": True,
+                    "message": f"사용자는 이미 {club.name} 동아리에서 탈퇴한 상태입니다.",
+                    "data": {
+                        "user_id": user_id,
+                        "user_name": user.name,
+                        "club_id": club_id,
+                        "club_name": club.name,
+                        "role_name": role_name,
+                        "generation": None,
+                        "other_info": other_info,
+                        "joined_at": None,
+                    },
+                }
+            else:
+                # 새 멤버십 생성
+                new_membership = ClubMember(
+                    user_id=user_id,
+                    club_id=club_id,
+                    role_id=role.id,
+                    generation=generation or 1,
+                    other_info=other_info,
+                    joined_at=datetime.utcnow(),
+                )
 
-            db.session.add(new_membership)
-            db.session.commit()
+                db.session.add(new_membership)
+                db.session.commit()
 
-            return {
-                "success": True,
-                "message": f"사용자가 동아리에 '{role_name}'으로 추가되었습니다.",
-                "data": {
-                    "user_id": user_id,
-                    "user_name": user.name,
-                    "club_id": club_id,
-                    "club_name": club.name,
-                    "role_name": role_name,
-                    "generation": new_membership.generation,
-                    "other_info": new_membership.other_info,
-                    "joined_at": new_membership.joined_at.isoformat(),
-                },
-            }
+                return {
+                    "success": True,
+                    "message": f"사용자가 동아리에 '{role_name}'으로 추가되었습니다.",
+                    "data": {
+                        "user_id": user_id,
+                        "user_name": user.name,
+                        "club_id": club_id,
+                        "club_name": club.name,
+                        "role_name": role_name,
+                        "generation": new_membership.generation,
+                        "other_info": new_membership.other_info,
+                        "joined_at": new_membership.joined_at.isoformat(),
+                    },
+                }
 
     except Exception as e:
         db.session.rollback()
@@ -271,8 +352,14 @@ def get_club_available_roles() -> Dict[str, Any]:
         Dict with available roles for club management
     """
     try:
-        # 동아리 내에서 사용 가능한 역할들
-        allowed_roles = ["CLUB_MEMBER", "CLUB_OFFICER", "CLUB_PRESIDENT"]
+        # 동아리 내에서 사용 가능한 역할들 (휴동중 포함)
+        allowed_roles = [
+            "CLUB_MEMBER",
+            "CLUB_OFFICER",
+            "CLUB_PRESIDENT",
+            "CLUB_MEMBER_REST",
+            "STUDENT",
+        ]
 
         roles = Role.query.filter(Role.role_name.in_(allowed_roles)).all()
 
@@ -365,5 +452,7 @@ def _get_role_description(role_name: str) -> str:
         "CLUB_MEMBER": "동아리 일반 멤버",
         "CLUB_OFFICER": "동아리 임원",
         "CLUB_PRESIDENT": "동아리 회장",
+        "CLUB_MEMBER_REST": "동아리 휴동중",
+        "STUDENT": "일반 학생 (탈퇴)",
     }
     return descriptions.get(role_name, "알 수 없는 역할")
