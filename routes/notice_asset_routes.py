@@ -37,6 +37,11 @@ class NoticeImageResource(NoticeImageController):
 
     @notice_asset_ns.expect(image_parser)
     @notice_asset_ns.doc("upload_notice_image", consumes=["multipart/form-data"])
+    @notice_asset_ns.response(200, "이미지 업로드 성공")
+    @notice_asset_ns.response(400, "잘못된 요청")
+    @notice_asset_ns.response(401, "로그인이 필요합니다")
+    @notice_asset_ns.response(403, "CLUB_PRESIDENT 권한이 필요합니다")
+    @notice_asset_ns.response(500, "서버 내부 오류")
     def put(self, notice_id):
         """
         공지사항 이미지 업로드/수정
@@ -47,6 +52,11 @@ class NoticeImageResource(NoticeImageController):
         return super().put(notice_id)
 
     @notice_asset_ns.doc("delete_notice_image")
+    @notice_asset_ns.response(200, "이미지 삭제 성공")
+    @notice_asset_ns.response(401, "로그인이 필요합니다")
+    @notice_asset_ns.response(403, "CLUB_PRESIDENT 권한이 필요합니다")
+    @notice_asset_ns.response(404, "이미지를 찾을 수 없습니다")
+    @notice_asset_ns.response(500, "서버 내부 오류")
     def delete(self, notice_id):
         """공지사항 이미지 삭제"""
         return super().delete(notice_id)
@@ -58,6 +68,11 @@ class NoticeFileResource(NoticeFileController):
 
     @notice_asset_ns.expect(file_parser)
     @notice_asset_ns.doc("upload_notice_file", consumes=["multipart/form-data"])
+    @notice_asset_ns.response(200, "파일 업로드 성공")
+    @notice_asset_ns.response(400, "잘못된 요청")
+    @notice_asset_ns.response(401, "로그인이 필요합니다")
+    @notice_asset_ns.response(403, "CLUB_PRESIDENT 권한이 필요합니다")
+    @notice_asset_ns.response(500, "서버 내부 오류")
     def put(self, notice_id):
         """
         공지사항 파일 업로드/수정
@@ -68,6 +83,11 @@ class NoticeFileResource(NoticeFileController):
         return super().put(notice_id)
 
     @notice_asset_ns.doc("delete_notice_file")
+    @notice_asset_ns.response(200, "파일 삭제 성공")
+    @notice_asset_ns.response(401, "로그인이 필요합니다")
+    @notice_asset_ns.response(403, "CLUB_PRESIDENT 권한이 필요합니다")
+    @notice_asset_ns.response(404, "파일을 찾을 수 없습니다")
+    @notice_asset_ns.response(500, "서버 내부 오류")
     def delete(self, notice_id):
         """공지사항 파일 삭제"""
         return super().delete(notice_id)
