@@ -12,7 +12,6 @@ from utils.permission_decorator import require_permission
 class NoticeImageController(Resource):
     """공지사항 이미지 관리 컨트롤러"""
 
-    @require_permission("notices.club_update")
     def put(self, notice_id):
         """공지사항 이미지 업로드/수정"""
         try:
@@ -54,7 +53,6 @@ class NoticeImageController(Resource):
         except Exception as e:
             abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {e}")
 
-    @require_permission("notices.club_delete")
     def delete(self, notice_id):
         """공지사항 이미지 삭제"""
         try:

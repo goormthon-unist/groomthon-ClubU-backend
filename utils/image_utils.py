@@ -194,6 +194,8 @@ def delete_club_image(file_path):
 
 def create_notice_directories(notice_id):
     """공지사항 파일 저장을 위한 디렉토리 생성"""
+    from flask import current_app
+
     base_dir = current_app.config.get("NOTICES_DIR", "notices")
     notice_dir = os.path.join(base_dir, str(notice_id))
     images_dir = os.path.join(notice_dir, "images")

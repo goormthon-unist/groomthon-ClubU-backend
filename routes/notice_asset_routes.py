@@ -40,7 +40,6 @@ class NoticeImageResource(NoticeImageController):
     @notice_asset_ns.response(200, "이미지 업로드 성공")
     @notice_asset_ns.response(400, "잘못된 요청")
     @notice_asset_ns.response(401, "로그인이 필요합니다")
-    @notice_asset_ns.response(403, "CLUB_PRESIDENT 권한이 필요합니다")
     @notice_asset_ns.response(500, "서버 내부 오류")
     def put(self, notice_id):
         """
@@ -54,7 +53,6 @@ class NoticeImageResource(NoticeImageController):
     @notice_asset_ns.doc("delete_notice_image")
     @notice_asset_ns.response(200, "이미지 삭제 성공")
     @notice_asset_ns.response(401, "로그인이 필요합니다")
-    @notice_asset_ns.response(403, "CLUB_PRESIDENT 권한이 필요합니다")
     @notice_asset_ns.response(404, "이미지를 찾을 수 없습니다")
     @notice_asset_ns.response(500, "서버 내부 오류")
     def delete(self, notice_id):
@@ -71,7 +69,6 @@ class NoticeFileResource(NoticeFileController):
     @notice_asset_ns.response(200, "파일 업로드 성공")
     @notice_asset_ns.response(400, "잘못된 요청")
     @notice_asset_ns.response(401, "로그인이 필요합니다")
-    @notice_asset_ns.response(403, "CLUB_PRESIDENT 권한이 필요합니다")
     @notice_asset_ns.response(500, "서버 내부 오류")
     def put(self, notice_id):
         """
@@ -85,7 +82,6 @@ class NoticeFileResource(NoticeFileController):
     @notice_asset_ns.doc("delete_notice_file")
     @notice_asset_ns.response(200, "파일 삭제 성공")
     @notice_asset_ns.response(401, "로그인이 필요합니다")
-    @notice_asset_ns.response(403, "CLUB_PRESIDENT 권한이 필요합니다")
     @notice_asset_ns.response(404, "파일을 찾을 수 없습니다")
     @notice_asset_ns.response(500, "서버 내부 오류")
     def delete(self, notice_id):

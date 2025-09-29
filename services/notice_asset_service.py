@@ -35,7 +35,7 @@ def create_notice_asset(notice_id, asset_type, file):
             "notice_id": notice_id,
             "asset_type": asset_type,
             "file_url": result["file_path"],
-            "created_at": notice_asset.created_at,
+            "created_at": notice_asset.created_at.isoformat(),
         }
 
     except Exception as e:
@@ -54,7 +54,7 @@ def get_notice_assets(notice_id):
                 "notice_id": asset.notices_id,
                 "asset_type": asset.asset_type,
                 "file_url": asset.file_url,
-                "created_at": asset.created_at,
+                "created_at": asset.created_at.isoformat(),
             }
             for asset in assets
         ]
@@ -138,7 +138,7 @@ def update_notice_asset(asset_id, asset_type, file):
             "notice_id": asset.notices_id,
             "asset_type": asset.asset_type,
             "file_url": asset.file_url,
-            "created_at": asset.created_at,
+            "created_at": asset.created_at.isoformat(),
         }
 
     except Exception as e:
