@@ -6,6 +6,7 @@
 from flask_restx import Resource, abort
 from flask import request, current_app
 from services.user_search_service import find_user_by_student_id_and_name
+from services.session_service import get_current_user
 
 
 class UserValidationController(Resource):
@@ -22,6 +23,11 @@ class UserValidationController(Resource):
             }
         """
         try:
+            # 로그인 체크
+            current_user = get_current_user()
+            if not current_user:
+                abort(401, "401-01: 로그인이 필요합니다")
+
             # JSON 파싱
             data = request.get_json()
             if not data:

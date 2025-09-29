@@ -28,6 +28,7 @@ class UserValidationResource(UserValidationController):
     @user_search_ns.expect(user_validation_model)
     @user_search_ns.response(200, "사용자 검증 성공")
     @user_search_ns.response(400, "잘못된 요청")
+    @user_search_ns.response(401, "로그인이 필요합니다")
     @user_search_ns.response(500, "서버 내부 오류")
     def post(self):
         """
