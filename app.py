@@ -105,7 +105,6 @@ def create_app():
     from routes.role_routes import role_ns
     from routes.application_check_routes import application_check_ns
     from routes.user_routes import user_ns
-    from routes.admin_routes import admin_ns
     from routes.admin_user_role_routes import admin_user_role_ns
     from routes.club_member_role_routes import club_member_role_ns
     from routes.department_routes import department_ns
@@ -123,7 +122,6 @@ def create_app():
     api.add_namespace(role_ns, path="/api/v1/roles")
     api.add_namespace(application_check_ns, path="/api/v1")
     api.add_namespace(user_ns, path="/api/v1/users")
-    api.add_namespace(admin_ns, path="/api/v1/admin")
     api.add_namespace(admin_user_role_ns, path="/api/v1/admin")
     api.add_namespace(club_member_role_ns, path="/api/v1/clubs")
     api.add_namespace(department_ns, path="/api/v1/departments")
