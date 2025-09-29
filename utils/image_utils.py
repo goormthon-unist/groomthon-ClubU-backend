@@ -383,7 +383,7 @@ def save_notice_file(file, notice_id):
 
         return {
             "file_path": f"/{current_app.config.get('NOTICES_DIR', 'notices')}/{notice_id}/files/{unique_filename}",
-            "original_filename": filename,
+            "original_filename": original_filename,
             "file_size": file_size,
         }
 

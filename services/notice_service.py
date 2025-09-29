@@ -61,6 +61,7 @@ def get_club_notices(club_id):
                     "id": asset.id,
                     "asset_type": asset.asset_type,
                     "file_url": asset.file_url,
+                    "original_filename": asset.original_filename,
                     "created_at": asset.created_at.isoformat(),
                 }
                 for asset in assets
@@ -107,6 +108,7 @@ def get_all_notices():
                     "id": asset.id,
                     "asset_type": asset.asset_type,
                     "file_url": asset.file_url,
+                    "original_filename": asset.original_filename,
                     "created_at": asset.created_at.isoformat(),
                 }
                 for asset in assets
