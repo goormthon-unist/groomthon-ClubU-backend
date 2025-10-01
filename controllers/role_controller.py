@@ -1,4 +1,4 @@
-from flask_restx import Resource, abort, reqparse
+from flask_restx import Resource, reqparse
 from services.role_service import (
     create_role,
     get_all_roles,
@@ -21,12 +21,15 @@ class RoleListController(Resource):
         try:
             roles_data = get_all_roles()
             return {
-                "status": "success",
                 "count": len(roles_data),
                 "roles": roles_data,
             }, 200
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
 
 
 class RoleDetailController(Resource):
@@ -37,11 +40,19 @@ class RoleDetailController(Resource):
         try:
             role_data = get_role_by_id(role_id)
             if not role_data:
-                abort(404, "404-01: 해당 역할을 찾을 수 없습니다")
+                return {
+                    "status": "error",
+                    "message": "해당 역할을 찾을 수 없습니다",
+                    "code": "404-01",
+                }, 404
 
-            return {"status": "success", "role": role_data}, 200
+            return role_data, 200
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
 
 
 class RoleCreateController(Resource):
@@ -56,12 +67,16 @@ class RoleCreateController(Resource):
             args = parser.parse_args()
 
             role_data = create_role(args["name"], args.get("description"))
-            return {"status": "success", "role": role_data}, 201
+            return role_data, 201
 
         except ValueError as e:
-            abort(400, f"400-01: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-01"}, 400
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
 
 
 class ClubMemberRoleController(Resource):
@@ -73,14 +88,17 @@ class ClubMemberRoleController(Resource):
             role_data = get_user_role_in_club(user_id, club_id)
             if not role_data:
                 return {
-                    "status": "success",
                     "message": "해당 동아리의 멤버가 아닙니다",
-                    "data": None,
+                    "role": None,
                 }, 200
 
-            return {"status": "success", "data": role_data}, 200
+            return role_data, 200
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
 
     def post(self, club_id, user_id):
         """사용자에게 특정 동아리에서 역할을 부여합니다"""
@@ -91,30 +109,36 @@ class ClubMemberRoleController(Resource):
 
             result = assign_role_to_user_in_club(user_id, club_id, args["role_id"])
             return {
-                "status": "success",
                 "message": "역할이 성공적으로 부여되었습니다",
-                "data": result,
+                "role": result,
             }, 200
 
         except ValueError as e:
-            abort(400, f"400-02: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-02"}, 400
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
 
     def delete(self, club_id, user_id):
         """사용자의 특정 동아리에서의 역할을 제거합니다"""
         try:
             result = remove_user_role_from_club(user_id, club_id)
             return {
-                "status": "success",
                 "message": "역할이 성공적으로 제거되었습니다",
-                "data": result,
+                "result": result,
             }, 200
 
         except ValueError as e:
-            abort(400, f"400-03: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-03"}, 400
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
 
 
 class ClubRoleUsersController(Resource):
@@ -125,14 +149,17 @@ class ClubRoleUsersController(Resource):
         try:
             users_data = get_users_by_role_in_club(club_id, role_id)
             return {
-                "status": "success",
                 "count": len(users_data),
                 "users": users_data,
             }, 200
         except ValueError as e:
-            abort(400, f"400-04: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-04"}, 400
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
 
 
 class ClubMembersController(Resource):
@@ -143,14 +170,17 @@ class ClubMembersController(Resource):
         try:
             members_data = get_all_club_members(club_id)
             return {
-                "status": "success",
                 "count": len(members_data),
                 "members": members_data,
             }, 200
         except ValueError as e:
-            abort(400, f"400-05: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-05"}, 400
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
 
 
 class CurrentUserPermissionController(Resource):
@@ -167,10 +197,14 @@ class CurrentUserPermissionController(Resource):
                 club_id, args.get("required_role")
             )
 
-            return {"status": "success", "data": permission_data}, 200
+            return permission_data, 200
 
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
 
 
 class CurrentUserClubsController(Resource):
@@ -182,10 +216,13 @@ class CurrentUserClubsController(Resource):
             clubs_data = get_current_user_clubs()
 
             return {
-                "status": "success",
                 "count": len(clubs_data),
                 "clubs": clubs_data,
             }, 200
 
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500

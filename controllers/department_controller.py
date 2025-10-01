@@ -13,9 +13,9 @@ class DepartmentListController(Resource):
             departments = get_all_departments()
 
             return {
-                "status": "success",
                 "message": "학과 목록을 성공적으로 조회했습니다.",
-                "data": {"departments": departments, "count": len(departments)},
+                "departments": departments,
+                "count": len(departments),
             }, 200
 
         except Exception as e:
@@ -23,4 +23,5 @@ class DepartmentListController(Resource):
             return {
                 "status": "error",
                 "message": f"학과 목록 조회 중 오류가 발생했습니다: {str(e)}",
+                "code": "500-00",
             }, 500

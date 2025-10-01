@@ -1,4 +1,4 @@
-from flask_restx import Resource, abort, reqparse
+from flask_restx import Resource, reqparse
 from services.session_service import get_current_session
 from services.banner_service import (
     create_banner,
@@ -18,7 +18,11 @@ class BannerController(Resource):
             # 세션 인증 확인
             session_data = get_current_session()
             if not session_data:
-                abort(401, "401-01: 로그인이 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다",
+                    "code": "401-01",
+                }, 401
 
             # multipart/form-data와 JSON 모두 처리
             from flask import request
@@ -38,16 +42,28 @@ class BannerController(Resource):
                 # JSON으로 시도
                 data = request.get_json()
                 if not data:
-                    abort(400, "400-01: 요청 데이터가 필요합니다")
+                    return {
+                        "status": "error",
+                        "message": "요청 데이터가 필요합니다",
+                        "code": "400-01",
+                    }, 400
                 args = data
 
             # 파일 처리
             if "image" not in request.files:
-                abort(400, "400-02: 이미지 파일이 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "이미지 파일이 필요합니다",
+                    "code": "400-02",
+                }, 400
 
             image_file = request.files["image"]
             if image_file.filename == "":
-                abort(400, "400-03: 선택된 파일이 없습니다")
+                return {
+                    "status": "error",
+                    "message": "선택된 파일이 없습니다",
+                    "code": "400-03",
+                }, 400
 
             # 필수 필드 검증
             club_id = args.get("club_id")
@@ -56,13 +72,29 @@ class BannerController(Resource):
             end_date = args.get("end_date")
 
             if not club_id:
-                abort(400, "400-04: club_id가 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "club_id가 필요합니다",
+                    "code": "400-04",
+                }, 400
             if not title:
-                abort(400, "400-05: title이 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "title이 필요합니다",
+                    "code": "400-05",
+                }, 400
             if not start_date:
-                abort(400, "400-06: start_date가 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "start_date가 필요합니다",
+                    "code": "400-06",
+                }, 400
             if not end_date:
-                abort(400, "400-07: end_date가 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "end_date가 필요합니다",
+                    "code": "400-07",
+                }, 400
 
             banner_data = {
                 "title": title,
@@ -75,15 +107,19 @@ class BannerController(Resource):
             # 세션에서 user_id 가져오기
             user_id = session_data["user_id"]
             new_banner = create_banner(club_id, user_id, banner_data, image_file)
-            return {"status": "success", "banner": new_banner}, 201
+            return new_banner, 201
 
         except ValueError as e:
-            abort(400, f"400-08: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-08"}, 400
         except Exception as e:
             from flask import current_app
 
             current_app.logger.exception("Banner creation failed")
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {e}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {e}",
+                "code": "500-00",
+            }, 500
 
     def get(self):
         """배너 목록 조회"""
@@ -98,13 +134,16 @@ class BannerController(Resource):
             )
 
             return {
-                "status": "success",
                 "count": len(banners),
                 "banners": banners,
             }, 200
 
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {e}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {e}",
+                "code": "500-00",
+            }, 500
 
 
 class BannerDetailController(Resource):
@@ -115,12 +154,20 @@ class BannerDetailController(Resource):
         try:
             banner = get_banner_by_id(banner_id)
             if not banner:
-                abort(404, "404-01: 해당 배너를 찾을 수 없습니다")
+                return {
+                    "status": "error",
+                    "message": "해당 배너를 찾을 수 없습니다",
+                    "code": "404-01",
+                }, 404
 
-            return {"status": "success", "banner": banner}, 200
+            return banner, 200
 
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {e}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {e}",
+                "code": "500-00",
+            }, 500
 
     def delete(self, banner_id):
         """배너 삭제"""
@@ -128,15 +175,23 @@ class BannerDetailController(Resource):
             # 세션 인증 확인
             session_data = get_current_session()
             if not session_data:
-                abort(401, "401-01: 로그인이 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다",
+                    "code": "401-01",
+                }, 401
 
             result = delete_banner(banner_id)
-            return {"status": "success", "message": result["message"]}, 200
+            return {"message": result["message"]}, 200
 
         except ValueError as e:
-            abort(400, f"400-04: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-04"}, 400
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {e}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {e}",
+                "code": "500-00",
+            }, 500
 
 
 class BannerStatusController(Resource):
@@ -148,16 +203,24 @@ class BannerStatusController(Resource):
             # 세션 인증 확인
             session_data = get_current_session()
             if not session_data:
-                abort(401, "401-01: 로그인이 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다",
+                    "code": "401-01",
+                }, 401
 
             parser = reqparse.RequestParser()
             parser.add_argument("status", type=str, required=True, location="json")
             args = parser.parse_args()
 
             banner = update_banner_status(banner_id, args["status"])
-            return {"status": "success", "banner": banner}, 200
+            return banner, 200
 
         except ValueError as e:
-            abort(400, f"400-05: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-05"}, 400
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {e}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {e}",
+                "code": "500-00",
+            }, 500

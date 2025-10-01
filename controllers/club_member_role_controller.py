@@ -3,7 +3,7 @@
 동아리 회장이 자신의 동아리 내에서만 멤버 권한을 변경할 수 있도록 제한
 """
 
-from flask_restx import Resource, abort, reqparse
+from flask_restx import Resource, reqparse
 from flask import request, current_app
 from services.club_member_role_service import (
     register_club_member_improved,
@@ -39,7 +39,11 @@ class ClubMemberRegistrationController(Resource):
             # JSON 파싱
             data = request.get_json()
             if not data:
-                abort(400, "400-00: JSON body is required")
+                return {
+                    "status": "error",
+                    "message": "요청 본문이 필요합니다",
+                    "code": "400-00",
+                }, 400
 
             # 필수 필드 검증
             student_id = data.get("student_id")
@@ -47,11 +51,23 @@ class ClubMemberRegistrationController(Resource):
             role_name = data.get("role_name")
 
             if not student_id:
-                abort(400, "400-01: student_id is required")
+                return {
+                    "status": "error",
+                    "message": "학번이 필요합니다",
+                    "code": "400-01",
+                }, 400
             if not name:
-                abort(400, "400-02: name is required")
+                return {
+                    "status": "error",
+                    "message": "이름이 필요합니다",
+                    "code": "400-02",
+                }, 400
             if not role_name:
-                abort(400, "400-03: role_name is required")
+                return {
+                    "status": "error",
+                    "message": "역할 이름이 필요합니다",
+                    "code": "400-03",
+                }, 400
 
             # 선택 필드
             generation = data.get("generation")
@@ -69,18 +85,25 @@ class ClubMemberRegistrationController(Resource):
 
             if result["success"]:
                 return {
-                    "status": "success",
                     "message": result["message"],
-                    "data": result["data"],
+                    "member": result["data"],
                 }, 201
             else:
-                abort(400, result["message"])
+                return {
+                    "status": "error",
+                    "message": result["message"],
+                    "code": "400-00",
+                }, 400
 
         except ValueError as e:
-            abort(400, f"400-04: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-04"}, 400
         except Exception as e:
             current_app.logger.exception("club.member_registration failed")
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
 
 
 class ClubMemberRoleChangeController(Resource):
@@ -106,12 +129,20 @@ class ClubMemberRoleChangeController(Resource):
             # JSON 파싱
             data = request.get_json()
             if not data:
-                abort(400, "400-00: JSON body is required")
+                return {
+                    "status": "error",
+                    "message": "요청 본문이 필요합니다",
+                    "code": "400-00",
+                }, 400
 
             # 필수 필드 검증
             role_name = data.get("role_name")
             if not role_name:
-                abort(400, "400-01: role_name is required")
+                return {
+                    "status": "error",
+                    "message": "역할 이름이 필요합니다",
+                    "code": "400-01",
+                }, 400
 
             # 선택 필드
             generation = data.get("generation")
@@ -128,18 +159,25 @@ class ClubMemberRoleChangeController(Resource):
 
             if result["success"]:
                 return {
-                    "status": "success",
                     "message": result["message"],
-                    "data": result["data"],
+                    "member": result["data"],
                 }, 200
             else:
-                abort(400, result["message"])
+                return {
+                    "status": "error",
+                    "message": result["message"],
+                    "code": "400-00",
+                }, 400
 
         except ValueError as e:
-            abort(400, f"400-02: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-02"}, 400
         except Exception as e:
             current_app.logger.exception("club.member_role_change failed")
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
 
 
 class ClubMemberRolesController(Resource):
@@ -160,18 +198,25 @@ class ClubMemberRolesController(Resource):
 
             if result["success"]:
                 return {
-                    "status": "success",
                     "message": result["message"],
-                    "data": result["data"],
+                    "roles": result["data"],
                 }, 200
             else:
-                abort(400, result["message"])
+                return {
+                    "status": "error",
+                    "message": result["message"],
+                    "code": "400-00",
+                }, 400
 
         except ValueError as e:
-            abort(400, f"400-01: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-01"}, 400
         except Exception as e:
             current_app.logger.exception("club.member_roles_list failed")
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
 
 
 class ClubAvailableRolesController(Resource):
@@ -188,16 +233,23 @@ class ClubAvailableRolesController(Resource):
 
             if result["success"]:
                 return {
-                    "status": "success",
                     "message": result["message"],
-                    "data": result["data"],
+                    "roles": result["data"],
                 }, 200
             else:
-                abort(400, result["message"])
+                return {
+                    "status": "error",
+                    "message": result["message"],
+                    "code": "400-00",
+                }, 400
 
         except Exception as e:
             current_app.logger.exception("club.available_roles failed")
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
 
 
 class ClubMembersListController(Resource):
@@ -217,15 +269,22 @@ class ClubMembersListController(Resource):
 
             if result["success"]:
                 return {
-                    "status": "success",
                     "message": result["message"],
-                    "data": result["data"],
+                    "members": result["data"],
                 }, 200
             else:
-                abort(400, result["message"])
+                return {
+                    "status": "error",
+                    "message": result["message"],
+                    "code": "400-00",
+                }, 400
 
         except ValueError as e:
-            abort(400, f"400-01: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-01"}, 400
         except Exception as e:
             current_app.logger.exception("club.members_list failed")
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500

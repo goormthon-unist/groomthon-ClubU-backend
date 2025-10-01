@@ -1,5 +1,5 @@
-from flask_restx import Resource, abort, reqparse
-from werkzeug.exceptions import HTTPException, BadRequest
+from flask_restx import Resource, reqparse
+from werkzeug.exceptions import BadRequest
 from flask import request, current_app
 from services.auth_service import (
     create_user,
@@ -33,11 +33,19 @@ class RegisterController(Resource):
                 current_app.logger.info(f"Register request data: {data}")
             except BadRequest as e:
                 current_app.logger.error(f"JSON parsing error: {str(e)}")
-                abort(400, "400-00: invalid JSON body")
+                return {
+                    "status": "error",
+                    "message": "유효하지 않은 JSON 형식입니다",
+                    "code": "400-00",
+                }, 400
 
             if not isinstance(data, dict):
                 current_app.logger.error("Request data is not a dict")
-                abort(400, "400-00: JSON object is required")
+                return {
+                    "status": "error",
+                    "message": "JSON 객체가 필요합니다",
+                    "code": "400-00",
+                }, 400
 
             # 2) 필드 추출/검증
             username = (data.get("username") or "").strip()
@@ -54,25 +62,53 @@ class RegisterController(Resource):
 
             if not username:
                 current_app.logger.error("Username is missing")
-                abort(400, "400-01: username is required")
+                return {
+                    "status": "error",
+                    "message": "사용자명이 필요합니다",
+                    "code": "400-01",
+                }, 400
             if not email:
                 current_app.logger.error("Email is missing")
-                abort(400, "400-02: email is required")
+                return {
+                    "status": "error",
+                    "message": "이메일이 필요합니다",
+                    "code": "400-02",
+                }, 400
             if not password:
                 current_app.logger.error("Password is missing")
-                abort(400, "400-03: password is required")
+                return {
+                    "status": "error",
+                    "message": "비밀번호가 필요합니다",
+                    "code": "400-03",
+                }, 400
             if not student_id:
                 current_app.logger.error("Student ID is missing")
-                abort(400, "400-08: student_id is required")
+                return {
+                    "status": "error",
+                    "message": "학번이 필요합니다",
+                    "code": "400-08",
+                }, 400
             if not phone_number:
                 current_app.logger.error("Phone number is missing")
-                abort(400, "400-09: phone_number is required")
+                return {
+                    "status": "error",
+                    "message": "전화번호가 필요합니다",
+                    "code": "400-09",
+                }, 400
             if not department_id:
                 current_app.logger.error("Department ID is missing")
-                abort(400, "400-12: department_id is required")
+                return {
+                    "status": "error",
+                    "message": "학과 ID가 필요합니다",
+                    "code": "400-12",
+                }, 400
             if not gender:
                 current_app.logger.error("Gender is missing")
-                abort(400, "400-13: gender is required")
+                return {
+                    "status": "error",
+                    "message": "성별이 필요합니다",
+                    "code": "400-13",
+                }, 400
 
             # 3) 상세 형식 검증
             is_valid_username, username_message = validate_username(username)
@@ -80,18 +116,30 @@ class RegisterController(Resource):
                 current_app.logger.error(
                     f"Username validation failed: {username_message}"
                 )
-                abort(400, f"400-04: {username_message}")
+                return {
+                    "status": "error",
+                    "message": username_message,
+                    "code": "400-04",
+                }, 400
 
             if not validate_email(email):
                 current_app.logger.error(f"Email validation failed: {email}")
-                abort(400, "400-05: 유효하지 않은 이메일 형식입니다.")
+                return {
+                    "status": "error",
+                    "message": "유효하지 않은 이메일 형식입니다.",
+                    "code": "400-05",
+                }, 400
 
             is_valid_password, password_message = validate_password(password)
             if not is_valid_password:
                 current_app.logger.error(
                     f"Password validation failed: {password_message}"
                 )
-                abort(400, f"400-06: {password_message}")
+                return {
+                    "status": "error",
+                    "message": password_message,
+                    "code": "400-06",
+                }, 400
 
             # 학번과 전화번호 검증
             is_valid_student_id, student_id_message = validate_student_id(student_id)
@@ -99,7 +147,11 @@ class RegisterController(Resource):
                 current_app.logger.error(
                     f"Student ID validation failed: {student_id_message}"
                 )
-                abort(400, f"400-10: {student_id_message}")
+                return {
+                    "status": "error",
+                    "message": student_id_message,
+                    "code": "400-10",
+                }, 400
 
             is_valid_phone_number, phone_number_message = validate_phone_number(
                 phone_number
@@ -108,16 +160,21 @@ class RegisterController(Resource):
                 current_app.logger.error(
                     f"Phone number validation failed: {phone_number_message}"
                 )
-                abort(400, f"400-11: {phone_number_message}")
+                return {
+                    "status": "error",
+                    "message": phone_number_message,
+                    "code": "400-11",
+                }, 400
 
             # 성별 유효성 검증
             valid_genders = ["MALE", "FEMALE", "OTHER"]
             if gender not in valid_genders:
                 current_app.logger.error(f"Gender validation failed: {gender}")
-                abort(
-                    400,
-                    "400-14: 유효하지 않은 성별입니다. MALE, FEMALE, OTHER 중 하나를 선택해주세요.",
-                )
+                return {
+                    "status": "error",
+                    "message": "유효하지 않은 성별입니다. MALE, FEMALE, OTHER 중 하나를 선택해주세요.",
+                    "code": "400-14",
+                }, 400
 
             # 4) 사용자 생성
             user_data = create_user(
@@ -133,21 +190,20 @@ class RegisterController(Resource):
             )
 
             return {
-                "status": "success",
                 "message": "회원가입이 완료되었습니다.",
-                "data": user_data,
+                "user": user_data,
             }, 201
 
-        except HTTPException as he:
-            # 400/401/409 등은 그대로 내보냄 (500으로 덮어쓰지 않음)
-            current_app.logger.error(f"HTTP Exception in register: {he}")
-            raise he
         except ValueError as e:
             current_app.logger.error(f"ValueError in register: {str(e)}")
-            abort(400, f"400-07: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-07"}, 400
         except Exception as e:
             current_app.logger.exception("auth.register failed")
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
 
 
 class LoginController(Resource):
@@ -160,19 +216,35 @@ class LoginController(Resource):
             try:
                 data = request.get_json(force=False, silent=False)
             except BadRequest:
-                abort(400, "400-00: invalid JSON body")
+                return {
+                    "status": "error",
+                    "message": "유효하지 않은 JSON 형식입니다",
+                    "code": "400-00",
+                }, 400
 
             if not isinstance(data, dict):
-                abort(400, "400-00: JSON object is required")
+                return {
+                    "status": "error",
+                    "message": "JSON 객체가 필요합니다",
+                    "code": "400-00",
+                }, 400
 
             # 2) 필드 추출/검증
             email = (data.get("email") or "").strip()
             password = data.get("password")
 
             if not email:
-                abort(400, "400-01: email is required")
+                return {
+                    "status": "error",
+                    "message": "이메일이 필요합니다",
+                    "code": "400-01",
+                }, 400
             if not password:
-                abort(400, "400-02: password is required")
+                return {
+                    "status": "error",
+                    "message": "비밀번호가 필요합니다",
+                    "code": "400-02",
+                }, 400
 
             # 3) 사용자 인증
             user_data = authenticate_user(email, password)
@@ -180,22 +252,21 @@ class LoginController(Resource):
             # 4) 세션 생성
             session_data = create_session(user_data["user_id"])
 
-            response_data = {
-                "status": "success",
+            return {
                 "message": "로그인이 완료되었습니다.",
-                "data": {"user": user_data, "session": session_data},
-            }
+                "user": user_data,
+                "session": session_data,
+            }, 200
 
-            return response_data, 200
-
-        except HTTPException as he:
-            # 400/401/409 등은 그대로 내보냄 (500으로 덮어쓰지 않음)
-            raise he
         except ValueError as e:
-            abort(401, f"401-01: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "401-01"}, 401
         except Exception as e:
             current_app.logger.exception("auth.login failed")
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
 
 
 class LogoutController(Resource):
@@ -219,16 +290,17 @@ class LogoutController(Resource):
             clear_flask_session()
             print("Flask 세션 클리어 완료")
 
-            response_data = {
-                "status": "success",
+            return {
                 "message": "로그아웃이 완료되었습니다.",
-            }
-
-            return response_data, 200
+            }, 200
 
         except Exception as e:
             print(f"로그아웃 중 오류 발생: {str(e)}")
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
 
 
 class SessionDebugController(Resource):
@@ -240,14 +312,22 @@ class SessionDebugController(Resource):
             # 세션 인증 확인
             session_data = get_current_session()
             if not session_data:
-                abort(401, "401-01: 로그인이 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다",
+                    "code": "401-01",
+                }, 401
 
             debug_info = debug_session_info()
 
-            return {"status": "success", "debug_info": debug_info}, 200
+            return debug_info, 200
 
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
 
 
 class SessionInfoController(Resource):
@@ -267,26 +347,27 @@ class SessionInfoController(Resource):
 
             if not session_info:
                 current_app.logger.warning("No session info found - user not logged in")
-                abort(401, "401-01: 로그인이 필요합니다")
-
-            response_data = {
-                "status": "success",
-                "message": "세션 통합 정보를 조회했습니다.",
-                "data": session_info,
-            }
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다",
+                    "code": "401-01",
+                }, 401
 
             current_app.logger.info("Session info retrieved successfully")
-            return response_data, 200
+            return {
+                "message": "세션 통합 정보를 조회했습니다.",
+                "session": session_info,
+            }, 200
 
-        except HTTPException as he:
-            # 401, 403 등 HTTP 예외는 그대로 전달
-            current_app.logger.error(f"HTTP Exception in session-info: {he}")
-            raise he
         except Exception as e:
             current_app.logger.exception("Exception in session-info")
             current_app.logger.error(f"Exception details: {str(e)}")
             current_app.logger.error(f"Exception type: {type(e)}")
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
 
 
 class UserListController(Resource):
@@ -298,20 +379,25 @@ class UserListController(Resource):
             # 세션 인증 확인
             session_data = get_current_session()
             if not session_data:
-                abort(401, "401-01: 로그인이 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다",
+                    "code": "401-01",
+                }, 401
 
             # 모든 사용자 정보 조회
             users = get_all_users()
 
-            response_data = {
-                "status": "success",
+            return {
                 "message": "모든 사용자 정보를 조회했습니다.",
                 "count": len(users),
-                "data": users,
-            }
-
-            return response_data, 200
+                "users": users,
+            }, 200
 
         except Exception as e:
             current_app.logger.exception("auth.users failed")
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500

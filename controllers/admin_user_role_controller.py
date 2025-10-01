@@ -26,12 +26,17 @@ class AdminUserRoleChangeController(Resource):
             try:
                 data = request.get_json(force=False, silent=False)
             except BadRequest:
-                return {"status": "error", "message": "400-00: invalid JSON body"}, 400
+                return {
+                    "status": "error",
+                    "message": "유효하지 않은 JSON 형식입니다",
+                    "code": "400-00",
+                }, 400
 
             if not isinstance(data, dict):
                 return {
                     "status": "error",
-                    "message": "400-00: JSON object is required",
+                    "message": "JSON 객체가 필요합니다",
+                    "code": "400-00",
                 }, 400
 
             # 2) 필드 추출/검증
@@ -43,7 +48,8 @@ class AdminUserRoleChangeController(Resource):
             if not new_role_name:
                 return {
                     "status": "error",
-                    "message": "400-01: role_name is required",
+                    "message": "역할 이름이 필요합니다",
+                    "code": "400-01",
                 }, 400
 
             # club_id가 제공된 경우 정수로 변환
@@ -53,7 +59,8 @@ class AdminUserRoleChangeController(Resource):
                 except (ValueError, TypeError):
                     return {
                         "status": "error",
-                        "message": "400-02: club_id must be an integer",
+                        "message": "동아리 ID는 정수여야 합니다",
+                        "code": "400-02",
                     }, 400
 
             # generation이 제공된 경우 정수로 변환
@@ -63,7 +70,8 @@ class AdminUserRoleChangeController(Resource):
                 except (ValueError, TypeError):
                     return {
                         "status": "error",
-                        "message": "400-03: generation must be an integer",
+                        "message": "기수는 정수여야 합니다",
+                        "code": "400-03",
                     }, 400
 
             # 3) 사용자 ID 검증
@@ -72,7 +80,8 @@ class AdminUserRoleChangeController(Resource):
             except (ValueError, TypeError):
                 return {
                     "status": "error",
-                    "message": "400-04: user_id must be an integer",
+                    "message": "사용자 ID는 정수여야 합니다",
+                    "code": "400-04",
                 }, 400
 
             # 4) 권한 변경 실행
@@ -85,17 +94,17 @@ class AdminUserRoleChangeController(Resource):
             )
 
             return {
-                "status": "success",
                 "message": result["message"],
-                "data": result["data"],
+                "user_role": result["data"],
             }, 200
 
         except ValueError as ve:
-            return {"status": "error", "message": f"400-05: {str(ve)}"}, 400
+            return {"status": "error", "message": str(ve), "code": "400-05"}, 400
         except Exception as e:
             return {
                 "status": "error",
-                "message": f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
             }, 500
 
 
@@ -112,24 +121,25 @@ class AdminUserRolesController(Resource):
             except (ValueError, TypeError):
                 return {
                     "status": "error",
-                    "message": "400-01: user_id must be an integer",
+                    "message": "사용자 ID는 정수여야 합니다",
+                    "code": "400-01",
                 }, 400
 
             # 2) 사용자 권한 조회
             result = get_user_roles(user_id=user_id)
 
             return {
-                "status": "success",
                 "message": "사용자 권한 조회가 완료되었습니다",
-                "data": result["data"],
+                "roles": result["data"],
             }, 200
 
         except ValueError as ve:
-            return {"status": "error", "message": f"400-02: {str(ve)}"}, 400
+            return {"status": "error", "message": str(ve), "code": "400-02"}, 400
         except Exception as e:
             return {
                 "status": "error",
-                "message": f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
             }, 500
 
 
@@ -144,13 +154,13 @@ class AdminAvailableRolesController(Resource):
             result = get_available_roles()
 
             return {
-                "status": "success",
                 "message": "사용 가능한 역할 목록 조회가 완료되었습니다",
-                "data": result["data"],
+                "roles": result["data"],
             }, 200
 
         except Exception as e:
             return {
                 "status": "error",
-                "message": f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
             }, 500

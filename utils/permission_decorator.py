@@ -4,7 +4,7 @@
 """
 
 from functools import wraps
-from flask import abort, request
+from flask import request, jsonify
 from services.permission_service import permission_service
 
 
@@ -37,7 +37,11 @@ def require_permission(permission_key: str, club_id_param: str = None):
                 try:
                     club_id = int(kwargs[club_id_param])
                 except (ValueError, TypeError):
-                    abort(400, f"Invalid {club_id_param} parameter")
+                    return {
+                        "status": "error",
+                        "message": f"유효하지 않은 {club_id_param} 파라미터입니다",
+                        "code": "400-00",
+                    }, 400
 
             # 권한 검사 실행
             result = permission_service.check_permission(
@@ -48,10 +52,18 @@ def require_permission(permission_key: str, club_id_param: str = None):
                 # 권한 부족 시 HTTP 상태 코드 결정
                 if not result["user_id"]:
                     # 로그인 필요
-                    abort(401, result["message"])
+                    return {
+                        "status": "error",
+                        "message": result["message"],
+                        "code": "401-01",
+                    }, 401
                 else:
                     # 권한 부족
-                    abort(403, result["message"])
+                    return {
+                        "status": "error",
+                        "message": result["message"],
+                        "code": "403-01",
+                    }, 403
 
             # 권한 검사 통과 - 원래 함수 실행
             return f(*args, **kwargs)
@@ -89,13 +101,21 @@ def require_any_permission(*permission_keys: str):
             # 모든 권한 검사 실패
             if not any(r["user_id"] for r in results):
                 # 로그인 필요
-                abort(401, "로그인이 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다",
+                    "code": "401-01",
+                }, 401
             else:
                 # 권한 부족
                 required_roles = set()
                 for result in results:
                     required_roles.update(result["required_roles"])
-                abort(403, f"권한이 부족합니다. 필요 권한: {', '.join(required_roles)}")
+                return {
+                    "status": "error",
+                    "message": f"권한이 부족합니다. 필요 권한: {', '.join(required_roles)}",
+                    "code": "403-01",
+                }, 403
 
         return decorated_function
 
@@ -126,9 +146,17 @@ def require_all_permissions(*permission_keys: str):
                 if not result["has_permission"]:
                     # 하나라도 실패하면 중단
                     if not result["user_id"]:
-                        abort(401, result["message"])
+                        return {
+                            "status": "error",
+                            "message": result["message"],
+                            "code": "401-01",
+                        }, 401
                     else:
-                        abort(403, result["message"])
+                        return {
+                            "status": "error",
+                            "message": result["message"],
+                            "code": "403-01",
+                        }, 403
 
             # 모든 권한 검사 통과
             return f(*args, **kwargs)

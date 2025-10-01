@@ -1,4 +1,4 @@
-from flask_restx import Resource, abort, reqparse
+from flask_restx import Resource, reqparse
 from services.session_service import get_current_session
 from services.home_service import (
     get_all_clubs,
@@ -20,14 +20,17 @@ class ClubListController(Resource):
         try:
             clubs_data = get_all_clubs()
             return {
-                "status": "success",
                 "count": len(clubs_data),
                 "clubs": clubs_data,
             }, 200
         except ValueError as e:
-            abort(400, f"400-01: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-01"}, 400
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
 
 
 class ClubUpdateController(Resource):
@@ -38,13 +41,21 @@ class ClubUpdateController(Resource):
         try:
             club_data = get_club_by_id(club_id)
             if not club_data:
-                abort(404, "404-01: 해당 동아리를 찾을 수 없습니다")
+                return {
+                    "status": "error",
+                    "message": "해당 동아리를 찾을 수 없습니다",
+                    "code": "404-01",
+                }, 404
 
-            return {"status": "success", "club": club_data}, 200
+            return club_data, 200
         except ValueError as e:
-            abort(400, f"400-02: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-02"}, 400
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
 
     def patch(self, club_id):
         """동아리 정보를 수정합니다"""
@@ -52,7 +63,11 @@ class ClubUpdateController(Resource):
             # 세션 인증 확인
             session_data = get_current_session()
             if not session_data:
-                abort(401, "401-01: 로그인이 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다",
+                    "code": "401-01",
+                }, 401
 
             parser = reqparse.RequestParser()
             parser.add_argument("name", type=str, location="json")
@@ -64,15 +79,23 @@ class ClubUpdateController(Resource):
             update_data = {k: v for k, v in args.items() if v is not None}
 
             if not update_data:
-                abort(400, "400-03: 수정할 데이터가 없습니다")
+                return {
+                    "status": "error",
+                    "message": "수정할 데이터가 없습니다",
+                    "code": "400-03",
+                }, 400
 
             club_data = update_club_info(club_id, update_data)
-            return {"status": "success", "club": club_data}, 200
+            return club_data, 200
 
         except ValueError as e:
-            abort(400, f"400-04: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-04"}, 400
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
 
 
 class ClubStatusController(Resource):
@@ -84,7 +107,11 @@ class ClubStatusController(Resource):
             # 세션 인증 확인
             session_data = get_current_session()
             if not session_data:
-                abort(401, "401-01: 로그인이 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다",
+                    "code": "401-01",
+                }, 401
 
             parser = reqparse.RequestParser()
             parser.add_argument("status", type=str, required=True, location="json")
@@ -93,16 +120,19 @@ class ClubStatusController(Resource):
 
             update_club_status(club_id, status)
             return {
-                "status": "success",
                 "message": "동아리 모집 상태가 성공적으로 변경되었습니다.",
                 "club_id": club_id,
                 "recruitment_status": status,
             }, 200
 
         except ValueError as e:
-            abort(400, f"400-05: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-05"}, 400
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
 
 
 class ClubQuestionsController(Resource):
@@ -114,7 +144,11 @@ class ClubQuestionsController(Resource):
             # 세션 인증 확인
             session_data = get_current_session()
             if not session_data:
-                abort(401, "401-01: 로그인이 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다",
+                    "code": "401-01",
+                }, 401
 
             parser = reqparse.RequestParser()
             parser.add_argument(
@@ -124,12 +158,16 @@ class ClubQuestionsController(Resource):
             question_data = {"question_text": args["question_text"]}
 
             new_question = add_club_question(club_id, question_data)
-            return {"status": "success", "question": new_question}, 201
+            return new_question, 201
 
         except ValueError as e:
-            abort(400, f"400-07: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-07"}, 400
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
 
 
 class QuestionController(Resource):
@@ -141,7 +179,11 @@ class QuestionController(Resource):
             # 세션 인증 확인
             session_data = get_current_session()
             if not session_data:
-                abort(401, "401-01: 로그인이 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다",
+                    "code": "401-01",
+                }, 401
 
             parser = reqparse.RequestParser()
             parser.add_argument("question_text", type=str, location="json")
@@ -149,15 +191,23 @@ class QuestionController(Resource):
             update_data = {k: v for k, v in args.items() if v is not None}
 
             if not update_data:
-                abort(400, "400-08: 수정할 데이터가 없습니다")
+                return {
+                    "status": "error",
+                    "message": "수정할 데이터가 없습니다",
+                    "code": "400-08",
+                }, 400
 
             question_data = update_question(question_id, update_data)
-            return {"status": "success", "question": question_data}, 200
+            return question_data, 200
 
         except ValueError as e:
-            abort(400, f"400-09: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-09"}, 400
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
 
     def delete(self, question_id):
         """지원서 문항을 삭제합니다"""
@@ -165,15 +215,23 @@ class QuestionController(Resource):
             # 세션 인증 확인
             session_data = get_current_session()
             if not session_data:
-                abort(401, "401-01: 로그인이 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다",
+                    "code": "401-01",
+                }, 401
 
             result = delete_question(question_id)
-            return {"status": "success", "message": result["message"]}, 200
+            return {"message": result["message"]}, 200
 
         except ValueError as e:
-            abort(400, f"400-10: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-10"}, 400
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
 
 
 class ClubMembersController(Resource):
@@ -185,16 +243,23 @@ class ClubMembersController(Resource):
             # 세션 인증 확인
             session_data = get_current_session()
             if not session_data:
-                abort(401, "401-01: 로그인이 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다",
+                    "code": "401-01",
+                }, 401
 
             members = get_club_members(club_id)
             return {
-                "status": "success",
                 "count": len(members),
                 "members": members,
             }, 200
 
         except ValueError as e:
-            abort(400, f"400-11: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-11"}, 400
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500

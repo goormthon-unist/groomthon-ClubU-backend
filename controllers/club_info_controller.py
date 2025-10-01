@@ -1,4 +1,4 @@
-from flask_restx import Resource, abort, reqparse
+from flask_restx import Resource, reqparse
 from services.session_service import get_current_session
 from services.club_info_service import (
     update_club_introduction,
@@ -20,7 +20,11 @@ class ClubIntroductionController(Resource):
             # 세션 인증 확인
             session_data = get_current_session()
             if not session_data:
-                abort(401, "401-01: 로그인이 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다",
+                    "code": "401-01",
+                }, 401
 
             # 회장 권한 확인
             user_id = session_data["user_id"]
@@ -37,15 +41,18 @@ class ClubIntroductionController(Resource):
             result = update_club_introduction(club_id, args["introduction"])
 
             return {
-                "status": "success",
                 "message": "동아리 소개글이 성공적으로 업데이트되었습니다.",
                 "club": result,
             }, 200
 
         except ValueError as e:
-            abort(400, f"400-01: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-01"}, 400
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {e}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {e}",
+                "code": "500-00",
+            }, 500
 
     def delete(self, club_id):
         """동아리 소개글 삭제"""
@@ -53,7 +60,11 @@ class ClubIntroductionController(Resource):
             # 세션 인증 확인
             session_data = get_current_session()
             if not session_data:
-                abort(401, "401-01: 로그인이 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다",
+                    "code": "401-01",
+                }, 401
 
             # 회장 권한 확인
             user_id = session_data["user_id"]
@@ -63,15 +74,18 @@ class ClubIntroductionController(Resource):
             result = delete_club_introduction(club_id)
 
             return {
-                "status": "success",
                 "message": "동아리 소개글이 성공적으로 삭제되었습니다.",
                 "club": result,
             }, 200
 
         except ValueError as e:
-            abort(400, f"400-01: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-01"}, 400
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {e}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {e}",
+                "code": "500-00",
+            }, 500
 
 
 class ClubLogoImageController(Resource):
@@ -83,7 +97,11 @@ class ClubLogoImageController(Resource):
             # 세션 인증 확인
             session_data = get_current_session()
             if not session_data:
-                abort(401, "401-01: 로그인이 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다",
+                    "code": "401-01",
+                }, 401
 
             # 회장 권한 확인
             user_id = session_data["user_id"]
@@ -93,25 +111,36 @@ class ClubLogoImageController(Resource):
             from flask import request
 
             if "image" not in request.files:
-                abort(400, "400-02: 이미지 파일이 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "이미지 파일이 필요합니다",
+                    "code": "400-02",
+                }, 400
 
             image_file = request.files["image"]
             if image_file.filename == "":
-                abort(400, "400-03: 선택된 파일이 없습니다")
+                return {
+                    "status": "error",
+                    "message": "선택된 파일이 없습니다",
+                    "code": "400-03",
+                }, 400
 
             # 로고 이미지 업데이트
             result = update_club_logo_image(club_id, image_file)
 
             return {
-                "status": "success",
                 "message": "동아리 로고 사진이 성공적으로 업데이트되었습니다.",
                 "club": result,
             }, 200
 
         except ValueError as e:
-            abort(400, f"400-01: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-01"}, 400
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {e}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {e}",
+                "code": "500-00",
+            }, 500
 
     def delete(self, club_id):
         """동아리 로고 이미지 삭제"""
@@ -119,7 +148,11 @@ class ClubLogoImageController(Resource):
             # 세션 인증 확인
             session_data = get_current_session()
             if not session_data:
-                abort(401, "401-01: 로그인이 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다",
+                    "code": "401-01",
+                }, 401
 
             # 회장 권한 확인
             user_id = session_data["user_id"]
@@ -129,15 +162,18 @@ class ClubLogoImageController(Resource):
             result = delete_club_logo_image(club_id)
 
             return {
-                "status": "success",
                 "message": "동아리 로고 사진이 성공적으로 삭제되었습니다.",
                 "club": result,
             }, 200
 
         except ValueError as e:
-            abort(400, f"400-01: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-01"}, 400
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {e}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {e}",
+                "code": "500-00",
+            }, 500
 
 
 class ClubIntroductionImageController(Resource):
@@ -149,7 +185,11 @@ class ClubIntroductionImageController(Resource):
             # 세션 인증 확인
             session_data = get_current_session()
             if not session_data:
-                abort(401, "401-01: 로그인이 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다",
+                    "code": "401-01",
+                }, 401
 
             # 회장 권한 확인
             user_id = session_data["user_id"]
@@ -159,25 +199,36 @@ class ClubIntroductionImageController(Resource):
             from flask import request
 
             if "image" not in request.files:
-                abort(400, "400-02: 이미지 파일이 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "이미지 파일이 필요합니다",
+                    "code": "400-02",
+                }, 400
 
             image_file = request.files["image"]
             if image_file.filename == "":
-                abort(400, "400-03: 선택된 파일이 없습니다")
+                return {
+                    "status": "error",
+                    "message": "선택된 파일이 없습니다",
+                    "code": "400-03",
+                }, 400
 
             # 소개글 이미지 업데이트
             result = update_club_introduction_image(club_id, image_file)
 
             return {
-                "status": "success",
                 "message": "동아리 소개글 사진이 성공적으로 업데이트되었습니다.",
                 "club": result,
             }, 200
 
         except ValueError as e:
-            abort(400, f"400-01: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-01"}, 400
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {e}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {e}",
+                "code": "500-00",
+            }, 500
 
     def delete(self, club_id):
         """동아리 소개글 이미지 삭제"""
@@ -185,7 +236,11 @@ class ClubIntroductionImageController(Resource):
             # 세션 인증 확인
             session_data = get_current_session()
             if not session_data:
-                abort(401, "401-01: 로그인이 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다",
+                    "code": "401-01",
+                }, 401
 
             # 회장 권한 확인
             user_id = session_data["user_id"]
@@ -195,12 +250,15 @@ class ClubIntroductionImageController(Resource):
             result = delete_club_introduction_image(club_id)
 
             return {
-                "status": "success",
                 "message": "동아리 소개글 사진이 성공적으로 삭제되었습니다.",
                 "club": result,
             }, 200
 
         except ValueError as e:
-            abort(400, f"400-01: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-01"}, 400
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {e}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {e}",
+                "code": "500-00",
+            }, 500

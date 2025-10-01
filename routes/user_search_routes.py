@@ -42,9 +42,8 @@ class UserValidationResource(UserValidationController):
 
         응답:
         {
-            "status": "success",
             "message": "사용자 정보가 확인되었습니다.",
-            "data": {
+            "user": {
                 "success": true,
                 "user_id": 123,
                 "name": "김지원",

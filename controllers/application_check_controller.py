@@ -3,7 +3,7 @@
 """
 
 from flask import request
-from flask_restx import Resource, abort
+from flask_restx import Resource
 from services.session_service import get_current_session
 from services.application_check_service import (
     get_club_applicants,
@@ -21,24 +21,35 @@ class ClubApplicantsController(Resource):
             # 세션 인증 확인
             session_data = get_current_session()
             if not session_data:
-                abort(401, "401-01: 로그인이 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다",
+                    "code": "401-01",
+                }, 401
 
             # 쿼리 파라미터에서 club_id 가져오기
             club_id = request.args.get("club_id", type=int)
             if not club_id:
-                abort(400, "400-12: club_id 파라미터가 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "club_id 파라미터가 필요합니다",
+                    "code": "400-12",
+                }, 400
 
             applicants = get_club_applicants(club_id)
             return {
-                "status": "success",
                 "count": len(applicants),
                 "applicants": applicants,
             }, 200
 
         except ValueError as e:
-            abort(400, f"400-12: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-12"}, 400
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
 
 
 class ApplicationDetailController(Resource):
@@ -50,15 +61,23 @@ class ApplicationDetailController(Resource):
             # 세션 인증 확인
             session_data = get_current_session()
             if not session_data:
-                abort(401, "401-01: 로그인이 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다",
+                    "code": "401-01",
+                }, 401
 
             application_detail = get_application_detail(application_id)
-            return {"status": "success", "application": application_detail}, 200
+            return application_detail, 200
 
         except ValueError as e:
-            abort(400, f"400-13: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-13"}, 400
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
 
 
 class ClubMemberRegistrationController(Resource):
@@ -70,7 +89,11 @@ class ClubMemberRegistrationController(Resource):
             # 세션 인증 확인
             session_data = get_current_session()
             if not session_data:
-                abort(401, "401-01: 로그인이 필요합니다")
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다",
+                    "code": "401-01",
+                }, 401
 
             from flask_restx import reqparse
 
@@ -101,9 +124,13 @@ class ClubMemberRegistrationController(Resource):
                 other_info=args.get("other_info"),
             )
 
-            return {"status": "success", **result}, 201
+            return result, 201
 
         except ValueError as e:
-            abort(400, f"400-14: {str(e)}")
+            return {"status": "error", "message": str(e), "code": "400-14"}, 400
         except Exception as e:
-            abort(500, f"500-00: 서버 내부 오류가 발생했습니다 - {str(e)}")
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
