@@ -8,7 +8,6 @@ from models import (
     ApplicationAnswer,
     User,
     Club,
-    Department,
     ClubMember,
     Role,
 )
@@ -101,15 +100,19 @@ def get_application_detail(application_id):
         answers = sorted(application.answers, key=lambda x: x.answer_order)
 
         application_detail = {
-            "application_id": application.id,
-            "status": application.status,
-            "submitted_at": (
-                application.submitted_at.isoformat()
-                if application.submitted_at
-                else None
-            ),
+            "application": {
+                "id": application.id,
+                "user_id": user.id,
+                "club_id": club.id,
+                "status": application.status,
+                "submitted_at": (
+                    application.submitted_at.isoformat()
+                    if application.submitted_at
+                    else None
+                ),
+            },
             "user": {
-                "id": user.id,
+                "user_id": user.id,
                 "name": user.name,
                 "student_id": user.student_id,
                 "email": user.email,
@@ -126,16 +129,27 @@ def get_application_detail(application_id):
                     else None
                 ),
             },
-            "club": {"id": club.id, "name": club.name},
+            "club": {
+                "id": club.id,
+                "name": club.name,
+                "activity_summary": club.activity_summary,
+            },
             "answers": [
                 {
-                    "id": answer.id,
-                    "question_id": answer.question_id,
-                    "question_text": (
-                        answer.question.question_text if answer.question else None
-                    ),
-                    "answer_order": answer.answer_order,
-                    "answer_text": answer.answer_text,
+                    "answer": {
+                        "id": answer.id,
+                        "answer_order": answer.answer_order,
+                        "answer_text": answer.answer_text,
+                    },
+                    "question": {
+                        "id": answer.question.id if answer.question else None,
+                        "question_order": (
+                            answer.question.question_order if answer.question else None
+                        ),
+                        "question_text": (
+                            answer.question.question_text if answer.question else None
+                        ),
+                    },
                 }
                 for answer in answers
             ],
