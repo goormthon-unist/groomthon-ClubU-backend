@@ -93,22 +93,18 @@ def create_app():
         description="UNIST 동아리 관리 시스템 API",
         doc="/docs/",
         authorizations={
-            'sessionAuth': {
-                'type': 'apiKey',
-                'in': 'cookie',
-                'name': 'session'
-            }
+            "sessionAuth": {"type": "apiKey", "in": "cookie", "name": "session"}
         },
         # Swagger UI에서 쿠키 전송을 위한 설정
         swagger_ui_params={
-            'requestInterceptor': '''
+            "requestInterceptor": """
                 function(request) {
                     // 모든 요청에 credentials 포함
                     request.credentials = 'include';
                     return request;
                 }
-            '''
-        }
+            """
+        },
     )
 
     # 네임스페이스 등록
