@@ -104,7 +104,7 @@ banner_delete_response_model = banner_ns.model(
 class BannerResource(BannerController):
     """배너 관리 리소스"""
 
-    @banner_ns.doc("create_banner", consumes=["multipart/form-data"])
+    @banner_ns.doc("create_banner", consumes=["multipart/form-data"], security='sessionAuth')
     @banner_ns.expect(banner_parser)
     @banner_ns.response(201, "배너 등록 성공", banner_response_model)
     @banner_ns.response(400, "잘못된 요청")
