@@ -15,9 +15,19 @@ class BannerController(Resource):
     def post(self):
         """배너 등록"""
         try:
+            from flask import current_app, request
+
+            # 디버깅을 위한 세션 정보 로깅
+            current_app.logger.info("=== Banner POST Request Debug ===")
+            current_app.logger.info(f"Request headers: {dict(request.headers)}")
+            current_app.logger.info(f"Request cookies: {dict(request.cookies)}")
+
             # 세션 인증 확인
             session_data = get_current_session()
+            current_app.logger.info(f"Session data: {session_data}")
+
             if not session_data:
+                current_app.logger.warning("No session data found - returning 401")
                 return {
                     "status": "error",
                     "message": "로그인이 필요합니다",

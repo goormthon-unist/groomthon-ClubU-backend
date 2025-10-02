@@ -28,8 +28,8 @@ def create_app():
     app.config["SESSION_COOKIE_SECURE"] = is_production  # 프로덕션에서만 HTTPS 강제
     app.config["SESSION_COOKIE_HTTPONLY"] = True
     app.config["SESSION_COOKIE_SAMESITE"] = (
-        "None" if is_production else "Lax"
-    )  # 개발환경에서는 Lax
+        "None"  # 크로스 사이트 요청에서도 쿠키 전송 허용
+    )
     app.config["SESSION_COOKIE_DOMAIN"] = None
     app.config["SESSION_COOKIE_PATH"] = "/"
 
