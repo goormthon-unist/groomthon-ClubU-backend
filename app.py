@@ -19,6 +19,9 @@ def create_app():
 
     app.config.from_object(config[os.getenv("FLASK_ENV", "development")])
 
+    # 파일 업로드 크기 제한 강제 설정
+    app.config["MAX_CONTENT_LENGTH"] = 100 * 1024 * 1024  # 100MB
+
     # Flask 세션 설정 추가
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "your-secret-key-here")
 
@@ -84,6 +87,15 @@ def create_app():
     def serve_notice_asset(filename):
         notices_dir = app.config.get("NOTICES_DIR", "notices")
         return send_from_directory(notices_dir, filename)
+
+    # 413 오류 핸들러 추가
+    @app.errorhandler(413)
+    def too_large(e):
+        return {
+            "status": "error",
+            "message": "파일 크기가 너무 큽니다. 최대 100MB까지 업로드 가능합니다.",
+            "code": "413-01",
+        }, 413
 
     # RESTX API
     api = Api(

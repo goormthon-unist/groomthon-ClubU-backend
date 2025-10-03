@@ -25,10 +25,23 @@ class NoticeFileController(Resource):
                 }, 401
 
             # 파일 처리
-            from flask import request
+            from flask import request, current_app
+
+            # 디버깅을 위한 요청 정보 로깅
+            current_app.logger.info(f"Request content length: {request.content_length}")
+            current_app.logger.info(f"Request content type: {request.content_type}")
+            current_app.logger.info(f"Request files: {list(request.files.keys())}")
 
             # 여러 파일 처리
             files = request.files.getlist("file[]")
+            current_app.logger.info(f"Number of files: {len(files)}")
+
+            for i, file in enumerate(files):
+                if file.filename:
+                    current_app.logger.info(
+                        f"File {i}: {file.filename}, size: {file.content_length}"
+                    )
+
             if not files or all(file.filename == "" for file in files):
                 return {
                     "status": "error",

@@ -25,10 +25,23 @@ class NoticeImageController(Resource):
                 }, 401
 
             # 파일 처리
-            from flask import request
+            from flask import request, current_app
+
+            # 디버깅을 위한 요청 정보 로깅
+            current_app.logger.info(f"Request content length: {request.content_length}")
+            current_app.logger.info(f"Request content type: {request.content_type}")
+            current_app.logger.info(f"Request files: {list(request.files.keys())}")
 
             # 여러 이미지 파일 처리
             image_files = request.files.getlist("image[]")
+            current_app.logger.info(f"Number of image files: {len(image_files)}")
+
+            for i, file in enumerate(image_files):
+                if file.filename:
+                    current_app.logger.info(
+                        f"Image {i}: {file.filename}, size: {file.content_length}"
+                    )
+
             if not image_files or all(file.filename == "" for file in image_files):
                 return {
                     "status": "error",
