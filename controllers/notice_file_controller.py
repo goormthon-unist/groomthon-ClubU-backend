@@ -27,9 +27,21 @@ class NoticeFileController(Resource):
             # 파일 처리
             from flask import request, current_app
 
-            # 여러 파일 처리
-            files = request.files.getlist("files")
-            current_app.logger.info(f"Number of files: {len(files)}")
+            # 단일/다중 파일 처리
+            files = []
+
+            # 다중 파일 시도
+            if "files" in request.files:
+                files = request.files.getlist("files")
+                current_app.logger.info(f"Multiple files: {len(files)} files")
+            # 단일 파일 시도
+            elif "file" in request.files:
+                single_file = request.files["file"]
+                if single_file.filename:
+                    files = [single_file]
+                current_app.logger.info(f"Single file: {single_file.filename}")
+
+            current_app.logger.info(f"Total files: {len(files)}")
 
             for i, file in enumerate(files):
                 if file.filename:
@@ -72,7 +84,7 @@ class NoticeFileController(Resource):
             if "413" in str(e) or "Request Entity Too Large" in str(e):
                 return {
                     "status": "error",
-                    "message": "파일 크기가 너무 큽니다. 최대 100MB까지 업로드 가능합니다.",
+                    "message": "파일 크기가 너무 큽니다. 최대 500MB까지 업로드 가능합니다.",
                     "code": "413-01",
                 }, 413
             return {
@@ -146,7 +158,7 @@ class NoticeFileController(Resource):
             if "413" in str(e) or "Request Entity Too Large" in str(e):
                 return {
                     "status": "error",
-                    "message": "파일 크기가 너무 큽니다. 최대 100MB까지 업로드 가능합니다.",
+                    "message": "파일 크기가 너무 큽니다. 최대 500MB까지 업로드 가능합니다.",
                     "code": "413-01",
                 }, 413
             return {

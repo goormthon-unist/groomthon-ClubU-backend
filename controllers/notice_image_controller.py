@@ -27,9 +27,21 @@ class NoticeImageController(Resource):
             # 파일 처리
             from flask import request, current_app
 
-            # 여러 이미지 파일 처리
-            image_files = request.files.getlist("images")
-            current_app.logger.info(f"Number of image files: {len(image_files)}")
+            # 단일/다중 이미지 파일 처리
+            image_files = []
+
+            # 다중 파일 시도
+            if "images" in request.files:
+                image_files = request.files.getlist("images")
+                current_app.logger.info(f"Multiple images: {len(image_files)} files")
+            # 단일 파일 시도
+            elif "image" in request.files:
+                single_file = request.files["image"]
+                if single_file.filename:
+                    image_files = [single_file]
+                current_app.logger.info(f"Single image: {single_file.filename}")
+
+            current_app.logger.info(f"Total image files: {len(image_files)}")
 
             for i, file in enumerate(image_files):
                 if file.filename:
@@ -72,7 +84,7 @@ class NoticeImageController(Resource):
             if "413" in str(e) or "Request Entity Too Large" in str(e):
                 return {
                     "status": "error",
-                    "message": "파일 크기가 너무 큽니다. 최대 100MB까지 업로드 가능합니다.",
+                    "message": "파일 크기가 너무 큽니다. 최대 500MB까지 업로드 가능합니다.",
                     "code": "413-01",
                 }, 413
             return {
@@ -146,7 +158,7 @@ class NoticeImageController(Resource):
             if "413" in str(e) or "Request Entity Too Large" in str(e):
                 return {
                     "status": "error",
-                    "message": "파일 크기가 너무 큽니다. 최대 100MB까지 업로드 가능합니다.",
+                    "message": "파일 크기가 너무 큽니다. 최대 500MB까지 업로드 가능합니다.",
                     "code": "413-01",
                 }, 413
             return {

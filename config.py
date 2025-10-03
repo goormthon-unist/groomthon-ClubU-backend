@@ -22,8 +22,8 @@ class Config:
     CLUBS_DIR = os.getenv("CLUBS_DIR", "clubs")
     NOTICES_DIR = os.getenv("NOTICES_DIR", "notices")
 
-    # 파일 업로드 크기 제한 설정 (100MB)
-    MAX_CONTENT_LENGTH = 100 * 1024 * 1024  # 100MB
+    # 파일 업로드 크기 제한 설정 (500MB)
+    MAX_CONTENT_LENGTH = 500 * 1024 * 1024  # 500MB
 
 
 class DevelopmentConfig(Config):

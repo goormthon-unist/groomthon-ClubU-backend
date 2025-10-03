@@ -11,15 +11,22 @@ notice_asset_ns = Namespace(
     path="/api/v1/notices",
 )
 
-# RequestParser 정의 (파일 업로드용) - 다중 파일 지원
+# RequestParser 정의 (파일 업로드용) - 단일/다중 파일 모두 지원
 image_parser = reqparse.RequestParser()
 image_parser.add_argument(
     "images",
     type=FileStorage,
     location="files",
     action="append",
-    required=True,
+    required=False,
     help="공지사항 이미지 파일들 (PNG, JPG, JPEG, GIF, BMP)",
+)
+image_parser.add_argument(
+    "image",
+    type=FileStorage,
+    location="files",
+    required=False,
+    help="공지사항 이미지 파일 (PNG, JPG, JPEG, GIF, BMP)",
 )
 
 file_parser = reqparse.RequestParser()
@@ -28,8 +35,15 @@ file_parser.add_argument(
     type=FileStorage,
     location="files",
     action="append",
-    required=True,
+    required=False,
     help="공지사항 파일들 (DOC, DOCX, XLS, XLSX, PPT, PPTX, HWP, HWPX, PDF, TXT, RTF, ZIP, RAR, 7Z)",
+)
+file_parser.add_argument(
+    "file",
+    type=FileStorage,
+    location="files",
+    required=False,
+    help="공지사항 파일 (DOC, DOCX, XLS, XLSX, PPT, PPTX, HWP, HWPX, PDF, TXT, RTF, ZIP, RAR, 7Z)",
 )
 
 
@@ -46,10 +60,11 @@ class NoticeImageResource(NoticeImageController):
     @notice_asset_ns.response(500, "서버 내부 오류")
     def post(self, notice_id):
         """
-        공지사항 이미지들 업로드
+        공지사항 이미지 업로드 (단일/다중 지원)
 
         multipart/form-data로 요청:
-        - images: 이미지 파일들 (PNG, JPG, JPEG, GIF, BMP)
+        - image: 단일 이미지 파일 (PNG, JPG, JPEG, GIF, BMP)
+        - images: 여러 이미지 파일들 (PNG, JPG, JPEG, GIF, BMP)
         """
         return super().post(notice_id)
 
@@ -75,10 +90,11 @@ class NoticeFileResource(NoticeFileController):
     @notice_asset_ns.response(500, "서버 내부 오류")
     def post(self, notice_id):
         """
-        공지사항 파일들 업로드
+        공지사항 파일 업로드 (단일/다중 지원)
 
         multipart/form-data로 요청:
-        - files: 문서 파일들 (DOC, DOCX, XLS, XLSX, PPT, PPTX, HWP, HWPX, PDF, TXT, RTF, ZIP, RAR, 7Z)
+        - file: 단일 파일 (DOC, DOCX, XLS, XLSX, PPT, PPTX, HWP, HWPX, PDF, TXT, RTF, ZIP, RAR, 7Z)
+        - files: 여러 파일들 (DOC, DOCX, XLS, XLSX, PPT, PPTX, HWP, HWPX, PDF, TXT, RTF, ZIP, RAR, 7Z)
         """
         return super().post(notice_id)
 

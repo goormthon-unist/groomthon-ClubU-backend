@@ -359,13 +359,13 @@ def save_notice_file(file, notice_id):
                 f"지원하지 않는 파일 형식입니다. 허용된 형식: {', '.join(sorted(allowed_extensions))}. 업로드한 파일: {original_filename} (확장자: '{file_ext}')"
             )
 
-        # 파일 크기 제한 (50MB)
+        # 파일 크기 제한 (100MB)
         file.seek(0, 2)  # 파일 끝으로 이동
         file_size = file.tell()
         file.seek(0)  # 파일 시작으로 이동
 
-        if file_size > 50 * 1024 * 1024:  # 50MB
-            raise ValueError("파일 크기가 너무 큽니다 (최대 50MB)")
+        if file_size > 100 * 1024 * 1024:  # 100MB
+            raise ValueError("파일 크기가 너무 큽니다 (최대 100MB)")
 
         # 고유한 파일명 생성 (원본 확장자 유지)
         unique_filename = f"{uuid.uuid4()}.{file_ext}"

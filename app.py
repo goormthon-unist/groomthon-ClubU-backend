@@ -20,12 +20,12 @@ def create_app():
     app.config.from_object(config[os.getenv("FLASK_ENV", "development")])
 
     # 파일 업로드 크기 제한 강제 설정
-    app.config["MAX_CONTENT_LENGTH"] = 100 * 1024 * 1024  # 100MB
+    app.config["MAX_CONTENT_LENGTH"] = 500 * 1024 * 1024  # 500MB
 
     # Werkzeug 설정 (더 낮은 레벨에서 제한)
     from werkzeug.serving import WSGIRequestHandler
 
-    WSGIRequestHandler.max_request_line_size = 100 * 1024 * 1024  # 100MB
+    WSGIRequestHandler.max_request_line_size = 500 * 1024 * 1024  # 500MB
 
     # Flask 세션 설정 추가
     app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "your-secret-key-here")
@@ -103,7 +103,7 @@ def create_app():
             jsonify(
                 {
                     "status": "error",
-                    "message": "파일 크기가 너무 큽니다. 최대 100MB까지 업로드 가능합니다.",
+                    "message": "파일 크기가 너무 큽니다. 최대 500MB까지 업로드 가능합니다.",
                     "code": "413-01",
                 }
             ),
