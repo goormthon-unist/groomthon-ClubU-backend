@@ -11,10 +11,10 @@ notice_asset_ns = Namespace(
     path="/api/v1/notices",
 )
 
-# RequestParser 정의 (파일 업로드용)
+# RequestParser 정의 (파일 업로드용) - 다중 파일 지원
 image_parser = reqparse.RequestParser()
 image_parser.add_argument(
-    "image",
+    "images",
     type=FileStorage,
     location="files",
     action="append",
@@ -24,7 +24,7 @@ image_parser.add_argument(
 
 file_parser = reqparse.RequestParser()
 file_parser.add_argument(
-    "file",
+    "files",
     type=FileStorage,
     location="files",
     action="append",
@@ -44,14 +44,14 @@ class NoticeImageResource(NoticeImageController):
     @notice_asset_ns.response(400, "잘못된 요청")
     @notice_asset_ns.response(401, "로그인이 필요합니다")
     @notice_asset_ns.response(500, "서버 내부 오류")
-    def put(self, notice_id):
+    def post(self, notice_id):
         """
-        공지사항 이미지들 업로드/수정
+        공지사항 이미지들 업로드
 
         multipart/form-data로 요청:
-        - image[]: 이미지 파일들 (PNG, JPG, JPEG, GIF, BMP)
+        - images: 이미지 파일들 (PNG, JPG, JPEG, GIF, BMP)
         """
-        return super().put(notice_id)
+        return super().post(notice_id)
 
     @notice_asset_ns.doc("delete_notice_image")
     @notice_asset_ns.response(200, "이미지 삭제 성공")
@@ -73,14 +73,14 @@ class NoticeFileResource(NoticeFileController):
     @notice_asset_ns.response(400, "잘못된 요청")
     @notice_asset_ns.response(401, "로그인이 필요합니다")
     @notice_asset_ns.response(500, "서버 내부 오류")
-    def put(self, notice_id):
+    def post(self, notice_id):
         """
-        공지사항 파일들 업로드/수정
+        공지사항 파일들 업로드
 
         multipart/form-data로 요청:
-        - file[]: 문서 파일들 (DOC, DOCX, XLS, XLSX, PPT, PPTX, HWP, HWPX, PDF, TXT, RTF, ZIP, RAR, 7Z)
+        - files: 문서 파일들 (DOC, DOCX, XLS, XLSX, PPT, PPTX, HWP, HWPX, PDF, TXT, RTF, ZIP, RAR, 7Z)
         """
-        return super().put(notice_id)
+        return super().post(notice_id)
 
     @notice_asset_ns.doc("delete_notice_file")
     @notice_asset_ns.response(200, "파일 삭제 성공")
