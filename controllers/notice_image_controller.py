@@ -27,19 +27,13 @@ class NoticeImageController(Resource):
             # 파일 처리
             from flask import request
 
-            if "image" not in request.files:
+            # 여러 이미지 파일 처리
+            image_files = request.files.getlist("image[]")
+            if not image_files or all(file.filename == "" for file in image_files):
                 return {
                     "status": "error",
                     "message": "이미지 파일이 필요합니다",
                     "code": "400-02",
-                }, 400
-
-            image_file = request.files["image"]
-            if image_file.filename == "":
-                return {
-                    "status": "error",
-                    "message": "선택된 파일이 없습니다",
-                    "code": "400-03",
                 }, 400
 
             # 공지사항 작성자 권한 확인
@@ -51,12 +45,16 @@ class NoticeImageController(Resource):
                 if asset["asset_type"] == "IMAGE":
                     delete_notice_asset_by_id(asset["id"])
 
-            # 새 이미지 업로드
-            result = create_notice_asset(notice_id, "IMAGE", image_file)
+            # 새 이미지들 업로드
+            results = []
+            for image_file in image_files:
+                if image_file.filename:
+                    result = create_notice_asset(notice_id, "IMAGE", image_file)
+                    results.append(result)
 
             return {
-                "message": "공지사항 이미지가 성공적으로 업로드되었습니다.",
-                "asset": result,
+                "message": "공지사항 이미지들이 성공적으로 업로드되었습니다.",
+                "assets": results,
             }, 200
 
         except ValueError as e:

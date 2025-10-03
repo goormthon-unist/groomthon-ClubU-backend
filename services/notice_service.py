@@ -162,6 +162,7 @@ def get_notice_by_id(notice_id):
                 "id": asset.id,
                 "asset_type": asset.asset_type,
                 "file_url": asset.file_url,
+                "original_filename": asset.original_filename,
                 "created_at": asset.created_at.isoformat(),
             }
             for asset in assets

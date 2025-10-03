@@ -27,19 +27,13 @@ class NoticeFileController(Resource):
             # 파일 처리
             from flask import request
 
-            if "file" not in request.files:
+            # 여러 파일 처리
+            files = request.files.getlist("file[]")
+            if not files or all(file.filename == "" for file in files):
                 return {
                     "status": "error",
                     "message": "파일이 필요합니다",
                     "code": "400-02",
-                }, 400
-
-            file = request.files["file"]
-            if file.filename == "":
-                return {
-                    "status": "error",
-                    "message": "선택된 파일이 없습니다",
-                    "code": "400-03",
                 }, 400
 
             # 공지사항 작성자 권한 확인
@@ -51,12 +45,16 @@ class NoticeFileController(Resource):
                 if asset["asset_type"] == "FILE":
                     delete_notice_asset_by_id(asset["id"])
 
-            # 새 파일 업로드
-            result = create_notice_asset(notice_id, "FILE", file)
+            # 새 파일들 업로드
+            results = []
+            for file in files:
+                if file.filename:
+                    result = create_notice_asset(notice_id, "FILE", file)
+                    results.append(result)
 
             return {
-                "message": "공지사항 파일이 성공적으로 업로드되었습니다.",
-                "asset": result,
+                "message": "공지사항 파일들이 성공적으로 업로드되었습니다.",
+                "assets": results,
             }, 200
 
         except ValueError as e:
