@@ -73,6 +73,13 @@ class NoticeFileController(Resource):
         except ValueError as e:
             return {"status": "error", "message": str(e), "code": "400-01"}, 400
         except Exception as e:
+            # 413 오류 특별 처리
+            if "413" in str(e) or "Request Entity Too Large" in str(e):
+                return {
+                    "status": "error",
+                    "message": "파일 크기가 너무 큽니다. 최대 100MB까지 업로드 가능합니다.",
+                    "code": "413-01",
+                }, 413
             return {
                 "status": "error",
                 "message": f"서버 내부 오류가 발생했습니다 - {e}",
