@@ -17,6 +17,9 @@ from .session import UserSession
 from .notice import Notice
 from .notice_asset import NoticeAsset
 from .banner import Banner
+from .room import Room
+from .reservation import Reservation
+from .cleaning_photo import CleaningPhoto
 
 __all__ = [
     "db",
@@ -34,4 +37,7 @@ __all__ = [
     "Notice",
     "NoticeAsset",
     "Banner",
+    "Room",
+    "Reservation",
+    "CleaningPhoto",
 ]
