@@ -41,7 +41,9 @@ class UsageDetailController(Resource):
             }, 500
 
 
-@cleaning_ns.route("/reservations/<int:reservation_id>/occurrences/<int:occurrence_id>/cleaning/photos")
+@cleaning_ns.route(
+    "/reservations/<int:reservation_id>/occurrences/<int:occurrence_id>/cleaning/photos"
+)
 class CleaningPhotoController(Resource):
     @cleaning_ns.doc("upload_cleaning_photo")
     @cleaning_ns.response(201, "청소 사진 업로드 성공")
@@ -124,7 +126,9 @@ class CleaningPhotoController(Resource):
             }, 500
 
 
-@cleaning_ns.route("/admin/cleaning-submissions/<int:reservation_id>/occurrences/<int:occurrence_id>")
+@cleaning_ns.route(
+    "/admin/cleaning-submissions/<int:reservation_id>/occurrences/<int:occurrence_id>"
+)
 class AdminCleaningSubmissionController(Resource):
     @cleaning_ns.doc("get_cleaning_submission_detail")
     @cleaning_ns.response(200, "성공")

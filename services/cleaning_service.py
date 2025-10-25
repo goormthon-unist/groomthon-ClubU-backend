@@ -35,12 +35,14 @@ class CleaningService:
         cleaning_photos = []
         if reservation.cleaning_photos:
             for photo in reservation.cleaning_photos:
-                cleaning_photos.append({
-                    "id": photo.id,
-                    "file_url": photo.file_url,
-                    "note": photo.note,
-                    "created_at": photo.created_at.isoformat(),
-                })
+                cleaning_photos.append(
+                    {
+                        "id": photo.id,
+                        "file_url": photo.file_url,
+                        "note": photo.note,
+                        "created_at": photo.created_at.isoformat(),
+                    }
+                )
 
         return {
             "reservation": {
@@ -71,16 +73,18 @@ class CleaningService:
             "occurrence_id": occurrence_id,
             "cleaning_photos": cleaning_photos,
             "submission_status": "PENDING" if cleaning_photos else "NOT_SUBMITTED",
-            "submitted_at": cleaning_photos[0]["created_at"] if cleaning_photos else None,
+            "submitted_at": (
+                cleaning_photos[0]["created_at"] if cleaning_photos else None
+            ),
         }
 
     @staticmethod
     def upload_cleaning_photo(
-        reservation_id: int, 
-        occurrence_id: int, 
-        file, 
+        reservation_id: int,
+        occurrence_id: int,
+        file,
         note: Optional[str] = None,
-        user_id: int = None
+        user_id: int = None,
     ) -> Dict:
         """청소 사진 업로드"""
         # 예약이 존재하는지 확인
@@ -109,15 +113,15 @@ class CleaningService:
             filename = secure_filename(file.filename)
             # 고유한 파일명 생성
             unique_filename = f"{uuid.uuid4()}_{filename}"
-            
+
             # 저장 경로 생성: reservations/{reservation_id}/
             upload_folder = f"reservations/{reservation_id}"
             os.makedirs(upload_folder, exist_ok=True)
-            
+
             # 파일 저장
             file_path = os.path.join(upload_folder, unique_filename)
             file.save(file_path)
-            
+
             # 파일 URL 생성
             file_url = f"/uploads/{upload_folder}/{unique_filename}"
         else:
@@ -143,10 +147,7 @@ class CleaningService:
 
     @staticmethod
     def delete_cleaning_photo(
-        reservation_id: int, 
-        occurrence_id: int, 
-        photo_id: int, 
-        user_id: int
+        reservation_id: int, occurrence_id: int, photo_id: int, user_id: int
     ) -> Dict:
         """청소 사진 삭제"""
         # 청소 사진이 존재하는지 확인
@@ -203,12 +204,14 @@ class CleaningService:
         cleaning_photos = []
         if reservation.cleaning_photos:
             for photo in reservation.cleaning_photos:
-                cleaning_photos.append({
-                    "id": photo.id,
-                    "file_url": photo.file_url,
-                    "note": photo.note,
-                    "created_at": photo.created_at.isoformat(),
-                })
+                cleaning_photos.append(
+                    {
+                        "id": photo.id,
+                        "file_url": photo.file_url,
+                        "note": photo.note,
+                        "created_at": photo.created_at.isoformat(),
+                    }
+                )
 
         return {
             "reservation": {
@@ -239,15 +242,17 @@ class CleaningService:
             "occurrence_id": occurrence_id,
             "cleaning_photos": cleaning_photos,
             "submission_status": "PENDING" if cleaning_photos else "NOT_SUBMITTED",
-            "submitted_at": cleaning_photos[0]["created_at"] if cleaning_photos else None,
+            "submitted_at": (
+                cleaning_photos[0]["created_at"] if cleaning_photos else None
+            ),
         }
 
     @staticmethod
     def approve_cleaning_submission(
-        reservation_id: int, 
-        occurrence_id: int, 
-        action: str, 
-        admin_note: Optional[str] = None
+        reservation_id: int,
+        occurrence_id: int,
+        action: str,
+        admin_note: Optional[str] = None,
     ) -> Dict:
         """청소 사진 제출 승인/반려"""
         if action not in ["approve", "reject"]:
