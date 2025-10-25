@@ -53,8 +53,8 @@ else
 fi
 
 echo "런타임 데이터 디렉터리 준비..."
-mkdir -p "$APP_DIR/banners" "$APP_DIR/clubs" "$APP_DIR/notices"
-chmod 0777 "$APP_DIR"/{banners,clubs,notices}
+mkdir -p "$APP_DIR/banners" "$APP_DIR/clubs" "$APP_DIR/notices" "$APP_DIR/reservations"
+chmod 0777 "$APP_DIR"/{banners,clubs,notices,reservations}
 
 if [ ! -f "$ENV_FILE" ]; then
   echo "환경 파일이 없습니다: $ENV_FILE"
@@ -73,12 +73,14 @@ sudo docker run -d \
   --mount type=bind,source="$APP_DIR/banners",target=/data/banners \
   --mount type=bind,source="$APP_DIR/clubs",target=/data/clubs \
   --mount type=bind,source="$APP_DIR/notices",target=/data/notices \
+  --mount type=bind,source="$APP_DIR/reservations",target=/data/reservations \
   --entrypoint /bin/bash \
   "$IMAGE_NAME" -lc 'set -e;
-    rm -rf /app/{banners,clubs,notices,cache} 2>/dev/null || true;
+    rm -rf /app/{banners,clubs,notices,cache,reservations} 2>/dev/null || true;
     ln -s /data/banners /app/banners;
     ln -s /data/clubs   /app/clubs;
     ln -s /data/notices /app/notices;
+    ln -s /data/reservations /app/reservations;
     exec python app.py'
 
 echo "컨테이너 상태 확인..."
