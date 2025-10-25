@@ -150,6 +150,12 @@ class CleaningPhotoController(Resource):
 @cleaning_ns.route(
     "/admin/cleaning-submissions/<int:reservation_id>/occurrences/<int:occurrence_id>"
 )
+@cleaning_ns.route(
+    "/admin/cleaning-submissions/<int:reservation_id>/occurrences/<int:occurrence_id>/approve"
+)
+@cleaning_ns.route(
+    "/admin/cleaning-submissions/<int:reservation_id>/occurrences/<int:occurrence_id>/reject"
+)
 class AdminCleaningSubmissionController(Resource):
     @cleaning_ns.doc("get_cleaning_submission_detail")
     @cleaning_ns.response(200, "성공")
@@ -180,14 +186,21 @@ class AdminCleaningSubmissionController(Resource):
     def post(self, reservation_id, occurrence_id):
         """청소 사진 제출 승인/반려"""
         try:
-            data = request.get_json()
+            data = request.get_json() or {}
 
-            action = data.get("action")
-            if not action or action not in ["approve", "reject"]:
-                return {
-                    "status": "error",
-                    "message": "action은 'approve' 또는 'reject'여야 합니다.",
-                }, 400
+            # URL 경로에서 action 확인
+            if request.endpoint and "approve" in request.endpoint:
+                action = "approve"
+            elif request.endpoint and "reject" in request.endpoint:
+                action = "reject"
+            else:
+                # 기존 방식: JSON body에서 action 가져오기
+                action = data.get("action")
+                if not action or action not in ["approve", "reject"]:
+                    return {
+                        "status": "error",
+                        "message": "action은 'approve' 또는 'reject'여야 합니다.",
+                    }, 400
 
             admin_note = data.get("admin_note")
 
