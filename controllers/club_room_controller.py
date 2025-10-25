@@ -1,6 +1,6 @@
 from flask import request
 from flask_restx import Resource, Namespace
-from services.room_service import RoomService
+from services.club_room_service import ClubRoomService
 from utils.permission_decorator import require_permission
 
 club_room_ns = Namespace("clubs", description="동아리 공간 관리 API")
@@ -25,7 +25,7 @@ class ClubRemainingUsageController(Resource):
                     "message": "날짜 파라미터가 필요합니다.",
                 }, 400
 
-            usage_info = RoomService.get_club_remaining_usage(club_id, date)
+            usage_info = ClubRoomService.get_club_remaining_usage(club_id, date)
             return {
                 "status": "success",
                 "data": usage_info,
