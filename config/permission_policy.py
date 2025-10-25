@@ -144,6 +144,23 @@ PERMISSION_POLICY = {
         "allowed_roles": {"CLUB_MEMBER", "CLUB_OFFICER", "CLUB_PRESIDENT", "DEVELOPER"},
         "description": "동아리 사용 가능 시간 조회 (GET /api/v1/clubs/{id}/remaining-usage)",
     },
+    # ===== 청소 사진 관련 권한 =====
+    "cleaning.usage_detail": {
+        "allowed_roles": {"CLUB_MEMBER", "CLUB_OFFICER", "CLUB_PRESIDENT", "DEVELOPER"},
+        "description": "사용 완료 후 상세 조회 (GET /api/v1/cleaning/reservations/{id}/occurrences/{id})",
+    },
+    "cleaning.photo_upload": {
+        "allowed_roles": {"CLUB_MEMBER", "CLUB_OFFICER", "CLUB_PRESIDENT", "DEVELOPER"},
+        "description": "청소 사진 업로드 (POST /api/v1/cleaning/reservations/{id}/occurrences/{id}/cleaning/photos)",
+    },
+    "cleaning.photo_delete": {
+        "allowed_roles": {"CLUB_MEMBER", "CLUB_OFFICER", "CLUB_PRESIDENT", "DEVELOPER"},
+        "description": "청소 사진 삭제 (DELETE /api/v1/cleaning/reservations/{id}/occurrences/{id}/cleaning/photos)",
+    },
+    "admin.cleaning_submissions": {
+        "allowed_roles": {"DEVELOPER"},
+        "description": "청소 사진 제출 관리 (관리자용)",
+    },
 }
 
 
