@@ -34,8 +34,8 @@ class FileDownloadController(Resource):
             # 절대 경로로 변환
             from flask import current_app
 
-            notices_dir = current_app.config.get("NOTICES_DIR", "notices")
-            file_path = os.path.join(notices_dir, relative_path)
+            # relative_path가 이미 notices/로 시작하므로 그대로 사용
+            file_path = relative_path
 
             if not os.path.exists(file_path):
                 return {
