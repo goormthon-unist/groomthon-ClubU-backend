@@ -21,7 +21,6 @@ class Config:
     BANNERS_DIR = os.getenv("BANNERS_DIR", "banners")
     CLUBS_DIR = os.getenv("CLUBS_DIR", "clubs")
     NOTICES_DIR = os.getenv("NOTICES_DIR", "notices")
-    RESERVATIONS_DIR = os.getenv("RESERVATIONS_DIR", "reservations")
 
     # 파일 업로드 크기 제한 설정 (500MB)
     MAX_CONTENT_LENGTH = 500 * 1024 * 1024  # 500MB
