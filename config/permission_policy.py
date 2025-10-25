@@ -131,7 +131,13 @@ PERMISSION_POLICY = {
         "description": "예약 취소 (DELETE /api/v1/reservations/{id})",
     },
     "rooms.availability": {
-        "allowed_roles": {"STUDENT", "CLUB_MEMBER", "CLUB_OFFICER", "CLUB_PRESIDENT", "DEVELOPER"},
+        "allowed_roles": {
+            "STUDENT",
+            "CLUB_MEMBER",
+            "CLUB_OFFICER",
+            "CLUB_PRESIDENT",
+            "DEVELOPER",
+        },
         "description": "공간 가용시간 조회 (GET /api/v1/rooms/{id}/availability)",
     },
     "clubs.remaining_usage": {

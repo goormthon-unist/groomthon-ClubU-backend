@@ -13,7 +13,7 @@ class ReservationService:
         date: str,
         start_time: str,
         end_time: str,
-        note: Optional[str] = None
+        note: Optional[str] = None,
     ) -> Dict:
         """동아리별 대관 신청"""
         try:
@@ -49,18 +49,18 @@ class ReservationService:
                 or_(
                     and_(
                         Reservation.start_time <= start_time_obj,
-                        Reservation.end_time > start_time_obj
+                        Reservation.end_time > start_time_obj,
                     ),
                     and_(
                         Reservation.start_time < end_time_obj,
-                        Reservation.end_time >= end_time_obj
+                        Reservation.end_time >= end_time_obj,
                     ),
                     and_(
                         Reservation.start_time >= start_time_obj,
-                        Reservation.end_time <= end_time_obj
-                    )
+                        Reservation.end_time <= end_time_obj,
+                    ),
                 ),
-                Reservation.status != "CANCELLED"
+                Reservation.status != "CANCELLED",
             )
         ).first()
 
@@ -72,7 +72,7 @@ class ReservationService:
             and_(
                 Reservation.club_id == club_id,
                 Reservation.date == date_obj,
-                Reservation.status != "CANCELLED"
+                Reservation.status != "CANCELLED",
             )
         ).all()
 
@@ -93,7 +93,9 @@ class ReservationService:
         # 일일 최대 사용 시간 제한 (6시간)
         max_daily_hours = 6
         if total_used_hours + new_hours > max_daily_hours:
-            raise ValueError(f"일일 최대 사용 시간({max_daily_hours}시간)을 초과합니다. 현재 사용: {total_used_hours:.1f}시간, 신청: {new_hours:.1f}시간")
+            raise ValueError(
+                f"일일 최대 사용 시간({max_daily_hours}시간)을 초과합니다. 현재 사용: {total_used_hours:.1f}시간, 신청: {new_hours:.1f}시간"
+            )
 
         # 예약 생성
         reservation = Reservation(
@@ -104,7 +106,7 @@ class ReservationService:
             start_time=start_time_obj,
             end_time=end_time_obj,
             status="CONFIRMED",
-            note=note
+            note=note,
         )
 
         db.session.add(reservation)
@@ -112,70 +114,59 @@ class ReservationService:
 
         return {
             "id": reservation.id,
-            "club": {
-                "id": club.id,
-                "name": club.name
-            },
-            "user": {
-                "id": user.id,
-                "name": user.name
-            },
-            "room": {
-                "id": room.id,
-                "name": room.name,
-                "location": room.location
-            },
+            "club": {"id": club.id, "name": club.name},
+            "user": {"id": user.id, "name": user.name},
+            "room": {"id": room.id, "name": room.name, "location": room.location},
             "date": date,
             "start_time": start_time,
             "end_time": end_time,
             "duration_hours": round(new_hours, 1),
             "status": reservation.status,
             "note": note,
-            "created_at": reservation.created_at.isoformat()
+            "created_at": reservation.created_at.isoformat(),
         }
 
     @staticmethod
     def get_user_reservations(
-        user_id: int,
-        mine: bool = True,
-        status_filter: Optional[List[str]] = None
+        user_id: int, mine: bool = True, status_filter: Optional[List[str]] = None
     ) -> List[Dict]:
         """사용자(나, 동아리) 대관 신청 목록 조회"""
         query = Reservation.query
 
         if mine:
             # 사용자가 신청한 예약 또는 사용자가 속한 동아리의 예약
-            user_clubs = db.session.query(ClubMember.club_id).filter(
-                ClubMember.user_id == user_id
-            ).subquery()
-            
+            user_clubs = (
+                db.session.query(ClubMember.club_id)
+                .filter(ClubMember.user_id == user_id)
+                .subquery()
+            )
+
             query = query.filter(
-                or_(
-                    Reservation.user_id == user_id,
-                    Reservation.club_id.in_(user_clubs)
-                )
+                or_(Reservation.user_id == user_id, Reservation.club_id.in_(user_clubs))
             )
 
         if status_filter:
             query = query.filter(Reservation.status.in_(status_filter))
 
-        reservations = query.order_by(Reservation.date.desc(), Reservation.start_time.desc()).all()
+        reservations = query.order_by(
+            Reservation.date.desc(), Reservation.start_time.desc()
+        ).all()
 
         return [
             {
                 "id": reservation.id,
                 "club": {
                     "id": reservation.club.id if reservation.club else None,
-                    "name": reservation.club.name if reservation.club else "알 수 없음"
+                    "name": reservation.club.name if reservation.club else "알 수 없음",
                 },
                 "user": {
                     "id": reservation.user.id if reservation.user else None,
-                    "name": reservation.user.name if reservation.user else "알 수 없음"
+                    "name": reservation.user.name if reservation.user else "알 수 없음",
                 },
                 "room": {
                     "id": reservation.room.id if reservation.room else None,
                     "name": reservation.room.name if reservation.room else "알 수 없음",
-                    "location": reservation.room.location if reservation.room else None
+                    "location": reservation.room.location if reservation.room else None,
                 },
                 "date": reservation.date.strftime("%Y-%m-%d"),
                 "start_time": reservation.start_time.strftime("%H:%M"),
@@ -183,7 +174,7 @@ class ReservationService:
                 "status": reservation.status,
                 "note": reservation.note,
                 "created_at": reservation.created_at.isoformat(),
-                "updated_at": reservation.updated_at.isoformat()
+                "updated_at": reservation.updated_at.isoformat(),
             }
             for reservation in reservations
         ]
@@ -200,20 +191,26 @@ class ReservationService:
             "club": {
                 "id": reservation.club.id if reservation.club else None,
                 "name": reservation.club.name if reservation.club else "알 수 없음",
-                "president_name": reservation.club.president_name if reservation.club else None,
-                "contact": reservation.club.contact if reservation.club else None
+                "president_name": (
+                    reservation.club.president_name if reservation.club else None
+                ),
+                "contact": reservation.club.contact if reservation.club else None,
             },
             "user": {
                 "id": reservation.user.id if reservation.user else None,
                 "name": reservation.user.name if reservation.user else "알 수 없음",
                 "email": reservation.user.email if reservation.user else None,
-                "phone_number": reservation.user.phone_number if reservation.user else None
+                "phone_number": (
+                    reservation.user.phone_number if reservation.user else None
+                ),
             },
             "room": {
                 "id": reservation.room.id if reservation.room else None,
                 "name": reservation.room.name if reservation.room else "알 수 없음",
                 "location": reservation.room.location if reservation.room else None,
-                "description": reservation.room.description if reservation.room else None
+                "description": (
+                    reservation.room.description if reservation.room else None
+                ),
             },
             "date": reservation.date.strftime("%Y-%m-%d"),
             "start_time": reservation.start_time.strftime("%H:%M"),
@@ -221,7 +218,7 @@ class ReservationService:
             "status": reservation.status,
             "note": reservation.note,
             "created_at": reservation.created_at.isoformat(),
-            "updated_at": reservation.updated_at.isoformat()
+            "updated_at": reservation.updated_at.isoformat(),
         }
 
     @staticmethod
@@ -233,15 +230,16 @@ class ReservationService:
 
         # 권한 확인: 예약한 사용자이거나 해당 동아리 멤버여야 함
         from models import ClubMember
-        
+
         is_authorized = (
-            reservation.user_id == user_id or
-            ClubMember.query.filter(
+            reservation.user_id == user_id
+            or ClubMember.query.filter(
                 and_(
                     ClubMember.user_id == user_id,
-                    ClubMember.club_id == reservation.club_id
+                    ClubMember.club_id == reservation.club_id,
                 )
-            ).first() is not None
+            ).first()
+            is not None
         )
 
         if not is_authorized:
@@ -259,5 +257,5 @@ class ReservationService:
             "id": reservation.id,
             "status": reservation.status,
             "cancelled_at": datetime.utcnow().isoformat(),
-            "message": "예약이 성공적으로 취소되었습니다."
+            "message": "예약이 성공적으로 취소되었습니다.",
         }
