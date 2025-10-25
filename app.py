@@ -88,6 +88,18 @@ def create_app():
         clubs_dir = app.config.get("CLUBS_DIR", "clubs")
         return send_from_directory(clubs_dir, filename)
 
+    @app.route("/notices/<int:notice_id>/files/<filename>")
+    def serve_notice_file(notice_id, filename):
+        notices_dir = app.config.get("NOTICES_DIR", "notices")
+        file_path = f"{notice_id}/files"
+        return send_from_directory(notices_dir, filename, subdirectory=file_path)
+    
+    @app.route("/notices/<int:notice_id>/images/<filename>")
+    def serve_notice_image(notice_id, filename):
+        notices_dir = app.config.get("NOTICES_DIR", "notices")
+        file_path = f"{notice_id}/images"
+        return send_from_directory(notices_dir, filename, subdirectory=file_path)
+    
     @app.route("/notices/<path:filename>")
     def serve_notice_asset(filename):
         notices_dir = app.config.get("NOTICES_DIR", "notices")
