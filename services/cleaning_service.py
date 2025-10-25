@@ -179,13 +179,29 @@ class CleaningService:
         try:
             # file_url에서 실제 파일 경로 추출
             file_path = cleaning_photo.file_url.lstrip("/")
-            full_path = os.path.join(current_app.root_path, file_path)
+
+            # Docker 컨테이너 내부에서 /data/reservations/ 경로 사용
+            if file_path.startswith("reservations/"):
+                # /data/reservations/ 경로로 변환
+                full_path = os.path.join("/data", file_path)
+            else:
+                # 기존 방식 (호환성)
+                full_path = os.path.join(current_app.root_path, file_path)
+
+            print(f"파일 삭제 시도: {full_path}")
 
             if os.path.exists(full_path):
                 os.remove(full_path)
                 print(f"파일 삭제 완료: {full_path}")
             else:
                 print(f"파일을 찾을 수 없음: {full_path}")
+                # 대안 경로 시도
+                alt_path = os.path.join(current_app.root_path, file_path)
+                if os.path.exists(alt_path):
+                    os.remove(alt_path)
+                    print(f"대안 경로에서 파일 삭제 완료: {alt_path}")
+                else:
+                    print(f"대안 경로에서도 파일을 찾을 수 없음: {alt_path}")
         except Exception as e:
             print(f"파일 삭제 실패: {e}")
             # 파일 삭제 실패해도 DB에서만 삭제
