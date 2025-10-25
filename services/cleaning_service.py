@@ -117,6 +117,7 @@ class CleaningService:
 
             # 저장 경로 생성: Docker 볼륨 마운트된 경로 사용
             from flask import current_app
+
             base_dir = current_app.config.get("RESERVATIONS_DIR", "reservations")
             reservation_dir = os.path.join(base_dir, str(reservation_id))
             os.makedirs(reservation_dir, exist_ok=True)
@@ -181,10 +182,10 @@ class CleaningService:
         # 파일 삭제
         try:
             from flask import current_app
-            
+
             # file_url에서 실제 파일 경로 추출
             file_path = cleaning_photo.file_url.lstrip("/")
-            
+
             # Docker 볼륨 마운트된 경로 사용
             base_dir = current_app.config.get("RESERVATIONS_DIR", "reservations")
             if file_path.startswith(base_dir + "/"):

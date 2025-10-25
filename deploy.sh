@@ -77,7 +77,7 @@ sudo docker run -d \
   --mount type=bind,source="$APP_DIR/reservations",target=/data/reservations \
   --entrypoint /bin/bash \
   "$IMAGE_NAME" -lc 'set -e;
-    rm -rf /app/{banners,clubs,notices,cache,reservations} 2>/dev/null || true;
+    rm -rf /app/{banners,clubs,notices,cache} 2>/dev/null || true;
     ln -s /data/banners /app/banners;
     ln -s /data/clubs   /app/clubs;
     ln -s /data/notices /app/notices;
