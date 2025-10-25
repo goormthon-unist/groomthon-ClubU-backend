@@ -85,27 +85,20 @@ class ReservationController(Resource):
 
     @reservation_ns.doc("get_user_reservations")
     @reservation_ns.param(
-        "mine", "내 예약만 조회 (true만 허용)", type=bool, default=True
+        "mine", "예약 조회 범위 (true: 내가 신청한 예약만, false: 내 동아리의 모든 예약)", type=bool, default=True
     )
     @reservation_ns.param(
-        "status", "상태 필터 (CONFIRMED,CLEANING_REQUIRED,CLEANING_DONE)", type=str
+        "status", "예약 상태 필터 (CONFIRMED: 확정, CLEANING_REQUIRED: 청소 필요, CLEANING_DONE: 청소 완료)", type=str
     )
     @reservation_ns.response(200, "성공")
     @reservation_ns.response(400, "잘못된 요청")
     @reservation_ns.response(500, "서버 오류")
     @require_permission("reservations.list")
     def get(self):
-        """사용자(나, 동아리) 대관 신청 목록 조회"""
+        """예약 목록 조회"""
         try:
             mine = request.args.get("mine", "true").lower() == "true"
             status_filter = request.args.get("status")
-
-            # 보안 검증: mine=false는 허용하지 않음
-            if not mine:
-                return {
-                    "status": "error",
-                    "message": "mine=false는 보안상 허용되지 않습니다. mine=true만 사용 가능합니다.",
-                }, 403
 
             if status_filter:
                 status_filter = [s.strip() for s in status_filter.split(",")]

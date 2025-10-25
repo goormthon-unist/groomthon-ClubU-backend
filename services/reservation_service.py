@@ -134,7 +134,10 @@ class ReservationService:
         query = Reservation.query
 
         if mine:
-            # 사용자가 신청한 예약 또는 사용자가 속한 동아리의 예약
+            # mine=true: 사용자가 직접 신청한 예약만 조회
+            query = query.filter(Reservation.user_id == user_id)
+        else:
+            # mine=false: 사용자가 속한 동아리의 모든 예약 조회
             from models import ClubMember
             
             user_clubs = (
@@ -143,9 +146,7 @@ class ReservationService:
                 .subquery()
             )
 
-            query = query.filter(
-                or_(Reservation.user_id == user_id, Reservation.club_id.in_(user_clubs))
-            )
+            query = query.filter(Reservation.club_id.in_(user_clubs))
 
         if status_filter:
             query = query.filter(Reservation.status.in_(status_filter))
