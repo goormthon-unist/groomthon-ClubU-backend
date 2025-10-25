@@ -4,7 +4,7 @@ from services.cleaning_service import CleaningService
 from services.session_service import get_session_info
 from utils.permission_decorator import require_permission
 
-cleaning_ns = Namespace("cleaning", description="청소 사진 관리 API")
+cleaning_ns = Namespace("", description="청소 사진 관리 API")
 
 
 @cleaning_ns.route("/reservations/<int:reservation_id>/occurrences/<int:occurrence_id>")
