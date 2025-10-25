@@ -251,6 +251,7 @@ class ReservationService:
                 "end_time": reservation.end_time.strftime("%H:%M"),
                 "status": reservation.status,
                 "note": reservation.note,
+                "admin_note": reservation.admin_note,
                 "created_at": reservation.created_at.isoformat(),
                 "updated_at": reservation.updated_at.isoformat(),
             }
@@ -312,6 +313,7 @@ class ReservationService:
             "end_time": reservation.end_time.strftime("%H:%M"),
             "status": reservation.status,
             "note": reservation.note,
+            "admin_note": reservation.admin_note,
             "created_at": reservation.created_at.isoformat(),
             "updated_at": reservation.updated_at.isoformat(),
         }
