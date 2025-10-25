@@ -135,6 +135,8 @@ class ReservationService:
 
         if mine:
             # 사용자가 신청한 예약 또는 사용자가 속한 동아리의 예약
+            from models import ClubMember
+            
             user_clubs = (
                 db.session.query(ClubMember.club_id)
                 .filter(ClubMember.user_id == user_id)
@@ -180,11 +182,28 @@ class ReservationService:
         ]
 
     @staticmethod
-    def get_reservation_detail(reservation_id: int) -> Dict:
+    def get_reservation_detail(reservation_id: int, user_id: int) -> Dict:
         """예약 상세 조회"""
         reservation = Reservation.query.get(reservation_id)
         if not reservation:
             raise ValueError(f"ID {reservation_id}에 해당하는 예약을 찾을 수 없습니다.")
+
+        # 권한 확인: 예약한 사용자이거나 해당 동아리 멤버여야 함
+        from models import ClubMember
+
+        is_authorized = (
+            reservation.user_id == user_id
+            or ClubMember.query.filter(
+                and_(
+                    ClubMember.user_id == user_id,
+                    ClubMember.club_id == reservation.club_id,
+                )
+            ).first()
+            is not None
+        )
+
+        if not is_authorized:
+            raise ValueError("예약을 조회할 권한이 없습니다.")
 
         return {
             "id": reservation.id,

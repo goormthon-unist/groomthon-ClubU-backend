@@ -1,6 +1,7 @@
 from flask import request
 from flask_restx import Resource, Namespace
 from services.reservation_service import ReservationService
+from services.session_service import get_session_info
 from utils.permission_decorator import require_permission
 from models import UserSession
 
@@ -34,6 +35,30 @@ class ReservationController(Resource):
                         "status": "error",
                         "message": f"필수 필드 '{field}'가 누락되었습니다.",
                     }, 400
+
+            # 보안 검증: 세션 정보와 요청 데이터 일치 확인
+            session_info = get_session_info()
+            if not session_info:
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다.",
+                }, 401
+
+            # 세션의 사용자 ID와 요청의 user_id 일치 확인
+            session_user_id = session_info["user"]["user_id"]
+            if session_user_id != data["user_id"]:
+                return {
+                    "status": "error",
+                    "message": "세션의 사용자와 요청한 사용자가 일치하지 않습니다.",
+                }, 403
+
+            # 세션의 동아리 멤버십과 요청의 club_id 일치 확인
+            user_club_ids = [club["club_id"] for club in session_info["clubs"]]
+            if data["club_id"] not in user_club_ids:
+                return {
+                    "status": "error",
+                    "message": "해당 동아리의 멤버가 아닙니다.",
+                }, 403
 
             reservation = ReservationService.create_reservation(
                 club_id=data["club_id"],
@@ -78,11 +103,15 @@ class ReservationController(Resource):
             if status_filter:
                 status_filter = [s.strip() for s in status_filter.split(",")]
 
-            # 실제 구현에서는 세션에서 user_id를 가져와야 함
-            # 여기서는 임시로 요청에서 가져옴
-            user_id = request.args.get("user_id", type=int)
-            if not user_id:
-                return {"status": "error", "message": "사용자 ID가 필요합니다."}, 400
+            # 보안 검증: 세션에서 사용자 정보 가져오기
+            session_info = get_session_info()
+            if not session_info:
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다.",
+                }, 401
+
+            user_id = session_info["user"]["user_id"]
 
             reservations = ReservationService.get_user_reservations(
                 user_id=user_id, mine=mine, status_filter=status_filter
@@ -110,7 +139,17 @@ class ReservationDetailController(Resource):
     def get(self, reservation_id):
         """예약 상세 조회"""
         try:
-            reservation = ReservationService.get_reservation_detail(reservation_id)
+            # 보안 검증: 세션에서 사용자 정보 가져오기
+            session_info = get_session_info()
+            if not session_info:
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다.",
+                }, 401
+
+            user_id = session_info["user"]["user_id"]
+
+            reservation = ReservationService.get_reservation_detail(reservation_id, user_id)
             return {
                 "status": "success",
                 "data": reservation,
@@ -133,11 +172,15 @@ class ReservationDetailController(Resource):
     def delete(self, reservation_id):
         """예약 취소"""
         try:
-            # 실제 구현에서는 세션에서 user_id를 가져와야 함
-            # 여기서는 임시로 요청에서 가져옴
-            user_id = request.args.get("user_id", type=int)
-            if not user_id:
-                return {"status": "error", "message": "사용자 ID가 필요합니다."}, 400
+            # 보안 검증: 세션에서 사용자 정보 가져오기
+            session_info = get_session_info()
+            if not session_info:
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다.",
+                }, 401
+
+            user_id = session_info["user"]["user_id"]
 
             result = ReservationService.cancel_reservation(reservation_id, user_id)
             return {
