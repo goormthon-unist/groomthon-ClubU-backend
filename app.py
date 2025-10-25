@@ -148,6 +148,7 @@ def create_app():
     from routes.user_search_routes import user_search_ns
     from routes.room_routes import room_ns
     from routes.reservation_routes import reservation_ns
+    from routes.club_room_routes import club_room_ns
     from routes import init_app as init_routes
 
     api.add_namespace(home_ns, path="/api/v1/clubs")
@@ -168,6 +169,7 @@ def create_app():
     api.add_namespace(user_search_ns, path="/api/v1/users")
     api.add_namespace(room_ns, path="/api/v1/rooms")
     api.add_namespace(reservation_ns, path="/api/v1/reservations")
+    api.add_namespace(club_room_ns, path="/api/v1/clubs")
     init_routes(app)
 
     return app
