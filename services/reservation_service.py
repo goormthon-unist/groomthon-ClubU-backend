@@ -145,7 +145,7 @@ class ReservationService:
                 raise ValueError(f"ID {user_id}에 해당하는 사용자를 찾을 수 없습니다.")
 
             created_reservations = []
-            
+
             # 각 슬롯에 대해 예약 생성
             for slot in slots:
                 room_id = slot.get("room_id")
