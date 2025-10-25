@@ -182,7 +182,36 @@ class ReservationDetailController(Resource):
     @reservation_ns.response(500, "서버 오류")
     @require_permission("reservations.cancel")
     def delete(self, reservation_id):
-        """예약 취소"""
+        """예약 취소 (DELETE)"""
+        try:
+            # 보안 검증: 세션에서 사용자 정보 가져오기
+            session_info = get_session_info()
+            if not session_info:
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다.",
+                }, 401
+
+            user_id = session_info["user"]["user_id"]
+
+            result = ReservationService.cancel_reservation(reservation_id, user_id)
+            return result, 200
+        except ValueError as e:
+            return {"status": "error", "message": str(e)}, 400
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"예약 취소 중 오류가 발생했습니다: {str(e)}",
+            }, 500
+
+    @reservation_ns.doc("cancel_reservation_post")
+    @reservation_ns.response(200, "예약 취소 성공")
+    @reservation_ns.response(400, "잘못된 요청")
+    @reservation_ns.response(404, "예약을 찾을 수 없음")
+    @reservation_ns.response(500, "서버 오류")
+    @require_permission("reservations.cancel")
+    def post(self, reservation_id):
+        """예약 취소 (POST)"""
         try:
             # 보안 검증: 세션에서 사용자 정보 가져오기
             session_info = get_session_info()
