@@ -41,11 +41,11 @@ if [ -d "$APP_DIR" ]; then
   
   # 혹시 남아있는 "호스트 rm" 코드 탐지
   echo "[DEBUG] 호스트 rm 코드 검사:"
-  grep -RnE 'rm -rf .*banners|rm -rf .*clubs|rm -rf .*notices' . || true
+  grep -RnE 'rm -rf .*banners|rm -rf .*clubs|rm -rf .*notices|rm -rf .*reservations' . || true
   
   # 안전한 정리: 런타임 폴더는 제외하고 정리
   echo "불필요한 파일 정리..."
-  git clean -fdx -e banners/ -e clubs/ -e notices/ || true
+  git clean -fdx -e banners/ -e clubs/ -e notices/ -e reservations/ || true
 else
   echo "리포지토리 클론..."
   cd /home/ubuntu
@@ -77,7 +77,7 @@ sudo docker run -d \
   --mount type=bind,source="$APP_DIR/reservations",target=/data/reservations \
   --entrypoint /bin/bash \
   "$IMAGE_NAME" -lc 'set -e;
-    rm -rf /app/{banners,clubs,notices,cache} 2>/dev/null || true;
+    rm -rf /app/{banners,clubs,notices,cache,reservations} 2>/dev/null || true;
     ln -s /data/banners /app/banners;
     ln -s /data/clubs   /app/clubs;
     ln -s /data/notices /app/notices;
