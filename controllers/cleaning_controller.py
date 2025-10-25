@@ -44,6 +44,9 @@ class UsageDetailController(Resource):
 @cleaning_ns.route(
     "/reservations/<int:reservation_id>/occurrences/<int:occurrence_id>/cleaning/photos"
 )
+@cleaning_ns.route(
+    "/reservations/<int:reservation_id>/occurrences/<int:occurrence_id>/cleaning/photos/<int:photo_id>"
+)
 class CleaningPhotoController(Resource):
     @cleaning_ns.doc("upload_cleaning_photo")
     @cleaning_ns.response(201, "청소 사진 업로드 성공")
@@ -109,7 +112,7 @@ class CleaningPhotoController(Resource):
     @cleaning_ns.response(403, "권한 없음")
     @cleaning_ns.response(500, "서버 오류")
     @require_permission("cleaning.photo_delete")
-    def delete(self, reservation_id, occurrence_id):
+    def delete(self, reservation_id, occurrence_id, photo_id=None):
         """청소 사진 삭제"""
         try:
             # 보안 검증: 세션에서 사용자 정보 가져오기
@@ -122,13 +125,14 @@ class CleaningPhotoController(Resource):
 
             user_id = session_info["user"]["user_id"]
 
-            # photo_id 파라미터로 받기
-            photo_id = request.args.get("photo_id", type=int)
-            if not photo_id:
-                return {
-                    "status": "error",
-                    "message": "photo_id 파라미터가 필요합니다.",
-                }, 400
+            # photo_id가 URL 경로에 없으면 쿼리 파라미터에서 가져오기
+            if photo_id is None:
+                photo_id = request.args.get("photo_id", type=int)
+                if not photo_id:
+                    return {
+                        "status": "error",
+                        "message": "photo_id가 필요합니다.",
+                    }, 400
 
             result = CleaningService.delete_cleaning_photo(
                 reservation_id, occurrence_id, photo_id, user_id
