@@ -154,7 +154,9 @@ class ReservationService:
                 end_time = slot.get("end_time")
 
                 if not all([room_id, date, start_time, end_time]):
-                    raise ValueError("각 슬롯에는 room_id, date, start_time, end_time이 필요합니다.")
+                    raise ValueError(
+                        "각 슬롯에는 room_id, date, start_time, end_time이 필요합니다."
+                    )
 
                 # 개별 예약 생성
                 reservation = ReservationService.create_reservation(
@@ -215,8 +217,12 @@ class ReservationService:
                     "id": reservation.user.id if reservation.user else None,
                     "name": reservation.user.name if reservation.user else "알 수 없음",
                     "email": reservation.user.email if reservation.user else None,
-                    "phone_number": reservation.user.phone_number if reservation.user else None,
-                    "student_id": reservation.user.student_id if reservation.user else None,
+                    "phone_number": (
+                        reservation.user.phone_number if reservation.user else None
+                    ),
+                    "student_id": (
+                        reservation.user.student_id if reservation.user else None
+                    ),
                 },
                 "room": {
                     "id": reservation.room.id if reservation.room else None,
