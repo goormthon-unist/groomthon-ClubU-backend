@@ -290,13 +290,17 @@ class CleaningService:
         if not reservation.cleaning_photos:
             raise ValueError("제출된 청소 사진이 없습니다.")
 
-        # 예약 상태 업데이트
+        # 예약 상태 및 관리자 메모 업데이트
         if action == "approve":
             reservation.status = "CLEANING_DONE"
             message = "청소 사진이 승인되었습니다."
         else:  # reject
             reservation.status = "CLEANING_REQUIRED"
             message = "청소 사진이 반려되었습니다."
+
+        # admin_note 저장
+        if admin_note:
+            reservation.admin_note = admin_note
 
         db.session.commit()
 

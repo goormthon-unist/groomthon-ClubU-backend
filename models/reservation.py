@@ -19,6 +19,7 @@ class Reservation(db.Model):
         default="CONFIRMED",
     )
     note = db.Column(db.Text, nullable=True)
+    admin_note = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated_at = db.Column(
         db.DateTime,
