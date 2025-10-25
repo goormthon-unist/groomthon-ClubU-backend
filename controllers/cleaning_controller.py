@@ -186,13 +186,6 @@ class AdminCleaningSubmissionController(Resource):
     def post(self, reservation_id, occurrence_id):
         """청소 사진 제출 승인/반려"""
         try:
-            data = request.get_json() or {}
-
-            # 디버깅 로그
-            print(f"DEBUG: request.path = {request.path}")
-            print(f"DEBUG: request.method = {request.method}")
-            print(f"DEBUG: data = {data}")
-
             # URL 경로에서 action 확인
             current_path = request.path
             if "/approve" in current_path:
@@ -201,6 +194,10 @@ class AdminCleaningSubmissionController(Resource):
                 action = "reject"
             else:
                 # 기존 방식: JSON body에서 action 가져오기
+                try:
+                    data = request.get_json() or {}
+                except:
+                    data = {}
                 action = data.get("action")
                 if not action or action not in ["approve", "reject"]:
                     return {
@@ -208,8 +205,12 @@ class AdminCleaningSubmissionController(Resource):
                         "message": "action은 'approve' 또는 'reject'여야 합니다.",
                     }, 400
 
-            print(f"DEBUG: action = {action}")
-            admin_note = data.get("admin_note")
+            # admin_note 안전하게 가져오기
+            try:
+                data = request.get_json() or {}
+                admin_note = data.get("admin_note")
+            except:
+                admin_note = None
 
             result = CleaningService.approve_cleaning_submission(
                 reservation_id, occurrence_id, action, admin_note
