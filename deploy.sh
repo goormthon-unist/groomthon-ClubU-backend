@@ -30,6 +30,7 @@ echo "[DEBUG] 디렉터리 점유 프로세스 확인:"
 command -v lsof >/dev/null && lsof +D "$APP_DIR/banners" || true
 command -v lsof >/dev/null && lsof +D "$APP_DIR/clubs"   || true
 command -v lsof >/dev/null && lsof +D "$APP_DIR/notices" || true
+command -v lsof >/dev/null && lsof +D "$APP_DIR/reservations" || true
 
 if [ -d "$APP_DIR" ]; then
   echo "애플리케이션 디렉토리로 이동: $APP_DIR"

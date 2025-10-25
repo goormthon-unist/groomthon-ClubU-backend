@@ -177,11 +177,18 @@ class CleaningService:
 
         # 파일 삭제
         try:
-            file_path = cleaning_photo.file_url.replace("/uploads/", "")
-            if os.path.exists(file_path):
-                os.remove(file_path)
-        except Exception:
-            pass  # 파일 삭제 실패해도 DB에서만 삭제
+            # file_url에서 실제 파일 경로 추출
+            file_path = cleaning_photo.file_url.lstrip("/")
+            full_path = os.path.join(current_app.root_path, file_path)
+
+            if os.path.exists(full_path):
+                os.remove(full_path)
+                print(f"파일 삭제 완료: {full_path}")
+            else:
+                print(f"파일을 찾을 수 없음: {full_path}")
+        except Exception as e:
+            print(f"파일 삭제 실패: {e}")
+            # 파일 삭제 실패해도 DB에서만 삭제
 
         # 청소 사진 삭제
         db.session.delete(cleaning_photo)
