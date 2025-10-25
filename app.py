@@ -137,6 +137,7 @@ def create_app():
     from routes.application_check_submit_routes import application_ns
     from routes.notice_routes import notice_ns, club_notice_ns
     from routes.notice_asset_routes import notice_asset_ns
+    from routes.file_download_routes import file_download_ns
     from routes.banner_routes import banner_ns
 
     from routes.auth_routes import auth_ns
@@ -155,6 +156,7 @@ def create_app():
     api.add_namespace(notice_ns, path="/api/v1")
     api.add_namespace(club_notice_ns, path="/api/v1/clubs")
     api.add_namespace(notice_asset_ns, path="/api/v1")
+    api.add_namespace(file_download_ns, path="/api/v1")
     api.add_namespace(banner_ns, path="/api/v1/banners")
     api.add_namespace(auth_ns, path="/api/v1/auth")
     api.add_namespace(role_ns, path="/api/v1/roles")

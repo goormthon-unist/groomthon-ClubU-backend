@@ -68,6 +68,27 @@ def get_notice_assets(notice_id):
         raise Exception(f"첨부파일 조회 중 오류 발생: {e}")
 
 
+def get_notice_asset_by_id(asset_id):
+    """특정 첨부파일 조회"""
+    try:
+        asset = NoticeAsset.query.get(asset_id)
+        if not asset:
+            return None
+
+        return {
+            "id": asset.id,
+            "notice_id": asset.notices_id,
+            "asset_type": asset.asset_type,
+            "file_url": asset.file_url,
+            "file_path": asset.file_url,  # 다운로드용 파일 경로
+            "original_filename": asset.original_filename,
+            "created_at": asset.created_at.isoformat(),
+        }
+
+    except Exception as e:
+        raise Exception(f"첨부파일 조회 중 오류 발생: {e}")
+
+
 def delete_notice_asset_by_id(asset_id):
     """공지사항 첨부파일 삭제"""
     try:
