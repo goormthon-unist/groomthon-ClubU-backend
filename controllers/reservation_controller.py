@@ -16,25 +16,9 @@ class ReservationController(Resource):
     @reservation_ns.response(500, "서버 오류")
     @require_permission("reservations.create")
     def post(self):
-        """동아리별 대관 신청"""
+        """동아리별 대관 신청 (단일 또는 다중 예약)"""
         try:
             data = request.get_json()
-
-            # 필수 필드 검증
-            required_fields = [
-                "club_id",
-                "user_id",
-                "room_id",
-                "date",
-                "start_time",
-                "end_time",
-            ]
-            for field in required_fields:
-                if field not in data:
-                    return {
-                        "status": "error",
-                        "message": f"필수 필드 '{field}'가 누락되었습니다.",
-                    }, 400
 
             # 보안 검증: 세션 정보와 요청 데이터 일치 확인
             session_info = get_session_info()
@@ -60,17 +44,50 @@ class ReservationController(Resource):
                     "message": "해당 동아리의 멤버가 아닙니다.",
                 }, 403
 
-            reservation = ReservationService.create_reservation(
-                club_id=data["club_id"],
-                user_id=data["user_id"],
-                room_id=data["room_id"],
-                date=data["date"],
-                start_time=data["start_time"],
-                end_time=data["end_time"],
-                note=data.get("note"),
-            )
+            # slots 형태의 다중 예약인지 확인
+            if "slots" in data:
+                # 다중 예약 생성
+                slots = data["slots"]
+                if not slots or not isinstance(slots, list):
+                    return {
+                        "status": "error",
+                        "message": "slots는 비어있지 않은 배열이어야 합니다.",
+                    }, 400
 
-            return reservation, 201
+                reservations = ReservationService.create_reservations_with_slots(
+                    club_id=data["club_id"],
+                    user_id=data["user_id"],
+                    slots=slots,
+                    note=data.get("note"),
+                )
+                return reservations, 201
+            else:
+                # 단일 예약 생성 (기존 방식)
+                required_fields = [
+                    "club_id",
+                    "user_id",
+                    "room_id",
+                    "date",
+                    "start_time",
+                    "end_time",
+                ]
+                for field in required_fields:
+                    if field not in data:
+                        return {
+                            "status": "error",
+                            "message": f"필수 필드 '{field}'가 누락되었습니다.",
+                        }, 400
+
+                reservation = ReservationService.create_reservation(
+                    club_id=data["club_id"],
+                    user_id=data["user_id"],
+                    room_id=data["room_id"],
+                    date=data["date"],
+                    start_time=data["start_time"],
+                    end_time=data["end_time"],
+                    note=data.get("note"),
+                )
+                return reservation, 201
         except ValueError as e:
             return {"status": "error", "message": str(e)}, 400
         except Exception as e:

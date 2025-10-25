@@ -127,6 +127,55 @@ class ReservationService:
         }
 
     @staticmethod
+    def create_reservations_with_slots(
+        club_id: int,
+        user_id: int,
+        slots: List[Dict],
+        note: Optional[str] = None,
+    ) -> List[Dict]:
+        """다중 예약 생성 (slots 형태)"""
+        try:
+            # 해당 동아리와 사용자가 존재하는지 확인
+            club = Club.query.get(club_id)
+            if not club:
+                raise ValueError(f"ID {club_id}에 해당하는 동아리를 찾을 수 없습니다.")
+
+            user = User.query.get(user_id)
+            if not user:
+                raise ValueError(f"ID {user_id}에 해당하는 사용자를 찾을 수 없습니다.")
+
+            created_reservations = []
+            
+            # 각 슬롯에 대해 예약 생성
+            for slot in slots:
+                room_id = slot.get("room_id")
+                date = slot.get("date")
+                start_time = slot.get("start_time")
+                end_time = slot.get("end_time")
+
+                if not all([room_id, date, start_time, end_time]):
+                    raise ValueError("각 슬롯에는 room_id, date, start_time, end_time이 필요합니다.")
+
+                # 개별 예약 생성
+                reservation = ReservationService.create_reservation(
+                    club_id=club_id,
+                    user_id=user_id,
+                    room_id=room_id,
+                    date=date,
+                    start_time=start_time,
+                    end_time=end_time,
+                    note=note,
+                )
+                created_reservations.append(reservation)
+
+            return created_reservations
+
+        except Exception as e:
+            # 오류 발생 시 생성된 예약들을 롤백
+            db.session.rollback()
+            raise e
+
+    @staticmethod
     def get_user_reservations(
         user_id: int, mine: bool = True, status_filter: Optional[List[str]] = None
     ) -> List[Dict]:
@@ -165,6 +214,9 @@ class ReservationService:
                 "user": {
                     "id": reservation.user.id if reservation.user else None,
                     "name": reservation.user.name if reservation.user else "알 수 없음",
+                    "email": reservation.user.email if reservation.user else None,
+                    "phone_number": reservation.user.phone_number if reservation.user else None,
+                    "student_id": reservation.user.student_id if reservation.user else None,
                 },
                 "room": {
                     "id": reservation.room.id if reservation.room else None,
