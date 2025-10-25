@@ -43,4 +43,4 @@ ENV FLASK_ENV=production
 ENV PYTHONPATH=/app
 
 # 심링크 생성 및 애플리케이션 실행
-CMD ["bash", "-lc", "rm -rf /app/{banners,clubs,notices,cache,reservations} 2>/dev/null || true; ln -s /data/banners /app/banners; ln -s /data/clubs /app/clubs; ln -s /data/notices /app/notices; ln -s /data/cache /app/cache; ln -s /data/reservations /app/reservations; exec python app.py"]
+CMD ["bash", "-lc", "rm -rf /app/{banners,clubs,notices,cache} 2>/dev/null || true; ln -s /data/banners /app/banners; ln -s /data/clubs /app/clubs; ln -s /data/notices /app/notices; ln -s /data/cache /app/cache; ln -s /data/reservations /app/reservations; exec python app.py"]

@@ -115,16 +115,18 @@ class CleaningService:
             # 고유한 파일명 생성
             unique_filename = f"{uuid.uuid4()}_{filename}"
 
-            # 저장 경로 생성: reservations/{reservation_id}/
-            upload_folder = f"reservations/{reservation_id}"
-            os.makedirs(upload_folder, exist_ok=True)
+            # 저장 경로 생성: Docker 볼륨 마운트된 경로 사용
+            from flask import current_app
+            base_dir = current_app.config.get("RESERVATIONS_DIR", "reservations")
+            reservation_dir = os.path.join(base_dir, str(reservation_id))
+            os.makedirs(reservation_dir, exist_ok=True)
 
             # 파일 저장
-            file_path = os.path.join(upload_folder, unique_filename)
+            file_path = os.path.join(reservation_dir, unique_filename)
             file.save(file_path)
 
             # 파일 URL 생성 (reservations 폴더 기준)
-            file_url = f"/{upload_folder}/{unique_filename}"
+            file_url = f"/{base_dir}/{reservation_id}/{unique_filename}"
         else:
             raise ValueError("파일이 제공되지 않았습니다.")
 
@@ -178,12 +180,15 @@ class CleaningService:
 
         # 파일 삭제
         try:
+            from flask import current_app
+            
             # file_url에서 실제 파일 경로 추출
             file_path = cleaning_photo.file_url.lstrip("/")
-
-            # Docker 컨테이너 내부에서 /data/reservations/ 경로 사용
-            if file_path.startswith("reservations/"):
-                # /data/reservations/ 경로로 변환
+            
+            # Docker 볼륨 마운트된 경로 사용
+            base_dir = current_app.config.get("RESERVATIONS_DIR", "reservations")
+            if file_path.startswith(base_dir + "/"):
+                # 설정된 base_dir 사용
                 full_path = os.path.join("/data", file_path)
             else:
                 # 기존 방식 (호환성)
