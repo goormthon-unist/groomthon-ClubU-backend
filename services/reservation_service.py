@@ -28,6 +28,23 @@ class ReservationService:
         if start_time_obj >= end_time_obj:
             raise ValueError("시작 시간은 종료 시간보다 빨라야 합니다.")
 
+        # 1시간 간격 검증
+        start_datetime = datetime.combine(date_obj, start_time_obj)
+        end_datetime = datetime.combine(date_obj, end_time_obj)
+        duration = end_datetime - start_datetime
+        duration_hours = duration.total_seconds() / 3600
+
+        if duration_hours < 1.0:
+            raise ValueError("예약은 최소 1시간 이상이어야 합니다.")
+
+        # 시간이 정시(00분)에 시작하는지 확인
+        if start_time_obj.minute != 0:
+            raise ValueError("예약은 정시(00분)에만 시작할 수 있습니다.")
+
+        # 시간이 정시(00분)에 끝나는지 확인
+        if end_time_obj.minute != 0:
+            raise ValueError("예약은 정시(00분)에만 끝날 수 있습니다.")
+
         # 해당 동아리, 사용자, 공간이 존재하는지 확인
         club = Club.query.get(club_id)
         if not club:
