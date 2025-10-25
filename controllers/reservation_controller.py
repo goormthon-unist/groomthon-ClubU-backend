@@ -70,11 +70,7 @@ class ReservationController(Resource):
                 note=data.get("note"),
             )
 
-            return {
-                "status": "success",
-                "data": reservation,
-                "message": "대관 신청이 성공적으로 완료되었습니다.",
-            }, 201
+            return reservation, 201
         except ValueError as e:
             return {"status": "error", "message": str(e)}, 400
         except Exception as e:
@@ -117,11 +113,7 @@ class ReservationController(Resource):
                 user_id=user_id, mine=mine, status_filter=status_filter
             )
 
-            return {
-                "status": "success",
-                "data": reservations,
-                "message": "예약 목록 조회 성공",
-            }, 200
+            return reservations, 200
         except Exception as e:
             return {
                 "status": "error",
@@ -150,11 +142,7 @@ class ReservationDetailController(Resource):
             user_id = session_info["user"]["user_id"]
 
             reservation = ReservationService.get_reservation_detail(reservation_id, user_id)
-            return {
-                "status": "success",
-                "data": reservation,
-                "message": "예약 상세 조회 성공",
-            }, 200
+            return reservation, 200
         except ValueError as e:
             return {"status": "error", "message": str(e)}, 404
         except Exception as e:
@@ -183,11 +171,7 @@ class ReservationDetailController(Resource):
             user_id = session_info["user"]["user_id"]
 
             result = ReservationService.cancel_reservation(reservation_id, user_id)
-            return {
-                "status": "success",
-                "data": result,
-                "message": "예약이 성공적으로 취소되었습니다.",
-            }, 200
+            return result, 200
         except ValueError as e:
             return {"status": "error", "message": str(e)}, 400
         except Exception as e:

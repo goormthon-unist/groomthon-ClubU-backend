@@ -26,11 +26,7 @@ class ClubRemainingUsageController(Resource):
                 }, 400
 
             usage_info = ClubRoomService.get_club_remaining_usage(club_id, date)
-            return {
-                "status": "success",
-                "data": usage_info,
-                "message": "동아리 사용 가능 시간 조회 성공",
-            }, 200
+            return usage_info, 200
         except ValueError as e:
             return {
                 "status": "error",

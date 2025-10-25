@@ -15,11 +15,7 @@ class RoomListController(Resource):
         """전체 공간 조회"""
         try:
             rooms = RoomService.get_all_rooms()
-            return {
-                "status": "success",
-                "data": rooms,
-                "message": "전체 공간 조회 성공",
-            }, 200
+            return rooms, 200
         except Exception as e:
             return {
                 "status": "error",
@@ -47,11 +43,7 @@ class RoomAvailabilityController(Resource):
                 }, 400
 
             availability = RoomService.get_room_availability(room_id, date)
-            return {
-                "status": "success",
-                "data": availability,
-                "message": "공간 가용시간 조회 성공",
-            }, 200
+            return availability, 200
         except ValueError as e:
             return {"status": "error", "message": str(e)}, 400
         except Exception as e:
