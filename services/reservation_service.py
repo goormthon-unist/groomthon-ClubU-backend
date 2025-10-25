@@ -139,7 +139,7 @@ class ReservationService:
         else:
             # mine=false: 사용자가 속한 동아리의 모든 예약 조회
             from models import ClubMember
-            
+
             user_clubs = (
                 db.session.query(ClubMember.club_id)
                 .filter(ClubMember.user_id == user_id)

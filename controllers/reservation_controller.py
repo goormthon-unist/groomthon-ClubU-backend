@@ -81,10 +81,15 @@ class ReservationController(Resource):
 
     @reservation_ns.doc("get_user_reservations")
     @reservation_ns.param(
-        "mine", "예약 조회 범위 (true: 내가 신청한 예약만, false: 내 동아리의 모든 예약)", type=bool, default=True
+        "mine",
+        "예약 조회 범위 (true: 내가 신청한 예약만, false: 내 동아리의 모든 예약)",
+        type=bool,
+        default=True,
     )
     @reservation_ns.param(
-        "status", "예약 상태 필터 (CONFIRMED: 확정, CLEANING_REQUIRED: 청소 필요, CLEANING_DONE: 청소 완료)", type=str
+        "status",
+        "예약 상태 필터 (CONFIRMED: 확정, CLEANING_REQUIRED: 청소 필요, CLEANING_DONE: 청소 완료)",
+        type=str,
     )
     @reservation_ns.response(200, "성공")
     @reservation_ns.response(400, "잘못된 요청")
@@ -141,7 +146,9 @@ class ReservationDetailController(Resource):
 
             user_id = session_info["user"]["user_id"]
 
-            reservation = ReservationService.get_reservation_detail(reservation_id, user_id)
+            reservation = ReservationService.get_reservation_detail(
+                reservation_id, user_id
+            )
             return reservation, 200
         except ValueError as e:
             return {"status": "error", "message": str(e)}, 404
