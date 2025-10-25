@@ -88,7 +88,7 @@ class ReservationController(Resource):
     )
     @reservation_ns.param(
         "status",
-        "예약 상태 필터 (CONFIRMED: 확정, CLEANING_REQUIRED: 청소 필요, CLEANING_DONE: 청소 완료)",
+        "예약 상태 필터 (CONFIRMED: 확정, CLEANING_REQUIRED: 청소 필요, CLEANING_DONE: 청소 완료, CANCELLED: 취소)",
         type=str,
     )
     @reservation_ns.response(200, "성공")

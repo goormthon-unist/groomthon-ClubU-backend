@@ -275,7 +275,7 @@ class ReservationService:
 
         return {
             "id": reservation.id,
-            "status": "CANCELLED",
+            "status": reservation.status,
             "cancelled_at": datetime.utcnow().isoformat(),
             "message": "예약이 성공적으로 취소되었습니다.",
         }

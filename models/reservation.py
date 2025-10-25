@@ -14,7 +14,7 @@ class Reservation(db.Model):
     start_time = db.Column(db.Time, nullable=False)
     end_time = db.Column(db.Time, nullable=False)
     status = db.Column(
-        db.Enum("CONFIRMED", "CLEANING_REQUIRED", "CLEANING_DONE"),
+        db.Enum("CONFIRMED", "CLEANING_REQUIRED", "CLEANING_DONE", "CANCELLED"),
         nullable=False,
         default="CONFIRMED",
     )
