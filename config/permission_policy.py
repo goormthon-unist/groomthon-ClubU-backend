@@ -158,8 +158,8 @@ PERMISSION_POLICY = {
         "description": "청소 사진 삭제 (DELETE /api/v1/cleaning/reservations/{id}/occurrences/{id}/cleaning/photos)",
     },
     "admin.cleaning_submissions": {
-        "allowed_roles": {"DEVELOPER"},
-        "description": "청소 사진 제출 관리 (관리자용)",
+        "allowed_roles": {"CLUB_PRESIDENT","UNION_ADMIN", "DEVELOPER"},
+        "description": "청소 사진 제출 관리",
     },
 }
 
