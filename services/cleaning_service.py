@@ -122,8 +122,8 @@ class CleaningService:
             file_path = os.path.join(upload_folder, unique_filename)
             file.save(file_path)
 
-            # 파일 URL 생성
-            file_url = f"/uploads/{upload_folder}/{unique_filename}"
+            # 파일 URL 생성 (reservations 폴더 기준)
+            file_url = f"/{upload_folder}/{unique_filename}"
         else:
             raise ValueError("파일이 제공되지 않았습니다.")
 
