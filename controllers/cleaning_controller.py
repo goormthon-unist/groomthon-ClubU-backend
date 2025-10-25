@@ -68,6 +68,23 @@ class CleaningPhotoController(Resource):
             file = request.files.get("file")
             note = request.form.get("note")
 
+            # 한국어 인코딩 처리
+            if note:
+                try:
+                    # UTF-8로 디코딩 시도
+                    if isinstance(note, bytes):
+                        note = note.decode("utf-8")
+                    elif isinstance(note, str):
+                        # 이미 문자열이면 그대로 사용
+                        pass
+                except UnicodeDecodeError:
+                    # UTF-8 디코딩 실패시 다른 인코딩 시도
+                    try:
+                        note = note.decode("latin-1").encode("latin-1").decode("utf-8")
+                    except:
+                        # 모든 시도 실패시 원본 유지
+                        pass
+
             if not file:
                 return {
                     "status": "error",

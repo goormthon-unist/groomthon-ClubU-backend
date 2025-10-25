@@ -22,6 +22,10 @@ def create_app():
     # 파일 업로드 크기 제한 강제 설정
     app.config["MAX_CONTENT_LENGTH"] = 500 * 1024 * 1024  # 500MB
 
+    # 인코딩 설정
+    app.config["JSON_AS_ASCII"] = False  # JSON에서 한글 지원
+    app.config["JSONIFY_PRETTYPRINT_REGULAR"] = True
+
     # Werkzeug 설정 (더 낮은 레벨에서 제한)
     from werkzeug.serving import WSGIRequestHandler
 
