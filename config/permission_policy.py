@@ -113,6 +113,31 @@ PERMISSION_POLICY = {
         "allowed_roles": {"DEVELOPER"},
         "description": "사용자 권한 변경 (POST /api/v1/admin/users/{user_id}/roles)",
     },
+    # ===== 예약 관련 권한 =====
+    "reservations.create": {
+        "allowed_roles": {"CLUB_MEMBER", "CLUB_OFFICER", "CLUB_PRESIDENT", "DEVELOPER"},
+        "description": "대관 신청 (POST /api/v1/reservations)",
+    },
+    "reservations.list": {
+        "allowed_roles": {"CLUB_MEMBER", "CLUB_OFFICER", "CLUB_PRESIDENT", "DEVELOPER"},
+        "description": "예약 목록 조회 (GET /api/v1/reservations)",
+    },
+    "reservations.detail": {
+        "allowed_roles": {"CLUB_MEMBER", "CLUB_OFFICER", "CLUB_PRESIDENT", "DEVELOPER"},
+        "description": "예약 상세 조회 (GET /api/v1/reservations/{id})",
+    },
+    "reservations.cancel": {
+        "allowed_roles": {"CLUB_MEMBER", "CLUB_OFFICER", "CLUB_PRESIDENT", "DEVELOPER"},
+        "description": "예약 취소 (DELETE /api/v1/reservations/{id})",
+    },
+    "rooms.availability": {
+        "allowed_roles": {"STUDENT", "CLUB_MEMBER", "CLUB_OFFICER", "CLUB_PRESIDENT", "DEVELOPER"},
+        "description": "공간 가용시간 조회 (GET /api/v1/rooms/{id}/availability)",
+    },
+    "clubs.remaining_usage": {
+        "allowed_roles": {"CLUB_MEMBER", "CLUB_OFFICER", "CLUB_PRESIDENT", "DEVELOPER"},
+        "description": "동아리 사용 가능 시간 조회 (GET /api/v1/clubs/{id}/remaining-usage)",
+    },
 }
 
 
