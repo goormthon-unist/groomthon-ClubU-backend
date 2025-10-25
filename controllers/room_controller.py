@@ -59,5 +59,3 @@ class RoomAvailabilityController(Resource):
                 "status": "error",
                 "message": f"가용시간 조회 중 오류가 발생했습니다: {str(e)}",
             }, 500
-
-

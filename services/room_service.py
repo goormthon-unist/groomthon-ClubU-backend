@@ -104,4 +104,3 @@ class RoomService:
             "available_slots": available_slots,
             "booked_slots": booked_slots,
         }
-
