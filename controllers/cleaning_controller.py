@@ -188,6 +188,11 @@ class AdminCleaningSubmissionController(Resource):
         try:
             data = request.get_json() or {}
 
+            # 디버깅 로그
+            print(f"DEBUG: request.path = {request.path}")
+            print(f"DEBUG: request.method = {request.method}")
+            print(f"DEBUG: data = {data}")
+
             # URL 경로에서 action 확인
             current_path = request.path
             if "/approve" in current_path:
@@ -203,6 +208,7 @@ class AdminCleaningSubmissionController(Resource):
                         "message": "action은 'approve' 또는 'reject'여야 합니다.",
                     }, 400
 
+            print(f"DEBUG: action = {action}")
             admin_note = data.get("admin_note")
 
             result = CleaningService.approve_cleaning_submission(
