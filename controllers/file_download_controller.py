@@ -11,14 +11,7 @@ class FileDownloadController(Resource):
     def get(self, asset_id):
         """파일 다운로드"""
         try:
-            # 세션 인증 확인
-            session_data = get_current_session()
-            if not session_data:
-                return {
-                    "status": "error",
-                    "message": "로그인이 필요합니다",
-                    "code": "401-01",
-                }, 401
+            # 공지사항 첨부파일은 누구나 다운로드 가능 (인증 제거)
 
             # 첨부파일 정보 조회
             asset = get_notice_asset_by_id(asset_id)
@@ -29,12 +22,25 @@ class FileDownloadController(Resource):
                     "code": "404-01",
                 }, 404
 
-            # 파일 경로 확인
-            file_path = asset.get("file_path")
-            if not file_path or not os.path.exists(file_path):
+            # 파일 경로 확인 (절대 경로로 변환)
+            relative_path = asset.get("file_path")
+            if not relative_path:
                 return {
                     "status": "error",
-                    "message": "파일이 존재하지 않습니다",
+                    "message": "파일 경로를 찾을 수 없습니다",
+                    "code": "404-02",
+                }, 404
+
+            # 절대 경로로 변환
+            from flask import current_app
+
+            notices_dir = current_app.config.get("NOTICES_DIR", "notices")
+            file_path = os.path.join(notices_dir, relative_path)
+
+            if not os.path.exists(file_path):
+                return {
+                    "status": "error",
+                    "message": f"파일이 존재하지 않습니다: {file_path}",
                     "code": "404-02",
                 }, 404
 

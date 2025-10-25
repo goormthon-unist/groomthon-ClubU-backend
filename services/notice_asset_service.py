@@ -75,12 +75,17 @@ def get_notice_asset_by_id(asset_id):
         if not asset:
             return None
 
+        # URL 경로를 실제 파일 시스템 경로로 변환
+        file_path = asset.file_url.lstrip(
+            "/"
+        )  # /notices/16/files/... -> notices/16/files/...
+
         return {
             "id": asset.id,
             "notice_id": asset.notices_id,
             "asset_type": asset.asset_type,
             "file_url": asset.file_url,
-            "file_path": asset.file_url,  # 다운로드용 파일 경로
+            "file_path": file_path,  # 실제 파일 시스템 경로
             "original_filename": asset.original_filename,
             "created_at": asset.created_at.isoformat(),
         }

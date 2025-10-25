@@ -88,10 +88,7 @@ def create_app():
         clubs_dir = app.config.get("CLUBS_DIR", "clubs")
         return send_from_directory(clubs_dir, filename)
 
-    @app.route("/notices/<path:filename>")
-    def serve_notice_asset(filename):
-        notices_dir = app.config.get("NOTICES_DIR", "notices")
-        return send_from_directory(notices_dir, filename)
+    # 공지사항 첨부파일은 다운로드 API로 통일 (정적 파일 서빙 제거)
 
     # 413 오류 핸들러 추가
     @app.errorhandler(413)
