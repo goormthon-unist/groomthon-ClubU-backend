@@ -189,9 +189,10 @@ class AdminCleaningSubmissionController(Resource):
             data = request.get_json() or {}
 
             # URL 경로에서 action 확인
-            if request.endpoint and "approve" in request.endpoint:
+            current_path = request.path
+            if "/approve" in current_path:
                 action = "approve"
-            elif request.endpoint and "reject" in request.endpoint:
+            elif "/reject" in current_path:
                 action = "reject"
             else:
                 # 기존 방식: JSON body에서 action 가져오기
