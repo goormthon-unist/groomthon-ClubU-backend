@@ -7,7 +7,7 @@ from utils.permission_decorator import require_permission
 cleaning_ns = Namespace("", description="청소 사진 관리 API")
 
 
-@cleaning_ns.route("/reservations/<int:reservation_id>/occurrences/<int:occurrence_id>")
+@cleaning_ns.route("/reservations/<int:reservation_id>")
 class UsageDetailController(Resource):
     @cleaning_ns.doc("get_usage_detail")
     @cleaning_ns.response(200, "성공")
@@ -15,7 +15,7 @@ class UsageDetailController(Resource):
     @cleaning_ns.response(403, "권한 없음")
     @cleaning_ns.response(500, "서버 오류")
     @require_permission("cleaning.usage_detail")
-    def get(self, reservation_id, occurrence_id):
+    def get(self, reservation_id):
         """사용 완료 후 상세 조회"""
         try:
             # 보안 검증: 세션에서 사용자 정보 가져오기
@@ -28,9 +28,7 @@ class UsageDetailController(Resource):
 
             user_id = session_info["user"]["user_id"]
 
-            usage_detail = CleaningService.get_usage_detail(
-                reservation_id, occurrence_id, user_id
-            )
+            usage_detail = CleaningService.get_usage_detail(reservation_id, user_id)
             return usage_detail, 200
         except ValueError as e:
             return {"status": "error", "message": str(e)}, 404
@@ -41,12 +39,8 @@ class UsageDetailController(Resource):
             }, 500
 
 
-@cleaning_ns.route(
-    "/reservations/<int:reservation_id>/occurrences/<int:occurrence_id>/cleaning/photos"
-)
-@cleaning_ns.route(
-    "/reservations/<int:reservation_id>/occurrences/<int:occurrence_id>/cleaning/photos/<int:photo_id>"
-)
+@cleaning_ns.route("/reservations/<int:reservation_id>/cleaning/photos")
+@cleaning_ns.route("/reservations/<int:reservation_id>/cleaning/photos/<int:photo_id>")
 class CleaningPhotoController(Resource):
     @cleaning_ns.doc("upload_cleaning_photo")
     @cleaning_ns.response(201, "청소 사진 업로드 성공")
@@ -54,7 +48,7 @@ class CleaningPhotoController(Resource):
     @cleaning_ns.response(403, "권한 없음")
     @cleaning_ns.response(500, "서버 오류")
     @require_permission("cleaning.photo_upload")
-    def post(self, reservation_id, occurrence_id):
+    def post(self, reservation_id):
         """청소 사진 업로드"""
         try:
             # 보안 검증: 세션에서 사용자 정보 가져오기
@@ -95,7 +89,7 @@ class CleaningPhotoController(Resource):
                 }, 400
 
             photo = CleaningService.upload_cleaning_photo(
-                reservation_id, occurrence_id, file, note, user_id
+                reservation_id, file, note, user_id
             )
             return photo, 201
         except ValueError as e:
@@ -112,7 +106,7 @@ class CleaningPhotoController(Resource):
     @cleaning_ns.response(403, "권한 없음")
     @cleaning_ns.response(500, "서버 오류")
     @require_permission("cleaning.photo_delete")
-    def delete(self, reservation_id, occurrence_id, photo_id=None):
+    def delete(self, reservation_id, photo_id=None):
         """청소 사진 삭제"""
         try:
             # 보안 검증: 세션에서 사용자 정보 가져오기
@@ -135,7 +129,7 @@ class CleaningPhotoController(Resource):
                     }, 400
 
             result = CleaningService.delete_cleaning_photo(
-                reservation_id, occurrence_id, photo_id, user_id
+                reservation_id, photo_id, user_id
             )
             return result, 200
         except ValueError as e:
@@ -147,26 +141,20 @@ class CleaningPhotoController(Resource):
             }, 500
 
 
-@cleaning_ns.route(
-    "/admin/cleaning-submissions/<int:reservation_id>/occurrences/<int:occurrence_id>"
-)
-@cleaning_ns.route(
-    "/admin/cleaning-submissions/<int:reservation_id>/occurrences/<int:occurrence_id>/approve"
-)
-@cleaning_ns.route(
-    "/admin/cleaning-submissions/<int:reservation_id>/occurrences/<int:occurrence_id>/reject"
-)
+@cleaning_ns.route("/admin/cleaning-submissions/<int:reservation_id>")
+@cleaning_ns.route("/admin/cleaning-submissions/<int:reservation_id>/approve")
+@cleaning_ns.route("/admin/cleaning-submissions/<int:reservation_id>/reject")
 class AdminCleaningSubmissionController(Resource):
     @cleaning_ns.doc("get_cleaning_submission_detail")
     @cleaning_ns.response(200, "성공")
     @cleaning_ns.response(404, "예약을 찾을 수 없음")
     @cleaning_ns.response(500, "서버 오류")
     @require_permission("admin.cleaning_submissions")
-    def get(self, reservation_id, occurrence_id):
+    def get(self, reservation_id):
         """청소 사진 제출 상세 조회 (관리자용)"""
         try:
             submission_detail = CleaningService.get_cleaning_submission_detail(
-                reservation_id, occurrence_id
+                reservation_id
             )
             return submission_detail, 200
         except ValueError as e:
@@ -183,7 +171,7 @@ class AdminCleaningSubmissionController(Resource):
     @cleaning_ns.response(404, "예약을 찾을 수 없음")
     @cleaning_ns.response(500, "서버 오류")
     @require_permission("admin.cleaning_submissions")
-    def post(self, reservation_id, occurrence_id):
+    def post(self, reservation_id):
         """청소 사진 제출 승인/반려"""
         try:
             # URL 경로에서 action 확인
@@ -213,7 +201,7 @@ class AdminCleaningSubmissionController(Resource):
                 admin_note = None
 
             result = CleaningService.approve_cleaning_submission(
-                reservation_id, occurrence_id, action, admin_note
+                reservation_id, action, admin_note
             )
             return result, 200
         except ValueError as e:

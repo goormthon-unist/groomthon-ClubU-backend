@@ -9,7 +9,7 @@ from werkzeug.utils import secure_filename
 
 class CleaningService:
     @staticmethod
-    def get_usage_detail(reservation_id: int, occurrence_id: int, user_id: int) -> Dict:
+    def get_usage_detail(reservation_id: int, user_id: int) -> Dict:
         """사용 완료 후 상세 조회"""
         # 예약이 존재하는지 확인
         reservation = Reservation.query.get(reservation_id)
@@ -71,7 +71,6 @@ class CleaningService:
                 "note": reservation.note,
                 "admin_note": reservation.admin_note,
             },
-            "occurrence_id": occurrence_id,
             "cleaning_photos": cleaning_photos,
             "submission_status": "PENDING" if cleaning_photos else "NOT_SUBMITTED",
             "submitted_at": (
@@ -82,7 +81,6 @@ class CleaningService:
     @staticmethod
     def upload_cleaning_photo(
         reservation_id: int,
-        occurrence_id: int,
         file,
         note: Optional[str] = None,
         user_id: int = None,
@@ -147,9 +145,7 @@ class CleaningService:
         }
 
     @staticmethod
-    def delete_cleaning_photo(
-        reservation_id: int, occurrence_id: int, photo_id: int, user_id: int
-    ) -> Dict:
+    def delete_cleaning_photo(reservation_id: int, photo_id: int, user_id: int) -> Dict:
         """청소 사진 삭제"""
         # 청소 사진이 존재하는지 확인
         cleaning_photo = CleaningPhoto.query.get(photo_id)
@@ -217,7 +213,7 @@ class CleaningService:
         }
 
     @staticmethod
-    def get_cleaning_submission_detail(reservation_id: int, occurrence_id: int) -> Dict:
+    def get_cleaning_submission_detail(reservation_id: int) -> Dict:
         """청소 사진 제출 상세 조회 (관리자용)"""
         # 예약이 존재하는지 확인
         reservation = Reservation.query.get(reservation_id)
@@ -264,7 +260,6 @@ class CleaningService:
                 "note": reservation.note,
                 "admin_note": reservation.admin_note,
             },
-            "occurrence_id": occurrence_id,
             "cleaning_photos": cleaning_photos,
             "submission_status": "PENDING" if cleaning_photos else "NOT_SUBMITTED",
             "submitted_at": (
@@ -275,7 +270,6 @@ class CleaningService:
     @staticmethod
     def approve_cleaning_submission(
         reservation_id: int,
-        occurrence_id: int,
         action: str,
         admin_note: Optional[str] = None,
     ) -> Dict:
@@ -308,7 +302,6 @@ class CleaningService:
 
         return {
             "reservation_id": reservation_id,
-            "occurrence_id": occurrence_id,
             "action": action,
             "status": reservation.status,
             "admin_note": admin_note,

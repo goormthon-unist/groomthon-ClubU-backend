@@ -147,15 +147,15 @@ PERMISSION_POLICY = {
     # ===== 청소 사진 관련 권한 =====
     "cleaning.usage_detail": {
         "allowed_roles": {"CLUB_MEMBER", "CLUB_OFFICER", "CLUB_PRESIDENT", "DEVELOPER"},
-        "description": "사용 완료 후 상세 조회 (GET /api/v1/cleaning/reservations/{id}/occurrences/{id})",
+        "description": "사용 완료 후 상세 조회 (GET /api/v1/reservations/{id})",
     },
     "cleaning.photo_upload": {
         "allowed_roles": {"CLUB_MEMBER", "CLUB_OFFICER", "CLUB_PRESIDENT", "DEVELOPER"},
-        "description": "청소 사진 업로드 (POST /api/v1/cleaning/reservations/{id}/occurrences/{id}/cleaning/photos)",
+        "description": "청소 사진 업로드 (POST /api/v1/reservations/{id}/cleaning/photos)",
     },
     "cleaning.photo_delete": {
         "allowed_roles": {"CLUB_MEMBER", "CLUB_OFFICER", "CLUB_PRESIDENT", "DEVELOPER"},
-        "description": "청소 사진 삭제 (DELETE /api/v1/cleaning/reservations/{id}/occurrences/{id}/cleaning/photos)",
+        "description": "청소 사진 삭제 (DELETE /api/v1/reservations/{id}/cleaning/photos/{photo_id})",
     },
     "admin.cleaning_submissions": {
         "allowed_roles": {"CLUB_PRESIDENT", "UNION_ADMIN", "DEVELOPER"},
