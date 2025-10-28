@@ -381,14 +381,18 @@ class ReservationService:
                     date_from_obj = datetime.strptime(date_from, "%Y-%m-%d").date()
                     query = query.filter(Reservation.date >= date_from_obj)
                 except ValueError:
-                    raise ValueError("date_from 형식이 올바르지 않습니다. YYYY-MM-DD 형식을 사용하세요.")
+                    raise ValueError(
+                        "date_from 형식이 올바르지 않습니다. YYYY-MM-DD 형식을 사용하세요."
+                    )
 
             if date_to:
                 try:
                     date_to_obj = datetime.strptime(date_to, "%Y-%m-%d").date()
                     query = query.filter(Reservation.date <= date_to_obj)
                 except ValueError:
-                    raise ValueError("date_to 형식이 올바르지 않습니다. YYYY-MM-DD 형식을 사용하세요.")
+                    raise ValueError(
+                        "date_to 형식이 올바르지 않습니다. YYYY-MM-DD 형식을 사용하세요."
+                    )
 
             # 최신순으로 정렬
             reservations = query.order_by(
@@ -400,11 +404,15 @@ class ReservationService:
                     "id": reservation.id,
                     "club": {
                         "id": reservation.club.id if reservation.club else None,
-                        "name": reservation.club.name if reservation.club else "알 수 없음",
+                        "name": (
+                            reservation.club.name if reservation.club else "알 수 없음"
+                        ),
                     },
                     "user": {
                         "id": reservation.user.id if reservation.user else None,
-                        "name": reservation.user.name if reservation.user else "알 수 없음",
+                        "name": (
+                            reservation.user.name if reservation.user else "알 수 없음"
+                        ),
                         "email": reservation.user.email if reservation.user else None,
                         "phone_number": (
                             reservation.user.phone_number if reservation.user else None
@@ -415,8 +423,12 @@ class ReservationService:
                     },
                     "room": {
                         "id": reservation.room.id if reservation.room else None,
-                        "name": reservation.room.name if reservation.room else "알 수 없음",
-                        "location": reservation.room.location if reservation.room else None,
+                        "name": (
+                            reservation.room.name if reservation.room else "알 수 없음"
+                        ),
+                        "location": (
+                            reservation.room.location if reservation.room else None
+                        ),
                     },
                     "date": reservation.date.strftime("%Y-%m-%d"),
                     "start_time": reservation.start_time.strftime("%H:%M"),

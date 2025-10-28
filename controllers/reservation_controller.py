@@ -284,7 +284,7 @@ class IntegrationReservationController(Resource):
                 status_filter=status_filter,
                 club_id=club_id,
                 date_from=date_from,
-                date_to=date_to
+                date_to=date_to,
             )
 
             return reservations, 200
