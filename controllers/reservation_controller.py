@@ -232,3 +232,64 @@ class ReservationDetailController(Resource):
                 "status": "error",
                 "message": f"예약 취소 중 오류가 발생했습니다: {str(e)}",
             }, 500
+
+
+@reservation_ns.route("/integration")
+class IntegrationReservationController(Resource):
+    @reservation_ns.doc("get_all_reservations_integration")
+    @reservation_ns.param(
+        "status",
+        "예약 상태 필터 (CONFIRMED: 확정, CLEANING_REQUIRED: 청소 필요, CLEANING_DONE: 청소 완료, CANCELLED: 취소)",
+        type=str,
+    )
+    @reservation_ns.param(
+        "club_id",
+        "동아리 ID 필터",
+        type=int,
+    )
+    @reservation_ns.param(
+        "date_from",
+        "시작 날짜 필터 (YYYY-MM-DD)",
+        type=str,
+    )
+    @reservation_ns.param(
+        "date_to",
+        "종료 날짜 필터 (YYYY-MM-DD)",
+        type=str,
+    )
+    @reservation_ns.response(200, "성공")
+    @reservation_ns.response(401, "로그인 필요")
+    @reservation_ns.response(500, "서버 오류")
+    def get(self):
+        """통합 예약 목록 조회 (모든 동아리)"""
+        try:
+            # 보안 검증: 세션에서 사용자 정보 가져오기
+            session_info = get_session_info()
+            if not session_info:
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다.",
+                }, 401
+
+            # 쿼리 파라미터 가져오기
+            status_filter = request.args.get("status")
+            club_id = request.args.get("club_id", type=int)
+            date_from = request.args.get("date_from")
+            date_to = request.args.get("date_to")
+
+            if status_filter:
+                status_filter = [s.strip() for s in status_filter.split(",")]
+
+            reservations = ReservationService.get_all_reservations_integration(
+                status_filter=status_filter,
+                club_id=club_id,
+                date_from=date_from,
+                date_to=date_to
+            )
+
+            return reservations, 200
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"예약 목록 조회 중 오류가 발생했습니다: {str(e)}",
+            }, 500

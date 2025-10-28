@@ -355,3 +355,80 @@ class ReservationService:
             "cancelled_at": datetime.utcnow().isoformat(),
             "message": "예약이 성공적으로 취소되었습니다.",
         }
+
+    @staticmethod
+    def get_all_reservations_integration(
+        status_filter: Optional[List[str]] = None,
+        club_id: Optional[int] = None,
+        date_from: Optional[str] = None,
+        date_to: Optional[str] = None,
+    ) -> List[Dict]:
+        """통합 예약 목록 조회 (모든 동아리)"""
+        try:
+            query = Reservation.query
+
+            # 상태 필터 적용
+            if status_filter:
+                query = query.filter(Reservation.status.in_(status_filter))
+
+            # 동아리 ID 필터 적용
+            if club_id:
+                query = query.filter(Reservation.club_id == club_id)
+
+            # 날짜 범위 필터 적용
+            if date_from:
+                try:
+                    date_from_obj = datetime.strptime(date_from, "%Y-%m-%d").date()
+                    query = query.filter(Reservation.date >= date_from_obj)
+                except ValueError:
+                    raise ValueError("date_from 형식이 올바르지 않습니다. YYYY-MM-DD 형식을 사용하세요.")
+
+            if date_to:
+                try:
+                    date_to_obj = datetime.strptime(date_to, "%Y-%m-%d").date()
+                    query = query.filter(Reservation.date <= date_to_obj)
+                except ValueError:
+                    raise ValueError("date_to 형식이 올바르지 않습니다. YYYY-MM-DD 형식을 사용하세요.")
+
+            # 최신순으로 정렬
+            reservations = query.order_by(
+                Reservation.date.desc(), Reservation.start_time.desc()
+            ).all()
+
+            return [
+                {
+                    "id": reservation.id,
+                    "club": {
+                        "id": reservation.club.id if reservation.club else None,
+                        "name": reservation.club.name if reservation.club else "알 수 없음",
+                    },
+                    "user": {
+                        "id": reservation.user.id if reservation.user else None,
+                        "name": reservation.user.name if reservation.user else "알 수 없음",
+                        "email": reservation.user.email if reservation.user else None,
+                        "phone_number": (
+                            reservation.user.phone_number if reservation.user else None
+                        ),
+                        "student_id": (
+                            reservation.user.student_id if reservation.user else None
+                        ),
+                    },
+                    "room": {
+                        "id": reservation.room.id if reservation.room else None,
+                        "name": reservation.room.name if reservation.room else "알 수 없음",
+                        "location": reservation.room.location if reservation.room else None,
+                    },
+                    "date": reservation.date.strftime("%Y-%m-%d"),
+                    "start_time": reservation.start_time.strftime("%H:%M"),
+                    "end_time": reservation.end_time.strftime("%H:%M"),
+                    "status": reservation.status,
+                    "note": reservation.note,
+                    "admin_note": reservation.admin_note,
+                    "created_at": reservation.created_at.isoformat(),
+                    "updated_at": reservation.updated_at.isoformat(),
+                }
+                for reservation in reservations
+            ]
+
+        except Exception as e:
+            raise Exception(f"통합 예약 목록 조회 중 오류가 발생했습니다: {str(e)}")
