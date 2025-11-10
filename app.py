@@ -62,7 +62,7 @@ def create_app():
 
     CORS(
         app,
-        resources={r"/api/*": {"origins": allowed_origins}},
+        resources={r"/*": {"origins": allowed_origins}},
         supports_credentials=True,
         allow_headers=[
             "Content-Type",
@@ -70,10 +70,29 @@ def create_app():
             "X-Requested-With",
             "Accept",
             "Origin",
+            "Access-Control-Request-Method",
+            "Access-Control-Request-Headers",
         ],
         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-        expose_headers=["Set-Cookie"],
+        expose_headers=["Set-Cookie", "Content-Type"],
+        max_age=3600,
     )
+
+    # OPTIONS 요청 명시적 처리 (preflight 요청)
+    @app.before_request
+    def handle_preflight():
+        from flask import request, make_response
+        if request.method == "OPTIONS":
+            origin = request.headers.get("Origin")
+            # 허용된 Origin인지 확인
+            if origin in allowed_origins:
+                response = make_response()
+                response.headers.add("Access-Control-Allow-Origin", origin)
+                response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept, Origin")
+                response.headers.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
+                response.headers.add("Access-Control-Allow-Credentials", "true")
+                response.headers.add("Access-Control-Max-Age", "3600")
+                return response
 
     # DB & Migrate 초기화
     db.init_app(app)

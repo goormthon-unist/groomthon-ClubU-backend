@@ -31,6 +31,10 @@ def require_permission(permission_key: str, club_id_param: str = None):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
+            # OPTIONS 요청 (CORS preflight)은 권한 검사 건너뛰기
+            if request.method == "OPTIONS":
+                return f(*args, **kwargs)
+
             # 동아리 컨텍스트 추출
             club_id = None
             if club_id_param and club_id_param in kwargs:
@@ -89,6 +93,10 @@ def require_any_permission(*permission_keys: str):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
+            # OPTIONS 요청 (CORS preflight)은 권한 검사 건너뛰기
+            if request.method == "OPTIONS":
+                return f(*args, **kwargs)
+
             # 모든 권한 검사
             results = []
             for permission_key in permission_keys:
@@ -138,6 +146,10 @@ def require_all_permissions(*permission_keys: str):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
+            # OPTIONS 요청 (CORS preflight)은 권한 검사 건너뛰기
+            if request.method == "OPTIONS":
+                return f(*args, **kwargs)
+
             # 모든 권한 검사
             results = []
             for permission_key in permission_keys:
