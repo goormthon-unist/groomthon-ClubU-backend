@@ -103,5 +103,5 @@ echo "이미지 정리..."
 sudo docker image prune -f
 
 echo "=== 배포 완료! ==="
-echo "API: http://52.78.5.150:5000"
+echo "API: http://13.124.12.61:5000"
 echo "도메인: https://api.clubu.co.kr"
