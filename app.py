@@ -82,14 +82,21 @@ def create_app():
     @app.before_request
     def handle_preflight():
         from flask import request, make_response
+
         if request.method == "OPTIONS":
             origin = request.headers.get("Origin")
             # 허용된 Origin인지 확인
             if origin in allowed_origins:
                 response = make_response()
                 response.headers.add("Access-Control-Allow-Origin", origin)
-                response.headers.add("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Accept, Origin")
-                response.headers.add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
+                response.headers.add(
+                    "Access-Control-Allow-Headers",
+                    "Content-Type, Authorization, X-Requested-With, Accept, Origin",
+                )
+                response.headers.add(
+                    "Access-Control-Allow-Methods",
+                    "GET, POST, PUT, DELETE, OPTIONS, PATCH",
+                )
                 response.headers.add("Access-Control-Allow-Credentials", "true")
                 response.headers.add("Access-Control-Max-Age", "3600")
                 return response
