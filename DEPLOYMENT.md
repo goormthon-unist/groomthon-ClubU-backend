@@ -7,7 +7,7 @@
 GitHub 리포지토리의 Settings > Secrets and variables > Actions에서 다음 secrets를 추가하세요:
 
 ```
-EC2_HOST=3.39.193.78
+EC2_HOST=52.78.5.150
 EC2_USERNAME=ubuntu
 EC2_SSH_KEY=<EC2 인스턴스의 private key 내용>
 ```
@@ -84,7 +84,7 @@ chmod +x deploy.sh
 
 배포 후 다음 엔드포인트로 서비스 상태를 확인할 수 있습니다:
 
-- **로컬**: http://3.39.193.78:5000/health
+- **로컬**: http://52.78.5.150:5000/health
 - **도메인**: https://api.clubu.co.kr/health
 
 ## 📋 API 엔드포인트
