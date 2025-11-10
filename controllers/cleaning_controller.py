@@ -1,10 +1,28 @@
 from flask import request
-from flask_restx import Resource, Namespace
+from flask_restx import Resource, Namespace, reqparse
+from werkzeug.datastructures import FileStorage
 from services.cleaning_service import CleaningService
 from services.session_service import get_session_info
 from utils.permission_decorator import require_permission
 
 cleaning_ns = Namespace("", description="청소 사진 관리 API")
+
+# RequestParser 정의 (청소 사진 업로드용)
+cleaning_photo_parser = reqparse.RequestParser()
+cleaning_photo_parser.add_argument(
+    "file",
+    type=FileStorage,
+    location="files",
+    required=True,
+    help="청소 사진 파일",
+)
+cleaning_photo_parser.add_argument(
+    "note",
+    type=str,
+    location="form",
+    required=False,
+    help="청소 사진 메모 (선택사항)",
+)
 
 
 @cleaning_ns.route("/reservations/<int:reservation_id>")
@@ -42,14 +60,21 @@ class UsageDetailController(Resource):
 @cleaning_ns.route("/reservations/<int:reservation_id>/cleaning/photos")
 @cleaning_ns.route("/reservations/<int:reservation_id>/cleaning/photos/<int:photo_id>")
 class CleaningPhotoController(Resource):
-    @cleaning_ns.doc("upload_cleaning_photo")
+    @cleaning_ns.expect(cleaning_photo_parser)
+    @cleaning_ns.doc("upload_cleaning_photo", consumes=["multipart/form-data"])
     @cleaning_ns.response(201, "청소 사진 업로드 성공")
     @cleaning_ns.response(400, "잘못된 요청")
+    @cleaning_ns.response(401, "로그인이 필요합니다")
     @cleaning_ns.response(403, "권한 없음")
     @cleaning_ns.response(500, "서버 오류")
     @require_permission("cleaning.photo_upload")
     def post(self, reservation_id):
-        """청소 사진 업로드"""
+        """청소 사진 업로드
+
+        multipart/form-data로 요청:
+        - file: 청소 사진 파일 (필수)
+        - note: 청소 사진 메모 (선택사항)
+        """
         try:
             # 보안 검증: 세션에서 사용자 정보 가져오기
             session_info = get_session_info()
