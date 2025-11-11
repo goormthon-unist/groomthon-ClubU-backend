@@ -2,9 +2,9 @@ from datetime import datetime
 from typing import List, Dict, Optional
 from sqlalchemy import and_
 from models import db, Reservation, CleaningPhoto, ClubMember
+from utils.image_utils import save_cleaning_photo, delete_cleaning_photo
 import os
-import uuid
-from werkzeug.utils import secure_filename
+from flask import current_app
 
 
 class CleaningService:
@@ -106,23 +106,10 @@ class CleaningService:
         if not is_authorized:
             raise ValueError("청소 사진을 업로드할 권한이 없습니다.")
 
-        # 파일 저장
+        # 파일 저장 및 최적화 (WebP로 변환)
         if file and file.filename:
-            # 파일명 보안 처리
-            filename = secure_filename(file.filename)
-            # 고유한 파일명 생성
-            unique_filename = f"{uuid.uuid4()}_{filename}"
-
-            # 저장 경로 생성: reservations/{reservation_id}/
-            upload_folder = f"reservations/{reservation_id}"
-            os.makedirs(upload_folder, exist_ok=True)
-
-            # 파일 저장
-            file_path = os.path.join(upload_folder, unique_filename)
-            file.save(file_path)
-
-            # 파일 URL 생성 (reservations 폴더 기준)
-            file_url = f"/{upload_folder}/{unique_filename}"
+            image_info = save_cleaning_photo(file, reservation_id)
+            file_url = image_info["file_path"]
         else:
             raise ValueError("파일이 제공되지 않았습니다.")
 
@@ -185,22 +172,10 @@ class CleaningService:
                 # 기존 방식 (호환성)
                 full_path = os.path.join(current_app.root_path, file_path)
 
-            print(f"파일 삭제 시도: {full_path}")
-
-            if os.path.exists(full_path):
-                os.remove(full_path)
-                print(f"파일 삭제 완료: {full_path}")
-            else:
-                print(f"파일을 찾을 수 없음: {full_path}")
-                # 대안 경로 시도
-                alt_path = os.path.join(current_app.root_path, file_path)
-                if os.path.exists(alt_path):
-                    os.remove(alt_path)
-                    print(f"대안 경로에서 파일 삭제 완료: {alt_path}")
-                else:
-                    print(f"대안 경로에서도 파일을 찾을 수 없음: {alt_path}")
+            current_app.logger.info(f"파일 삭제 시도: {full_path}")
+            delete_cleaning_photo(full_path)
         except Exception as e:
-            print(f"파일 삭제 실패: {e}")
+            current_app.logger.error(f"파일 삭제 실패: {e}")
             # 파일 삭제 실패해도 DB에서만 삭제
 
         # 청소 사진 삭제

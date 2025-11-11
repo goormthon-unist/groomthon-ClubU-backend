@@ -405,3 +405,96 @@ def delete_notice_asset(file_path):
     except Exception as e:
         print(f"첨부파일 삭제 중 오류 발생: {e}")
         return False
+
+
+def create_reservation_directories(reservation_id):
+    """청소 사진 저장을 위한 디렉토리 생성"""
+    from flask import current_app
+
+    base_dir = current_app.config.get("RESERVATIONS_DIR", "reservations")
+    reservation_dir = os.path.join(base_dir, str(reservation_id))
+
+    os.makedirs(reservation_dir, exist_ok=True)
+
+    return reservation_dir
+
+
+def save_cleaning_photo(file, reservation_id):
+    """청소 사진 저장 및 최적화"""
+    try:
+        from flask import current_app
+
+        current_app.logger.info(
+            f"Saving cleaning photo: {file.filename} for reservation_id: {reservation_id}"
+        )
+
+        # 파일명 보안 처리
+        original_filename = file.filename
+
+        # 한글 파일명 처리를 위해 확장자를 먼저 추출
+        if "." in original_filename:
+            file_ext = original_filename.rsplit(".", 1)[1].lower()
+        else:
+            file_ext = ""
+
+        # 파일 확장자 확인
+        allowed_extensions = {"png", "jpg", "jpeg", "gif", "bmp"}
+        if file_ext not in allowed_extensions:
+            raise ValueError(
+                f"지원하지 않는 이미지 형식입니다. 허용된 형식: {', '.join(allowed_extensions)}. 업로드한 파일: {original_filename} (확장자: '{file_ext}')"
+            )
+
+        # 고유한 파일명 생성 (WebP로 저장)
+        optimized_filename = f"{uuid.uuid4()}.webp"
+
+        # 디렉토리 생성
+        reservation_dir = create_reservation_directories(reservation_id)
+        current_app.logger.info(f"Created directory: {reservation_dir}")
+
+        # 최적화된 파일 저장 경로
+        optimized_path = os.path.join(reservation_dir, optimized_filename)
+
+        # 임시 원본 파일 저장
+        temp_path = os.path.join(reservation_dir, f"temp_{uuid.uuid4()}.{file_ext}")
+        file.save(temp_path)
+        current_app.logger.info(f"Saved temp file: {temp_path}")
+
+        # 이미지 최적화
+        if optimize_image(temp_path, optimized_path):
+            # 임시 파일 삭제
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+
+            current_app.logger.info(
+                f"Cleaning photo saved successfully: {optimized_path}"
+            )
+            return {
+                "file_path": f"/{current_app.config.get('RESERVATIONS_DIR', 'reservations')}/{reservation_id}/{optimized_filename}",
+                "optimized_path": optimized_path,
+                "original_filename": original_filename,
+            }
+        else:
+            # 최적화 실패 시 임시 파일 삭제
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+            current_app.logger.error("Image optimization failed")
+            raise ValueError("이미지 최적화에 실패했습니다")
+
+    except Exception as e:
+        from flask import current_app
+
+        current_app.logger.exception(f"Cleaning photo save failed: {e}")
+        raise Exception(f"이미지 저장 중 오류 발생: {e}")
+
+
+def delete_cleaning_photo(file_path):
+    """청소 사진 파일 삭제"""
+    try:
+        if file_path and os.path.exists(file_path):
+            os.remove(file_path)
+            print(f"청소 사진 삭제: {file_path}")
+
+        return True
+    except Exception as e:
+        print(f"청소 사진 삭제 중 오류 발생: {e}")
+        return False
