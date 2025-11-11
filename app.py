@@ -118,6 +118,11 @@ def create_app():
         clubs_dir = app.config.get("CLUBS_DIR", "clubs")
         return send_from_directory(clubs_dir, filename)
 
+    @app.route("/reservations/<path:filename>")
+    def serve_reservation_file(filename):
+        reservations_dir = app.config.get("RESERVATIONS_DIR", "reservations")
+        return send_from_directory(reservations_dir, filename)
+
     # 공지사항 첨부파일은 다운로드 API로 통일 (정적 파일 서빙 제거)
 
     # 413 오류 핸들러 추가
