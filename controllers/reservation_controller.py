@@ -105,7 +105,7 @@ class ReservationController(Resource):
     )
     @reservation_ns.param(
         "status",
-        "예약 상태 필터 (CONFIRMED: 확정, CLEANING_REQUIRED: 청소 필요, CLEANING_DONE: 청소 완료, CANCELLED: 취소)",
+        "예약 상태 필터 (CONFIRMED: 확정, CLEANING_PHOTO_REJECT: 청소 사진 거절, CLEANING_DONE: 청소 완료, CANCELLED: 취소)",
         type=str,
     )
     @reservation_ns.response(200, "성공")
@@ -239,7 +239,7 @@ class IntegrationReservationController(Resource):
     @reservation_ns.doc("get_all_reservations_integration")
     @reservation_ns.param(
         "status",
-        "예약 상태 필터 (CONFIRMED: 확정, CLEANING_REQUIRED: 청소 필요, CLEANING_DONE: 청소 완료, CANCELLED: 취소)",
+        "예약 상태 필터 (CONFIRMED: 확정, CLEANING_PHOTO_REJECT: 청소 사진 거절, CLEANING_DONE: 청소 완료, CANCELLED: 취소)",
         type=str,
     )
     @reservation_ns.param(

@@ -121,6 +121,10 @@ class CleaningService:
         )
 
         db.session.add(cleaning_photo)
+
+        # 청소 사진 제출 상태 업데이트
+        reservation.is_photo_submitted = True
+
         db.session.commit()
 
         return {
@@ -266,7 +270,8 @@ class CleaningService:
             reservation.status = "CLEANING_DONE"
             message = "청소 사진이 승인되었습니다."
         else:  # reject
-            reservation.status = "CLEANING_REQUIRED"
+            reservation.status = "CLEANING_PHOTO_REJECT"
+            # is_photo_submitted는 True로 유지 (재제출 없음)
             message = "청소 사진이 반려되었습니다."
 
         # admin_note 저장

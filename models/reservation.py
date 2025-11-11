@@ -14,10 +14,11 @@ class Reservation(db.Model):
     start_time = db.Column(db.Time, nullable=False)
     end_time = db.Column(db.Time, nullable=False)
     status = db.Column(
-        db.Enum("CONFIRMED", "CLEANING_REQUIRED", "CLEANING_DONE", "CANCELLED"),
+        db.Enum("CONFIRMED", "CLEANING_PHOTO_REJECT", "CLEANING_DONE", "CANCELLED"),
         nullable=False,
         default="CONFIRMED",
     )
+    is_photo_submitted = db.Column(db.Boolean, nullable=False, default=False)
     note = db.Column(db.Text, nullable=True)
     admin_note = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
