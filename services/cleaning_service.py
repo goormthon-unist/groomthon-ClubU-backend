@@ -261,9 +261,9 @@ class CleaningService:
         if not reservation:
             raise ValueError(f"ID {reservation_id}에 해당하는 예약을 찾을 수 없습니다.")
 
-        # 청소 사진이 있는지 확인
-        if not reservation.cleaning_photos:
-            raise ValueError("제출된 청소 사진이 없습니다.")
+        # 청소 사진이 제출되었는지 확인
+        if not reservation.is_photo_submitted:
+            raise ValueError("청소 사진이 제출되지 않았습니다.")
 
         # 예약 상태 및 관리자 메모 업데이트
         if action == "approve":
