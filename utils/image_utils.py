@@ -8,6 +8,9 @@ from flask import current_app
 def create_banner_directories(club_id):
     """배너 저장을 위한 디렉토리 생성"""
     base_dir = current_app.config.get("BANNERS_DIR", "banners")
+    # 절대 경로로 변환 (파일 서빙과 동일한 경로 사용)
+    if not os.path.isabs(base_dir):
+        base_dir = os.path.join(current_app.root_path, base_dir)
     optimized_dir = os.path.join(base_dir, str(club_id), "optimized")
 
     os.makedirs(optimized_dir, exist_ok=True)
@@ -122,6 +125,9 @@ def delete_banner_image(file_path):
 def create_club_directories(club_id):
     """동아리 이미지 저장을 위한 디렉토리 생성"""
     base_dir = current_app.config.get("CLUBS_DIR", "clubs")
+    # 절대 경로로 변환 (파일 서빙과 동일한 경로 사용)
+    if not os.path.isabs(base_dir):
+        base_dir = os.path.join(current_app.root_path, base_dir)
     club_dir = os.path.join(base_dir, str(club_id))
     images_dir = os.path.join(club_dir, "images")
     original_dir = os.path.join(club_dir, "original")
@@ -415,6 +421,9 @@ def create_reservation_directories(reservation_id):
     from flask import current_app
 
     base_dir = current_app.config.get("RESERVATIONS_DIR", "reservations")
+    # 절대 경로로 변환 (파일 서빙과 동일한 경로 사용)
+    if not os.path.isabs(base_dir):
+        base_dir = os.path.join(current_app.root_path, base_dir)
     reservation_dir = os.path.join(base_dir, str(reservation_id))
 
     os.makedirs(reservation_dir, exist_ok=True)
