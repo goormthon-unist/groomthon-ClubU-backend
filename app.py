@@ -111,21 +111,33 @@ def create_app():
     @app.route("/banners/<path:filename>")
     def serve_banner(filename):
         banners_dir = app.config.get("BANNERS_DIR", "banners")
+        # 절대 경로로 변환
+        if not os.path.isabs(banners_dir):
+            banners_dir = os.path.join(app.root_path, banners_dir)
         return send_from_directory(banners_dir, filename)
 
     @app.route("/clubs/<path:filename>")
     def serve_club_image(filename):
         clubs_dir = app.config.get("CLUBS_DIR", "clubs")
+        # 절대 경로로 변환
+        if not os.path.isabs(clubs_dir):
+            clubs_dir = os.path.join(app.root_path, clubs_dir)
         return send_from_directory(clubs_dir, filename)
 
     @app.route("/reservations/<path:filename>")
     def serve_reservation_file(filename):
         reservations_dir = app.config.get("RESERVATIONS_DIR", "reservations")
+        # 절대 경로로 변환
+        if not os.path.isabs(reservations_dir):
+            reservations_dir = os.path.join(app.root_path, reservations_dir)
         return send_from_directory(reservations_dir, filename)
 
     @app.route("/notices/<path:filename>")
     def serve_notice_file(filename):
         notices_dir = app.config.get("NOTICES_DIR", "notices")
+        # 절대 경로로 변환
+        if not os.path.isabs(notices_dir):
+            notices_dir = os.path.join(app.root_path, notices_dir)
         return send_from_directory(notices_dir, filename)
 
     # 413 오류 핸들러 추가
