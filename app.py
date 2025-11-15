@@ -134,10 +134,24 @@ def create_app():
 
     @app.route("/notices/<path:filename>")
     def serve_notice_file(filename):
+        from flask import current_app, abort
+
         notices_dir = app.config.get("NOTICES_DIR", "notices")
         # 절대 경로로 변환
         if not os.path.isabs(notices_dir):
             notices_dir = os.path.join(app.root_path, notices_dir)
+
+        # 파일 경로 구성
+        file_path = os.path.join(notices_dir, filename)
+
+        # 파일 존재 확인
+        if not os.path.exists(file_path) or not os.path.isfile(file_path):
+            current_app.logger.error(
+                f"File not found: {file_path} (notices_dir: {notices_dir}, filename: {filename})"
+            )
+            abort(404)
+
+        # 파일 서빙
         return send_from_directory(notices_dir, filename)
 
     # 413 오류 핸들러 추가

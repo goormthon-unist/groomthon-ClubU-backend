@@ -208,6 +208,9 @@ def create_notice_directories(notice_id):
     from flask import current_app
 
     base_dir = current_app.config.get("NOTICES_DIR", "notices")
+    # 절대 경로로 변환 (파일 서빙과 동일한 경로 사용)
+    if not os.path.isabs(base_dir):
+        base_dir = os.path.join(current_app.root_path, base_dir)
     notice_dir = os.path.join(base_dir, str(notice_id))
     images_dir = os.path.join(notice_dir, "images")
     files_dir = os.path.join(notice_dir, "files")
