@@ -435,6 +435,7 @@ class ReservationService:
                     "start_time": reservation.start_time.strftime("%H:%M"),
                     "end_time": reservation.end_time.strftime("%H:%M"),
                     "status": reservation.status,
+                    "is_photo_submitted": reservation.is_photo_submitted,
                     "note": reservation.note,
                     "admin_note": reservation.admin_note,
                     "created_at": reservation.created_at.isoformat(),
