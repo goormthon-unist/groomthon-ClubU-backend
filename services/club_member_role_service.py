@@ -66,6 +66,16 @@ def register_club_member_improved(
         ).first()
 
         if existing_membership:
+            # 기존 역할 확인
+            existing_role = Role.query.get(existing_membership.role_id)
+            existing_role_name = existing_role.role_name if existing_role else None
+
+            # 같은 역할로 재등록 시도 시 에러
+            if existing_role_name == role_name and role_name != "STUDENT":
+                raise ValueError(
+                    f"사용자 {user_name}({student_id})은(는) 이미 {club.name} 동아리의 {role_name}으로 등록되어 있습니다."
+                )
+
             if role_name == "STUDENT":
                 # STUDENT로 설정 시 해당 동아리에서 완전히 제거
                 # 전역 STUDENT 역할은 이미 존재하므로 별도 처리 불필요
@@ -73,7 +83,7 @@ def register_club_member_improved(
                 db.session.commit()
                 message = f"사용자 {user_name}({student_id})이(가) {club.name} 동아리에서 탈퇴되었습니다."
             else:
-                # 기존 멤버십 업데이트 (휴동중에서 복귀 등)
+                # 기존 멤버십 업데이트 (역할 변경, 휴동중에서 복귀 등)
                 existing_membership.role_id = role.id
                 if generation is not None:
                     existing_membership.generation = generation
@@ -83,10 +93,10 @@ def register_club_member_improved(
 
                 db.session.commit()
 
-                action = (
-                    "변경" if existing_membership.role_id != role.id else "업데이트"
-                )
-                message = f"사용자 {user_name}({student_id})의 동아리 역할이 '{role_name}'으로 {action}되었습니다."
+                if existing_role_name != role_name:
+                    message = f"사용자 {user_name}({student_id})의 동아리 역할이 '{existing_role_name}'에서 '{role_name}'으로 변경되었습니다."
+                else:
+                    message = f"사용자 {user_name}({student_id})의 동아리 정보가 업데이트되었습니다."
         else:
             if role_name == "STUDENT":
                 # STUDENT로 설정 시 이미 탈퇴 상태
