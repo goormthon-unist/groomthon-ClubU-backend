@@ -5,7 +5,7 @@ from controllers.home_controller import (
     ClubStatusController,
     ClubQuestionsController,
     ClubMembersController,
-    QuestionController,
+    # QuestionController,  # 주석처리 - deprecated
 )
 from controllers.application_check_submit_controller import (
     ClubApplicationQuestionsController,
@@ -15,17 +15,41 @@ from controllers.application_check_submit_controller import (
 home_ns = Namespace("clubs", description="동아리 관리 API")
 
 # Swagger 모델 정의
-club_question_create_model = home_ns.model(
-    "ClubQuestionCreate",
+# 기존 개별 API용 모델 (주석처리 - deprecated)
+# club_question_create_model = home_ns.model(
+#     "ClubQuestionCreate",
+#     {
+#         "question_text": fields.String(required=True, description="지원서 질문 내용"),
+#     },
+# )
+
+# club_question_update_model = home_ns.model(
+#     "ClubQuestionUpdate",
+#     {
+#         "question_text": fields.String(required=True, description="수정할 질문 내용"),
+#     },
+# )
+
+# 새로운 Bulk Update용 모델
+question_item_model = home_ns.model(
+    "QuestionItem",
     {
-        "question_text": fields.String(required=True, description="지원서 질문 내용"),
+        "id": fields.Integer(
+            required=False, description="문항 ID (수정 시만 필요, 추가 시 없음)"
+        ),
+        "question_text": fields.String(required=True, description="문항 내용"),
+        # order는 배열 순서로 자동 결정됨 (프론트엔드에서 보낼 필요 없음)
     },
 )
 
-club_question_update_model = home_ns.model(
-    "ClubQuestionUpdate",
+club_questions_bulk_update_model = home_ns.model(
+    "ClubQuestionsBulkUpdate",
     {
-        "question_text": fields.String(required=True, description="수정할 질문 내용"),
+        "questions": fields.List(
+            fields.Nested(question_item_model),
+            required=True,
+            description="문항 목록 (배열 순서가 order가 됨, id 있으면 수정/없으면 추가, 목록에 없으면 삭제)",
+        ),
     },
 )
 
@@ -215,15 +239,27 @@ class ClubQuestionsResource(
         """동아리 지원서 문항 목록 조회"""
         return ClubApplicationQuestionsController.get(self, club_id)
 
-    @home_ns.expect(club_question_create_model)
-    @home_ns.doc("add_club_question")
-    @home_ns.response(201, "문항 추가 성공", question_response_model)
+    # 기존 개별 추가 API (주석처리 - deprecated)
+    # @home_ns.expect(club_question_create_model)
+    # @home_ns.doc("add_club_question")
+    # @home_ns.response(201, "문항 추가 성공", question_response_model)
+    # @home_ns.response(400, "잘못된 요청")
+    # @home_ns.response(401, "로그인이 필요합니다")
+    # @home_ns.response(500, "서버 내부 오류")
+    # def post(self, club_id):
+    #     """동아리 지원서 문항 추가 (맨 아래에 추가됨)"""
+    #     return ClubQuestionsController.post(self, club_id)
+
+    # 새로운 Bulk Update API
+    @home_ns.expect(club_questions_bulk_update_model)
+    @home_ns.doc("bulk_update_club_questions")
+    @home_ns.response(200, "문항 일괄 업데이트 성공", questions_list_response_model)
     @home_ns.response(400, "잘못된 요청")
     @home_ns.response(401, "로그인이 필요합니다")
     @home_ns.response(500, "서버 내부 오류")
-    def post(self, club_id):
-        """동아리 지원서 문항 추가 (맨 아래에 추가됨)"""
-        return ClubQuestionsController.post(self, club_id)
+    def put(self, club_id):
+        """동아리 지원서 문항 일괄 업데이트 (추가/수정/삭제/순서 변경)"""
+        return ClubQuestionsController.put(self, club_id)
 
 
 @home_ns.route("/<int:club_id>/members")
@@ -269,26 +305,26 @@ class OpenClubsResource(ClubListController):
             }, 500
 
 
-# 문항 수정/삭제 엔드포인트
-@home_ns.route("/application/questions/<int:question_id>")
-class QuestionResource(QuestionController):
-    """지원서 문항 수정/삭제 리소스"""
+# 기존 문항 수정/삭제 엔드포인트 (주석처리 - deprecated)
+# @home_ns.route("/application/questions/<int:question_id>")
+# class QuestionResource(QuestionController):
+#     """지원서 문항 수정/삭제 리소스"""
 
-    @home_ns.expect(club_question_update_model)
-    @home_ns.doc("update_question")
-    @home_ns.response(200, "문항 수정 성공")
-    @home_ns.response(400, "잘못된 요청")
-    @home_ns.response(401, "로그인이 필요합니다")
-    @home_ns.response(500, "서버 내부 오류")
-    def patch(self, question_id):
-        """지원서 문항 수정"""
-        return super().patch(question_id)
+#     @home_ns.expect(club_question_update_model)
+#     @home_ns.doc("update_question")
+#     @home_ns.response(200, "문항 수정 성공")
+#     @home_ns.response(400, "잘못된 요청")
+#     @home_ns.response(401, "로그인이 필요합니다")
+#     @home_ns.response(500, "서버 내부 오류")
+#     def patch(self, question_id):
+#         """지원서 문항 수정"""
+#         return super().patch(question_id)
 
-    @home_ns.doc("delete_question")
-    @home_ns.response(200, "문항 삭제 성공")
-    @home_ns.response(400, "잘못된 요청")
-    @home_ns.response(401, "로그인이 필요합니다")
-    @home_ns.response(500, "서버 내부 오류")
-    def delete(self, question_id):
-        """지원서 문항 삭제"""
-        return super().delete(question_id)
+#     @home_ns.doc("delete_question")
+#     @home_ns.response(200, "문항 삭제 성공")
+#     @home_ns.response(400, "잘못된 요청")
+#     @home_ns.response(401, "로그인이 필요합니다")
+#     @home_ns.response(500, "서버 내부 오류")
+#     def delete(self, question_id):
+#         """지원서 문항 삭제"""
+#         return super().delete(question_id)

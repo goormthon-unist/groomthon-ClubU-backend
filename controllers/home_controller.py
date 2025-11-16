@@ -5,9 +5,10 @@ from services.home_service import (
     get_club_by_id,
     update_club_info,
     update_club_status,
-    add_club_question,
-    update_question,
-    delete_question,
+    # add_club_question,  # 주석처리 - deprecated
+    # update_question,  # 주석처리 - deprecated
+    # delete_question,  # 주석처리 - deprecated
+    bulk_update_questions,  # 새로운 bulk update 함수
     get_club_members,
 )
 
@@ -136,10 +137,43 @@ class ClubStatusController(Resource):
 
 
 class ClubQuestionsController(Resource):
-    """동아리 지원서 문항 추가 컨트롤러"""
+    """동아리 지원서 문항 관리 컨트롤러"""
 
-    def post(self, club_id):
-        """동아리 지원서 문항을 추가합니다"""
+    # 기존 개별 추가 메서드 (주석처리 - deprecated)
+    # def post(self, club_id):
+    #     """동아리 지원서 문항을 추가합니다"""
+    #     try:
+    #         # 세션 인증 확인
+    #         session_data = get_current_session()
+    #         if not session_data:
+    #             return {
+    #                 "status": "error",
+    #                 "message": "로그인이 필요합니다",
+    #                 "code": "401-01",
+    #             }, 401
+
+    #         parser = reqparse.RequestParser()
+    #         parser.add_argument(
+    #             "question_text", type=str, required=True, location="json"
+    #         )
+    #         args = parser.parse_args()
+    #         question_data = {"question_text": args["question_text"]}
+
+    #         new_question = add_club_question(club_id, question_data)
+    #         return new_question, 201
+
+    #     except ValueError as e:
+    #         return {"status": "error", "message": str(e), "code": "400-07"}, 400
+    #     except Exception as e:
+    #         return {
+    #             "status": "error",
+    #             "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+    #             "code": "500-00",
+    #         }, 500
+
+    # 새로운 Bulk Update 메서드
+    def put(self, club_id):
+        """동아리 지원서 문항을 일괄 업데이트합니다 (추가/수정/삭제/순서 변경)"""
         try:
             # 세션 인증 확인
             session_data = get_current_session()
@@ -151,87 +185,124 @@ class ClubQuestionsController(Resource):
                 }, 401
 
             parser = reqparse.RequestParser()
-            parser.add_argument(
-                "question_text", type=str, required=True, location="json"
-            )
+            parser.add_argument("questions", type=list, required=True, location="json")
             args = parser.parse_args()
-            question_data = {"question_text": args["question_text"]}
 
-            new_question = add_club_question(club_id, question_data)
-            return new_question, 201
-
-        except ValueError as e:
-            return {"status": "error", "message": str(e), "code": "400-07"}, 400
-        except Exception as e:
-            return {
-                "status": "error",
-                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
-                "code": "500-00",
-            }, 500
-
-
-class QuestionController(Resource):
-    """지원서 문항 수정/삭제 컨트롤러"""
-
-    def patch(self, question_id):
-        """지원서 문항을 수정합니다"""
-        try:
-            # 세션 인증 확인
-            session_data = get_current_session()
-            if not session_data:
+            if not args["questions"]:
                 return {
                     "status": "error",
-                    "message": "로그인이 필요합니다",
-                    "code": "401-01",
-                }, 401
-
-            parser = reqparse.RequestParser()
-            parser.add_argument("question_text", type=str, location="json")
-            args = parser.parse_args()
-            update_data = {k: v for k, v in args.items() if v is not None}
-
-            if not update_data:
-                return {
-                    "status": "error",
-                    "message": "수정할 데이터가 없습니다",
-                    "code": "400-08",
+                    "message": "questions 배열이 필요합니다",
+                    "code": "400-12",
                 }, 400
 
-            question_data = update_question(question_id, update_data)
-            return question_data, 200
-
-        except ValueError as e:
-            return {"status": "error", "message": str(e), "code": "400-09"}, 400
-        except Exception as e:
-            return {
-                "status": "error",
-                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
-                "code": "500-00",
-            }, 500
-
-    def delete(self, question_id):
-        """지원서 문항을 삭제합니다"""
-        try:
-            # 세션 인증 확인
-            session_data = get_current_session()
-            if not session_data:
+            # questions 배열 검증
+            questions_data = args["questions"]
+            if not isinstance(questions_data, list):
                 return {
                     "status": "error",
-                    "message": "로그인이 필요합니다",
-                    "code": "401-01",
-                }, 401
+                    "message": "questions는 배열이어야 합니다",
+                    "code": "400-13",
+                }, 400
 
-            result = delete_question(question_id)
-            return {"message": result["message"]}, 200
+            # 각 문항 검증
+            validated_questions = []
+            for i, question in enumerate(questions_data):
+                if not isinstance(question, dict):
+                    return {
+                        "status": "error",
+                        "message": f"questions[{i}]는 객체여야 합니다",
+                        "code": "400-14",
+                    }, 400
+                if "question_text" not in question or not question["question_text"]:
+                    return {
+                        "status": "error",
+                        "message": f"questions[{i}]에 question_text가 필요합니다",
+                        "code": "400-15",
+                    }, 400
+
+                validated_question = {
+                    "id": question.get("id"),  # id는 선택사항
+                    "question_text": question["question_text"],
+                }
+                validated_questions.append(validated_question)
+
+            # order는 id 순서대로 자동 설정 (id가 있는 것들 먼저, 그 다음 새 것들)
+            result = bulk_update_questions(club_id, validated_questions)
+            return result, 200
 
         except ValueError as e:
-            return {"status": "error", "message": str(e), "code": "400-10"}, 400
+            return {"status": "error", "message": str(e), "code": "400-17"}, 400
         except Exception as e:
             return {
                 "status": "error",
                 "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
                 "code": "500-00",
             }, 500
+
+
+# 기존 문항 수정/삭제 컨트롤러 (주석처리 - deprecated)
+# class QuestionController(Resource):
+#     """지원서 문항 수정/삭제 컨트롤러"""
+
+#     def patch(self, question_id):
+#         """지원서 문항을 수정합니다"""
+#         try:
+#             # 세션 인증 확인
+#             session_data = get_current_session()
+#             if not session_data:
+#                 return {
+#                     "status": "error",
+#                     "message": "로그인이 필요합니다",
+#                     "code": "401-01",
+#                 }, 401
+
+#             parser = reqparse.RequestParser()
+#             parser.add_argument("question_text", type=str, location="json")
+#             args = parser.parse_args()
+#             update_data = {k: v for k, v in args.items() if v is not None}
+
+#             if not update_data:
+#                 return {
+#                     "status": "error",
+#                     "message": "수정할 데이터가 없습니다",
+#                     "code": "400-08",
+#                 }, 400
+
+#             question_data = update_question(question_id, update_data)
+#             return question_data, 200
+
+#         except ValueError as e:
+#             return {"status": "error", "message": str(e), "code": "400-09"}, 400
+#         except Exception as e:
+#             return {
+#                 "status": "error",
+#                 "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+#                 "code": "500-00",
+#             }, 500
+
+#     def delete(self, question_id):
+#         """지원서 문항을 삭제합니다"""
+#         try:
+#             # 세션 인증 확인
+#             session_data = get_current_session()
+#             if not session_data:
+#                 return {
+#                     "status": "error",
+#                     "message": "로그인이 필요합니다",
+#                     "code": "401-01",
+#                 }, 401
+
+#             result = delete_question(question_id)
+#             return {"message": result["message"]}, 200
+
+#         except ValueError as e:
+#             return {"status": "error", "message": str(e), "code": "400-10"}, 400
+#         except Exception as e:
+#             return {
+#                 "status": "error",
+#                 "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+#                 "code": "500-00",
+#             }, 500
 
 
 class ClubMembersController(Resource):
