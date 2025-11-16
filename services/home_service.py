@@ -255,17 +255,15 @@ def get_club_questions(club_id):
 
 def bulk_update_questions(club_id, questions_data):
     """
-    동아리 지원서 문항 일괄 업데이트 (추가/수정/삭제/순서 변경)
+    동아리 지원서 문항 일괄 업데이트 (완전 교체)
 
-    프론트엔드에서 id와 question_text만 보내면 됩니다.
-    - id가 있으면: 수정
-    - id가 없으면: 추가
-    - DB에 있지만 목록에 없으면: 삭제
-    - order는 배열 순서로 자동 결정됩니다.
+    기존 DB의 모든 문항을 삭제하고, 프론트엔드에서 보낸 문항들로 완전히 교체합니다.
+    - id 값이 order가 됩니다 (id가 1이면 order도 1)
+    - id가 없으면 자동으로 order 할당
 
     Args:
         club_id: 동아리 ID
-        questions_data: 문항 목록 (각 항목은 id(선택), question_text(필수), order(자동) 포함)
+        questions_data: 문항 목록 (각 항목은 id(선택), question_text(필수) 포함)
 
     Returns:
         업데이트된 문항 목록
@@ -276,16 +274,9 @@ def bulk_update_questions(club_id, questions_data):
         if not club:
             raise ValueError("해당 동아리를 찾을 수 없습니다")
 
-        # 현재 DB의 문항 목록 조회
-        existing_questions = ClubApplicationQuestion.query.filter_by(
-            club_id=club_id
-        ).all()
-        existing_questions_dict = {q.id: q for q in existing_questions}
-
-        # 프론트엔드에서 보낸 문항들을 ID로 분류
-        questions_with_id = []  # id가 있는 것들 (수정)
-        questions_without_id = []  # id가 없는 것들 (추가)
-        frontend_question_ids = set()
+        # 프론트엔드에서 보낸 문항들 검증 및 order 설정
+        questions_to_create = []
+        max_order = 0
 
         for question_data in questions_data:
             question_id = question_data.get("id")
@@ -296,69 +287,34 @@ def bulk_update_questions(club_id, questions_data):
                 raise ValueError("question_text는 필수입니다")
 
             if question_id:
-                # 기존 문항 수정
-                if question_id not in existing_questions_dict:
-                    raise ValueError(f"존재하지 않는 문항 ID입니다: {question_id}")
-                questions_with_id.append(
-                    {
-                        "id": question_id,
-                        "question_text": question_text,
-                    }
-                )
-                frontend_question_ids.add(question_id)
+                # id가 있으면 id 값 = order
+                order = question_id
+                max_order = max(max_order, order)
             else:
-                # 새 문항 추가
-                questions_without_id.append(
-                    {
-                        "question_text": question_text,
-                    }
-                )
+                # id가 없으면 order는 나중에 계산
+                order = None
 
-        # id 값 자체를 order로 사용
-        questions_to_update = {}
-        questions_to_create = []
-
-        # id가 있는 문항들: id 값 = order
-        for question in questions_with_id:
-            question_id = question["id"]
-            questions_to_update[question_id] = {
-                "question_text": question["question_text"],
-                "order": question_id,  # id 값 자체를 order로 사용
-            }
-
-        # id가 없는 새 문항들: 기존 id들의 최대값 다음부터 시작
-        max_id = (
-            max(questions_with_id, key=lambda x: x["id"])["id"]
-            if questions_with_id
-            else 0
-        )
-        current_order = max_id + 1
-
-        for question in questions_without_id:
             questions_to_create.append(
                 {
-                    "question_text": question["question_text"],
-                    "order": current_order,
+                    "question_text": question_text,
+                    "order": order,
                 }
             )
-            current_order += 1
 
-        # 삭제할 문항들 (DB에 있지만 프론트엔드 목록에 없는 것들)
-        questions_to_delete = [
-            q_id
-            for q_id in existing_questions_dict.keys()
-            if q_id not in frontend_question_ids
-        ]
+        # id가 없는 문항들의 order 계산 (기존 order 최대값 다음부터)
+        if questions_to_create:
+            current_order = max_order + 1
+            for question in questions_to_create:
+                if question["order"] is None:
+                    question["order"] = current_order
+                    current_order += 1
 
         # 트랜잭션 시작
         try:
-            # 1. 기존 문항 수정
-            for question_id, update_data in questions_to_update.items():
-                question = existing_questions_dict[question_id]
-                question.question_text = update_data["question_text"]
-                question.question_order = update_data["order"]
+            # 1. 기존 문항 모두 삭제
+            ClubApplicationQuestion.query.filter_by(club_id=club_id).delete()
 
-            # 2. 새 문항 추가
+            # 2. 새 문항들 추가
             for question_data in questions_to_create:
                 new_question = ClubApplicationQuestion(
                     club_id=club_id,
@@ -366,11 +322,6 @@ def bulk_update_questions(club_id, questions_data):
                     question_order=question_data["order"],
                 )
                 db.session.add(new_question)
-
-            # 3. 삭제할 문항 삭제
-            for question_id in questions_to_delete:
-                question = existing_questions_dict[question_id]
-                db.session.delete(question)
 
             # 4. 커밋
             db.session.commit()
