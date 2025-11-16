@@ -165,11 +165,6 @@ def bulk_update_club_info(club_id, update_data):
         업데이트된 동아리 정보
     """
     try:
-        from services.club_info_service import (
-            update_club_introduction,
-            delete_club_introduction,
-        )
-
         club = Club.query.get(club_id)
         if not club:
             raise ValueError("해당 동아리를 찾을 수 없습니다")

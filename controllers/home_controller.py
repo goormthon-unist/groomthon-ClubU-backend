@@ -113,35 +113,26 @@ class ClubUpdateController(Resource):
                     "code": "401-01",
                 }, 401
 
-            parser = reqparse.RequestParser()
-            parser.add_argument("name", type=str, location="json")
-            parser.add_argument("activity_summary", type=str, location="json")
-            parser.add_argument("president_name", type=str, location="json")
-            parser.add_argument("contact", type=str, location="json")
-            parser.add_argument("club_room", type=str, location="json")
-            parser.add_argument("recruitment_start", type=str, location="json")
-            parser.add_argument("recruitment_finish", type=str, location="json")
-            parser.add_argument("introduction", type=str, location="json")  # null 허용
-            parser.add_argument("recruitment_status", type=str, location="json")
-            args = parser.parse_args()
+            # JSON 요청 본문 직접 파싱 (null 처리 명확하게)
+            from flask import request
 
-            # 모든 필드를 포함 (None도 포함하여 null 처리 가능하도록)
-            update_data = {
-                k: v
-                for k, v in args.items()
-                if k
-                in [
-                    "name",
-                    "activity_summary",
-                    "president_name",
-                    "contact",
-                    "club_room",
-                    "recruitment_start",
-                    "recruitment_finish",
-                    "introduction",
-                    "recruitment_status",
-                ]
-            }
+            json_data = request.get_json() or {}
+
+            # 업데이트 가능한 필드 목록
+            allowed_fields = [
+                "name",
+                "activity_summary",
+                "president_name",
+                "contact",
+                "club_room",
+                "recruitment_start",
+                "recruitment_finish",
+                "introduction",
+                "recruitment_status",
+            ]
+
+            # 요청에 포함된 필드만 추출 (None도 포함하여 null 처리 가능)
+            update_data = {k: v for k, v in json_data.items() if k in allowed_fields}
 
             # 최소 하나의 필드는 있어야 함
             if not any(v is not None for v in update_data.values()):
