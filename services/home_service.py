@@ -98,9 +98,78 @@ def get_club_by_id(club_id):
         raise Exception(f"동아리 상세 조회 중 오류 발생: {str(e)}")
 
 
-def update_club_info(club_id, update_data):
-    """동아리 정보 수정"""
+# 기존 개별 정보 수정 함수 (주석처리 - deprecated)
+# def update_club_info(club_id, update_data):
+#     """동아리 정보 수정"""
+#     try:
+#         club = Club.query.get(club_id)
+#         if not club:
+#             raise ValueError("해당 동아리를 찾을 수 없습니다")
+
+#         # 업데이트 가능한 필드들
+#         allowed_fields = [
+#             "name",
+#             "activity_summary",
+#             "president_name",
+#             "contact",
+#             "category_id",
+#         ]
+
+#         for field in allowed_fields:
+#             if field in update_data:
+#                 setattr(club, field, update_data[field])
+
+#         db.session.commit()
+#         return get_club_by_id(club_id)
+
+#     except Exception as e:
+#         db.session.rollback()
+#         raise Exception(f"동아리 정보 수정 중 오류 발생: {str(e)}")
+
+
+# 기존 모집 상태 변경 함수 (주석처리 - deprecated)
+# def update_club_status(club_id, status):
+#     """동아리 모집 상태 변경"""
+#     try:
+#         club = Club.query.get(club_id)
+#         if not club:
+#             raise ValueError("해당 동아리를 찾을 수 없습니다")
+
+#         if status not in ["OPEN", "CLOSED"]:
+#             raise ValueError("유효하지 않은 모집 상태입니다")
+
+#         club.recruitment_status = status
+#         db.session.commit()
+
+#         return True
+
+#     except Exception as e:
+#         db.session.rollback()
+#         raise Exception(f"동아리 상태 변경 중 오류 발생: {str(e)}")
+
+
+def bulk_update_club_info(club_id, update_data):
+    """
+    동아리 정보 일괄 업데이트 (통합 API)
+
+    모든 동아리 정보를 한 번에 업데이트할 수 있습니다.
+    - 보낸 필드만 업데이트
+    - introduction이 null이면 삭제
+    - recruitment_status는 "OPEN" 또는 "CLOSED"만 허용
+
+    Args:
+        club_id: 동아리 ID
+        update_data: 업데이트할 데이터 딕셔너리
+
+    Returns:
+        업데이트된 동아리 정보
+    """
     try:
+        from services.club_info_service import (
+            update_club_introduction,
+            delete_club_introduction,
+        )
+
         club = Club.query.get(club_id)
         if not club:
             raise ValueError("해당 동아리를 찾을 수 없습니다")
@@ -111,39 +180,63 @@ def update_club_info(club_id, update_data):
             "activity_summary",
             "president_name",
             "contact",
-            "category_id",
+            "club_room",
+            "recruitment_start",
+            "recruitment_finish",
+            "introduction",
+            "recruitment_status",
         ]
 
-        for field in allowed_fields:
-            if field in update_data:
-                setattr(club, field, update_data[field])
+        # 트랜잭션 시작
+        try:
+            for field in allowed_fields:
+                if field in update_data:
+                    value = update_data[field]
 
-        db.session.commit()
-        return get_club_by_id(club_id)
+                    if field == "introduction":
+                        # introduction 특별 처리: null이면 삭제, 값이 있으면 업데이트
+                        # 직접 DB에 업데이트 (별도 함수 호출 시 commit 충돌 방지)
+                        if value is None:
+                            club.introduction = None
+                        else:
+                            club.introduction = value
+                    elif field == "recruitment_status":
+                        # recruitment_status 검증
+                        if value not in ["OPEN", "CLOSED"]:
+                            raise ValueError(
+                                "유효하지 않은 모집 상태입니다. OPEN 또는 CLOSED만 허용됩니다."
+                            )
+                        club.recruitment_status = value
+                    elif field in ["recruitment_start", "recruitment_finish"]:
+                        # 날짜 필드 처리: 문자열을 Date 객체로 변환
+                        if value is None:
+                            setattr(club, field, None)
+                        else:
+                            from datetime import datetime
 
+                            try:
+                                date_obj = datetime.strptime(value, "%Y-%m-%d").date()
+                                setattr(club, field, date_obj)
+                            except ValueError:
+                                raise ValueError(
+                                    f"{field}는 YYYY-MM-DD 형식이어야 합니다."
+                                )
+                    else:
+                        # 일반 필드 업데이트
+                        setattr(club, field, value)
+
+            db.session.commit()
+            return get_club_by_id(club_id)
+
+        except Exception as e:
+            db.session.rollback()
+            raise
+
+    except ValueError:
+        raise
     except Exception as e:
         db.session.rollback()
-        raise Exception(f"동아리 정보 수정 중 오류 발생: {str(e)}")
-
-
-def update_club_status(club_id, status):
-    """동아리 모집 상태 변경"""
-    try:
-        club = Club.query.get(club_id)
-        if not club:
-            raise ValueError("해당 동아리를 찾을 수 없습니다")
-
-        if status not in ["OPEN", "CLOSED"]:
-            raise ValueError("유효하지 않은 모집 상태입니다")
-
-        club.recruitment_status = status
-        db.session.commit()
-
-        return True
-
-    except Exception as e:
-        db.session.rollback()
-        raise Exception(f"동아리 상태 변경 중 오류 발생: {str(e)}")
+        raise Exception(f"동아리 정보 일괄 업데이트 중 오류 발생: {str(e)}")
 
 
 def get_club_questions(club_id):

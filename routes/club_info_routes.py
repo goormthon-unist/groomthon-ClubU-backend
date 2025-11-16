@@ -29,12 +29,12 @@ introduction_image_parser.add_argument(
 )
 
 
-# 동아리 소개글 관리 엔드포인트
-@club_info_ns.route("/<int:club_id>/introduction")
-class ClubIntroductionResource(ClubIntroductionController):
-    """동아리 소개글 관리 리소스"""
+# 기존 소개글 관리 엔드포인트 (주석처리 - deprecated)
+# @club_info_ns.route("/<int:club_id>/introduction")
+# class ClubIntroductionResource(ClubIntroductionController):
+#     """동아리 소개글 관리 리소스"""
 
-    pass
+#     pass
 
 
 # 동아리 로고 이미지 관리 엔드포인트

@@ -2,7 +2,7 @@ from flask_restx import Namespace, fields
 from controllers.home_controller import (
     ClubListController,
     ClubUpdateController,
-    ClubStatusController,
+    # ClubStatusController,  # 주석처리 - deprecated
     ClubQuestionsController,
     ClubMembersController,
     # QuestionController,  # 주석처리 - deprecated
@@ -195,6 +195,59 @@ error_response_model = home_ns.model(
     },
 )
 
+# 통합 동아리 정보 업데이트용 모델
+club_bulk_update_model = home_ns.model(
+    "ClubBulkUpdate",
+    {
+        "name": fields.String(
+            required=False,
+            description="동아리명",
+            example="구름톤 유니브",
+        ),
+        "activity_summary": fields.String(
+            required=False,
+            description="활동 요약",
+            example="IT 동아리",
+        ),
+        "president_name": fields.String(
+            required=False,
+            description="회장명",
+            example="홍길동",
+        ),
+        "contact": fields.String(
+            required=False,
+            description="연락처",
+            example="010-1234-5678",
+        ),
+        "club_room": fields.String(
+            required=False,
+            description="동아리실",
+            example="공학관 101호",
+        ),
+        "recruitment_start": fields.String(
+            required=False,
+            description="모집 시작일 (YYYY-MM-DD 형식)",
+            example="2025-01-01",
+        ),
+        "recruitment_finish": fields.String(
+            required=False,
+            description="모집 마감일 (YYYY-MM-DD 형식)",
+            example="2025-12-31",
+        ),
+        "introduction": fields.String(
+            required=False,
+            description="소개글 (null이면 삭제, 문자열이면 업데이트)",
+            example="동아리 소개글입니다.",
+        ),
+        "recruitment_status": fields.String(
+            required=False,
+            description="모집 상태",
+            enum=["OPEN", "CLOSED"],
+            example="OPEN",
+        ),
+    },
+)
+
 
 # API 엔드포인트 등록
 @home_ns.route("/")
@@ -208,22 +261,59 @@ class ClubListResource(ClubListController):
 class ClubDetailResource(ClubUpdateController):
     """동아리 상세 조회 및 정보 수정 리소스"""
 
-    pass
+    @home_ns.expect(club_bulk_update_model)
+    @home_ns.doc(
+        "bulk_update_club_info",
+        description="""
+        동아리 정보 일괄 업데이트 (통합 API)
+        
+        요청 본문:
+        {
+            "name": "동아리명",                    // 동아리명 (선택사항)
+            "activity_summary": "활동 요약",        // 활동 요약 (선택사항)
+            "president_name": "회장명",            // 회장명 (선택사항)
+            "contact": "010-1234-5678",           // 연락처 (선택사항)
+            "club_room": "공학관 101호",          // 동아리실 (선택사항)
+            "recruitment_start": "2025-01-01",    // 모집 시작일 (선택사항, YYYY-MM-DD)
+            "recruitment_finish": "2025-12-31",   // 모집 마감일 (선택사항, YYYY-MM-DD)
+            "introduction": "소개글 내용",          // 소개글 (선택사항, null이면 삭제)
+            "recruitment_status": "OPEN"           // 모집 상태 (선택사항): OPEN, CLOSED
+        }
+        
+        예시:
+        - 전체 정보 업데이트: {"name": "구름톤 유니브", "activity_summary": "IT 동아리", "club_room": "공학관 101호", "introduction": "소개글", "recruitment_status": "OPEN"}
+        - 일부만 업데이트: {"name": "새 동아리명", "club_room": "새 동아리실"}
+        - 소개글 삭제: {"introduction": null}
+        """,
+    )
+    @home_ns.response(200, "동아리 정보 업데이트 성공")
+    @home_ns.response(400, "잘못된 요청")
+    @home_ns.response(401, "로그인이 필요합니다")
+    @home_ns.response(500, "서버 내부 오류")
+    def put(self, club_id):
+        """동아리 정보 일괄 업데이트 (통합 API)"""
+        return ClubUpdateController.put(self, club_id)
+
+    # 기존 개별 수정 API (주석처리 - deprecated)
+    # def patch(self, club_id):
+    #     """동아리 정보를 수정합니다"""
+    #     return super().patch(club_id)
 
 
-@home_ns.route("/<int:club_id>/status")
-class ClubStatusResource(ClubStatusController):
-    """동아리 모집 상태 변경 리소스"""
+# 기존 모집 상태 변경 엔드포인트 (주석처리 - deprecated)
+# @home_ns.route("/<int:club_id>/status")
+# class ClubStatusResource(ClubStatusController):
+#     """동아리 모집 상태 변경 리소스"""
 
-    @home_ns.expect(club_status_model)
-    @home_ns.doc("update_club_status")
-    @home_ns.response(200, "동아리 상태 변경 성공", club_status_response_model)
-    @home_ns.response(400, "잘못된 요청", error_response_model)
-    @home_ns.response(401, "로그인이 필요합니다", error_response_model)
-    @home_ns.response(500, "서버 내부 오류", error_response_model)
-    def patch(self, club_id):
-        """동아리 모집 상태 변경"""
-        return super().patch(club_id)
+#     @home_ns.expect(club_status_model)
+#     @home_ns.doc("update_club_status")
+#     @home_ns.response(200, "동아리 상태 변경 성공", club_status_response_model)
+#     @home_ns.response(400, "잘못된 요청", error_response_model)
+#     @home_ns.response(401, "로그인이 필요합니다", error_response_model)
+#     @home_ns.response(500, "서버 내부 오류", error_response_model)
+#     def patch(self, club_id):
+#         """동아리 모집 상태 변경"""
+#         return super().patch(club_id)
 
 
 @home_ns.route("/<int:club_id>/application/questions")

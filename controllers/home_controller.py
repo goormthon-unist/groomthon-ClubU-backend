@@ -3,8 +3,9 @@ from services.session_service import get_current_session
 from services.home_service import (
     get_all_clubs,
     get_club_by_id,
-    update_club_info,
-    update_club_status,
+    # update_club_info,  # 주석처리 - deprecated
+    # update_club_status,  # 주석처리 - deprecated
+    bulk_update_club_info,  # 새로운 통합 bulk update 함수
     # add_club_question,  # 주석처리 - deprecated
     # update_question,  # 주석처리 - deprecated
     # delete_question,  # 주석처리 - deprecated
@@ -58,8 +59,50 @@ class ClubUpdateController(Resource):
                 "code": "500-00",
             }, 500
 
-    def patch(self, club_id):
-        """동아리 정보를 수정합니다"""
+    # 기존 개별 수정 메서드 (주석처리 - deprecated)
+    # def patch(self, club_id):
+    #     """동아리 정보를 수정합니다"""
+    #     try:
+    #         # 세션 인증 확인
+    #         session_data = get_current_session()
+    #         if not session_data:
+    #             return {
+    #                 "status": "error",
+    #                 "message": "로그인이 필요합니다",
+    #                 "code": "401-01",
+    #             }, 401
+
+    #         parser = reqparse.RequestParser()
+    #         parser.add_argument("name", type=str, location="json")
+    #         parser.add_argument("activity_summary", type=str, location="json")
+    #         parser.add_argument("president_name", type=str, location="json")
+    #         parser.add_argument("contact", type=str, location="json")
+    #         parser.add_argument("category_id", type=int, location="json")
+    #         args = parser.parse_args()
+    #         update_data = {k: v for k, v in args.items() if v is not None}
+
+    #         if not update_data:
+    #             return {
+    #                 "status": "error",
+    #                 "message": "수정할 데이터가 없습니다",
+    #                 "code": "400-03",
+    #             }, 400
+
+    #         club_data = update_club_info(club_id, update_data)
+    #         return club_data, 200
+
+    #     except ValueError as e:
+    #         return {"status": "error", "message": str(e), "code": "400-04"}, 400
+    #     except Exception as e:
+    #         return {
+    #             "status": "error",
+    #             "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+    #             "code": "500-00",
+    #         }, 500
+
+    # 새로운 통합 업데이트 메서드
+    def put(self, club_id):
+        """동아리 정보 일괄 업데이트 (통합 API)"""
         try:
             # 세션 인증 확인
             session_data = get_current_session()
@@ -75,18 +118,40 @@ class ClubUpdateController(Resource):
             parser.add_argument("activity_summary", type=str, location="json")
             parser.add_argument("president_name", type=str, location="json")
             parser.add_argument("contact", type=str, location="json")
-            parser.add_argument("category_id", type=int, location="json")
+            parser.add_argument("club_room", type=str, location="json")
+            parser.add_argument("recruitment_start", type=str, location="json")
+            parser.add_argument("recruitment_finish", type=str, location="json")
+            parser.add_argument("introduction", type=str, location="json")  # null 허용
+            parser.add_argument("recruitment_status", type=str, location="json")
             args = parser.parse_args()
-            update_data = {k: v for k, v in args.items() if v is not None}
 
-            if not update_data:
+            # 모든 필드를 포함 (None도 포함하여 null 처리 가능하도록)
+            update_data = {
+                k: v
+                for k, v in args.items()
+                if k
+                in [
+                    "name",
+                    "activity_summary",
+                    "president_name",
+                    "contact",
+                    "club_room",
+                    "recruitment_start",
+                    "recruitment_finish",
+                    "introduction",
+                    "recruitment_status",
+                ]
+            }
+
+            # 최소 하나의 필드는 있어야 함
+            if not any(v is not None for v in update_data.values()):
                 return {
                     "status": "error",
                     "message": "수정할 데이터가 없습니다",
                     "code": "400-03",
                 }, 400
 
-            club_data = update_club_info(club_id, update_data)
+            club_data = bulk_update_club_info(club_id, update_data)
             return club_data, 200
 
         except ValueError as e:
@@ -99,41 +164,42 @@ class ClubUpdateController(Resource):
             }, 500
 
 
-class ClubStatusController(Resource):
-    """동아리 모집 상태 변경 컨트롤러"""
+# 기존 모집 상태 변경 컨트롤러 (주석처리 - deprecated)
+# class ClubStatusController(Resource):
+#     """동아리 모집 상태 변경 컨트롤러"""
 
-    def patch(self, club_id):
-        """동아리 모집 상태를 변경합니다"""
-        try:
-            # 세션 인증 확인
-            session_data = get_current_session()
-            if not session_data:
-                return {
-                    "status": "error",
-                    "message": "로그인이 필요합니다",
-                    "code": "401-01",
-                }, 401
+#     def patch(self, club_id):
+#         """동아리 모집 상태를 변경합니다"""
+#         try:
+#             # 세션 인증 확인
+#             session_data = get_current_session()
+#             if not session_data:
+#                 return {
+#                     "status": "error",
+#                     "message": "로그인이 필요합니다",
+#                     "code": "401-01",
+#                 }, 401
 
-            parser = reqparse.RequestParser()
-            parser.add_argument("status", type=str, required=True, location="json")
-            args = parser.parse_args()
-            status = args["status"]
+#             parser = reqparse.RequestParser()
+#             parser.add_argument("status", type=str, required=True, location="json")
+#             args = parser.parse_args()
+#             status = args["status"]
 
-            update_club_status(club_id, status)
-            return {
-                "message": "동아리 모집 상태가 성공적으로 변경되었습니다.",
-                "club_id": club_id,
-                "recruitment_status": status,
-            }, 200
+#             update_club_status(club_id, status)
+#             return {
+#                 "message": "동아리 모집 상태가 성공적으로 변경되었습니다.",
+#                 "club_id": club_id,
+#                 "recruitment_status": status,
+#             }, 200
 
-        except ValueError as e:
-            return {"status": "error", "message": str(e), "code": "400-05"}, 400
-        except Exception as e:
-            return {
-                "status": "error",
-                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
-                "code": "500-00",
-            }, 500
+#         except ValueError as e:
+#             return {"status": "error", "message": str(e), "code": "400-05"}, 400
+#         except Exception as e:
+#             return {
+#                 "status": "error",
+#                 "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+#                 "code": "500-00",
+#             }, 500
 
 
 class ClubQuestionsController(Resource):
