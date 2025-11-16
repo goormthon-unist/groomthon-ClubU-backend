@@ -334,7 +334,6 @@ def bulk_update_questions(club_id, questions_data):
             )
 
             return {
-                "status": "success",
                 "club_id": club_id,
                 "count": len(updated_questions),
                 "questions": [
