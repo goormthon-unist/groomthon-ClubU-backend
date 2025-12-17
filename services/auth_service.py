@@ -22,18 +22,18 @@ def validate_username(username):
     """사용자명 형식 검증"""
     # 실제 사용자 이름 용도로 사용되므로, 최소 2자 이상 허용
     if len(username) < 2:
-        return False, "이름은 최소 2자 이상이어야 합니다."
+        return False, "사용자명은 최소 2자 이상이어야 합니다."
 
     # 외국인 이름 등을 고려해 최대 길이 완화
     if len(username) > 50:
-        return False, "이름은 최대 50자까지 가능합니다."
+        return False, "사용자명은 최대 50자까지 가능합니다."
 
     # 영문/한글만 허용 (실제 사용자 이름용)
     pattern = r"^[a-zA-Z가-힣]+$"
     if not re.match(pattern, username):
-        return False, "이름은 영문 또는 한글만 사용 가능합니다."
+        return False, "사용자명은 영문 또는 한글만 사용 가능합니다."
 
-    return True, "이름이 유효합니다."
+    return True, "사용자명이 유효합니다."
 
 
 def validate_student_id(student_id):
