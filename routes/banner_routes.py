@@ -44,6 +44,7 @@ banner_model = banner_ns.model(
         "user_id": fields.Integer(description="사용자 ID"),
         "club_name": fields.String(description="동아리명"),
         "file_path": fields.String(description="이미지 파일 경로"),
+        "clublogoImageUrl": fields.String(description="동아리 로고 이미지 URL"),
         "position": fields.String(description="배너 위치", enum=["TOP", "BOTTOM"]),
         "status": fields.String(
             description="배너 상태", enum=["WAITING", "REJECTED", "POSTED", "ARCHIVED"]
