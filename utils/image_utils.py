@@ -18,19 +18,23 @@ def create_banner_directories(club_id):
     return optimized_dir
 
 
-def optimize_image(image_path, output_path, max_width=800, max_height=600, quality=85):
-    """이미지 최적화 및 WebP 변환"""
+def optimize_image(image_path, output_path):
+    """이미지를 원본 해상도 그대로 WebP로 변환 (무손실 압축)"""
     try:
         with Image.open(image_path) as img:
             # RGB로 변환 (WebP는 RGBA를 지원하지만 일관성을 위해 RGB 사용)
             if img.mode in ("RGBA", "LA", "P"):
                 img = img.convert("RGB")
 
-            # 이미지 크기 조정 (비율 유지)
-            img.thumbnail((max_width, max_height), Image.Resampling.LANCZOS)
-
-            # WebP로 저장
-            img.save(output_path, "WebP", quality=quality, optimize=True)
+            # 원본 해상도를 유지한 채 WebP로 저장 (무손실 모드)
+            img.save(
+                output_path,
+                "WebP",
+                lossless=True,
+                quality=100,
+                optimize=True,
+                method=6,
+            )
 
         return True
     except Exception as e:
