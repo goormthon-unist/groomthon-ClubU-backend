@@ -527,6 +527,8 @@ def get_open_clubs():
 def get_club_members(club_id):
     """동아리원 목록 조회"""
     try:
+        from models import User
+
         club = Club.query.get(club_id)
         if not club:
             raise ValueError("해당 동아리를 찾을 수 없습니다")
@@ -541,6 +543,8 @@ def get_club_members(club_id):
                 "role_id": member.role_id,
                 "generation": member.generation,
                 "other_info": member.other_info,
+                "student_id": member.user.student_id if member.user else None,
+                "phone_number": member.user.phone_number if member.user else None,
                 "joined_at": (
                     member.joined_at.isoformat() if member.joined_at else None
                 ),
