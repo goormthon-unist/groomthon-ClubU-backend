@@ -2,7 +2,7 @@ import re
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import db, User, Role, ClubMember
-from utils.time_utils import get_kst_now
+from utils.time_utils import get_kst_now_naive
 
 
 def validate_email(email):
@@ -113,7 +113,7 @@ def create_user(user_data):
             club_id=None,  # 전역 역할 (NULL)
             role_id=student_role.id,
             generation=1,  # 기본값
-            joined_at=get_kst_now(),
+            joined_at=get_kst_now_naive(),
         )
         db.session.add(club_member)
         db.session.commit()
