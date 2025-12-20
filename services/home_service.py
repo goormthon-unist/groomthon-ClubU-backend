@@ -2,12 +2,15 @@ from models import db, Club, ClubCategory, ClubApplicationQuestion, ClubMember
 from services.club_service import (
     calculate_recruitment_d_day,
     close_expired_recruitments,
+    open_started_recruitments,
 )
 
 
 def get_all_clubs():
     """모든 동아리 정보를 카테고리와 함께 조회"""
     try:
+        # 모집 시작일이 된 동아리 자동 OPEN 처리
+        open_started_recruitments()
         # 만료된 모집 기간 자동 CLOSED 처리
         close_expired_recruitments()
 
@@ -44,7 +47,7 @@ def get_all_clubs():
                     else None
                 ),
                 "recruitment_d_day": calculate_recruitment_d_day(
-                    club.recruitment_start
+                    club.recruitment_finish
                 ),
                 "logo_image": club.logo_image,
                 "introduction_image": club.introduction_image,
@@ -67,6 +70,8 @@ def get_all_clubs():
 def get_club_by_id(club_id):
     """특정 동아리의 상세 정보를 조회"""
     try:
+        # 모집 시작일이 된 동아리 자동 OPEN 처리
+        open_started_recruitments()
         # 만료된 모집 기간 자동 CLOSED 처리
         close_expired_recruitments()
 
@@ -99,7 +104,7 @@ def get_club_by_id(club_id):
             "recruitment_finish": (
                 club.recruitment_finish.isoformat() if club.recruitment_finish else None
             ),
-            "recruitment_d_day": calculate_recruitment_d_day(club.recruitment_start),
+            "recruitment_d_day": calculate_recruitment_d_day(club.recruitment_finish),
             "logo_image": club.logo_image,
             "introduction_image": club.introduction_image,
             "club_room": club.club_room,
@@ -463,6 +468,8 @@ def bulk_update_questions(club_id, questions_data):
 def get_open_clubs():
     """모집 중인 동아리 정보를 카테고리와 함께 조회"""
     try:
+        # 모집 시작일이 된 동아리 자동 OPEN 처리
+        open_started_recruitments()
         # 만료된 모집 기간 자동 CLOSED 처리
         close_expired_recruitments()
 
@@ -500,7 +507,7 @@ def get_open_clubs():
                     else None
                 ),
                 "recruitment_d_day": calculate_recruitment_d_day(
-                    club.recruitment_start
+                    club.recruitment_finish
                 ),
                 "logo_image": club.logo_image,
                 "introduction_image": club.introduction_image,
