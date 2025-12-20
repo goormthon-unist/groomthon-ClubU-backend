@@ -30,11 +30,19 @@ def calculate_recruitment_d_day(recruitment_start):
 
 
 def close_expired_recruitments():
-    """recruitment_finish가 지난 동아리를 자동으로 CLOSED로 변경"""
+    """recruitment_finish가 지난 동아리 또는 모집기간이 없는 동아리를 자동으로 CLOSED로 변경"""
     try:
         today = date.today()
+        from sqlalchemy import or_
+
+        # 모집 마감일이 지났거나, 모집기간이 없는 동아리 조회
         expired_clubs = Club.query.filter(
-            Club.recruitment_finish < today, Club.recruitment_status == "OPEN"
+            Club.recruitment_status == "OPEN",
+            or_(
+                Club.recruitment_finish < today,  # 모집 마감일이 지난 경우
+                Club.recruitment_start.is_(None),  # 모집 시작일이 없는 경우
+                Club.recruitment_finish.is_(None),  # 모집 마감일이 없는 경우
+            ),
         ).all()
 
         closed_count = 0
