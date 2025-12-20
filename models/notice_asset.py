@@ -1,4 +1,5 @@
 from datetime import datetime
+from utils.time_utils import get_kst_utcnow
 
 from . import db
 
@@ -13,7 +14,7 @@ class NoticeAsset(db.Model):
     asset_type = db.Column(db.Enum("IMAGE", "FILE", name="asset_type"), nullable=False)
     file_url = db.Column(db.String(255), nullable=False)
     original_filename = db.Column(db.String(255), nullable=True)  # 원본 파일명 저장
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, default=get_kst_utcnow)
 
     # 관계 설정
     notice = db.relationship("Notice", backref="assets")

@@ -1,4 +1,5 @@
 from datetime import datetime
+from utils.time_utils import get_kst_utcnow
 
 from . import db
 
@@ -12,7 +13,7 @@ class CleaningPhoto(db.Model):
     )
     file_url = db.Column(db.Text, nullable=False)
     note = db.Column(db.Text, nullable=True)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, default=get_kst_utcnow)
 
     # 관계 설정
     reservation = db.relationship("Reservation", back_populates="cleaning_photos")

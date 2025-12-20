@@ -1,4 +1,5 @@
 from datetime import datetime
+from utils.time_utils import get_kst_utcnow
 
 from . import db
 
@@ -18,9 +19,9 @@ class User(db.Model):
     gender = db.Column(db.Enum("MALE", "FEMALE", "OTHER"), nullable=True)
     email_verification_code = db.Column(db.String(10), nullable=True)
     email_verified_at = db.Column(db.DateTime, nullable=True)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, default=get_kst_utcnow)
     updated_at = db.Column(
-        db.DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+        db.DateTime, nullable=False, default=get_kst_utcnow, onupdate=get_kst_utcnow
     )
 
     # 관계 설정

@@ -1,4 +1,5 @@
 from datetime import datetime
+from utils.time_utils import get_kst_utcnow
 
 from . import db
 
@@ -21,12 +22,12 @@ class Reservation(db.Model):
     is_photo_submitted = db.Column(db.Boolean, nullable=False, default=False)
     note = db.Column(db.Text, nullable=True)
     admin_note = db.Column(db.Text, nullable=True)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, default=get_kst_utcnow)
     updated_at = db.Column(
         db.DateTime,
         nullable=False,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,
+        default=get_kst_utcnow,
+        onupdate=get_kst_utcnow,
     )
 
     # 관계 설정

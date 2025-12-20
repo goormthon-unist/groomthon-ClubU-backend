@@ -1,4 +1,5 @@
 from datetime import datetime
+from utils.time_utils import get_kst_utcnow
 
 from . import db
 
@@ -24,12 +25,12 @@ class Club(db.Model):
     logo_image = db.Column(db.Text, nullable=True)
     introduction_image = db.Column(db.Text, nullable=True)
     club_room = db.Column(db.Text, nullable=True)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, default=get_kst_utcnow)
     updated_at = db.Column(
         db.DateTime,
         nullable=False,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,
+        default=get_kst_utcnow,
+        onupdate=get_kst_utcnow,
     )
 
     # 관계 설정

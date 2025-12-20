@@ -1,4 +1,5 @@
 from datetime import datetime
+from utils.time_utils import get_kst_utcnow
 
 from . import db
 
@@ -9,7 +10,7 @@ class Notice(db.Model):
     id = db.Column(db.BigInteger, primary_key=True, autoincrement=True)
     club_id = db.Column(db.BigInteger, db.ForeignKey("clubs.id"), nullable=False)
     user_id = db.Column(db.BigInteger, db.ForeignKey("users.id"), nullable=False)
-    posted_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    posted_at = db.Column(db.DateTime, nullable=False, default=get_kst_utcnow)
     title = db.Column(db.String(100), nullable=False)
     content = db.Column(db.Text, nullable=False)
     status = db.Column(

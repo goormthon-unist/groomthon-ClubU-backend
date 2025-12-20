@@ -313,6 +313,12 @@ def create_app():
                     response.set_data(response_data)
         return response
 
+    # 스케줄러 초기화 및 시작
+    from utils.scheduler import init_scheduler
+
+    scheduler = init_scheduler(app)
+    app.scheduler = scheduler  # 앱 종료 시 스케줄러 종료를 위해 참조 저장
+
     return app
 
 
