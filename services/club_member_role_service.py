@@ -8,6 +8,7 @@ from datetime import datetime
 from models import db, User, ClubMember, Role, Club
 from config.permission_policy import ROLE_HIERARCHY
 from .user_search_service import find_user_by_student_id_and_name
+from .permission_service import permission_service
 from utils.time_utils import get_kst_now_naive
 
 
@@ -94,6 +95,9 @@ def register_club_member_improved(
 
                 db.session.commit()
 
+                # 권한 캐시 삭제
+                permission_service.clear_user_cache(user_id)
+
                 if existing_role_name != role_name:
                     message = f"사용자 {user_name}({student_id})의 동아리 역할이 '{existing_role_name}'에서 '{role_name}'으로 변경되었습니다."
                 else:
@@ -121,6 +125,9 @@ def register_club_member_improved(
 
                 db.session.add(new_membership)
                 db.session.commit()
+
+                # 권한 캐시 삭제
+                permission_service.clear_user_cache(user_id)
 
                 message = f"사용자 {user_name}({student_id})을(를) {club.name} 동아리의 {role_name}으로 등록했습니다."
 
@@ -201,6 +208,9 @@ def change_club_member_role(
                 db.session.delete(existing_membership)
                 db.session.commit()
 
+                # 권한 캐시 삭제
+                permission_service.clear_user_cache(user_id)
+
                 return {
                     "success": True,
                     "message": f"동아리 멤버가 '{role_name}'으로 변경되어 {club.name} 동아리에서 탈퇴되었습니다.",
@@ -225,6 +235,9 @@ def change_club_member_role(
                 existing_membership.updated_at = get_kst_now_naive()
 
                 db.session.commit()
+
+                # 권한 캐시 삭제
+                permission_service.clear_user_cache(user_id)
 
                 return {
                     "success": True,
@@ -271,6 +284,9 @@ def change_club_member_role(
 
                 db.session.add(new_membership)
                 db.session.commit()
+
+                # 권한 캐시 삭제
+                permission_service.clear_user_cache(user_id)
 
                 return {
                     "success": True,

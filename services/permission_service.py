@@ -155,7 +155,21 @@ class PermissionService:
                 .all()
             )
 
-            return {role.role_name for _, role in memberships}
+            club_roles = {role.role_name for _, role in memberships}
+
+            # 디버깅 로그 추가
+            if not club_roles:
+                current_app.logger.warning(
+                    f"클럽 권한 조회 결과 없음: user_id={user_id}, club_id={club_id}, "
+                    f"조회된 멤버십 수: {len(memberships)}"
+                )
+            else:
+                current_app.logger.debug(
+                    f"클럽 권한 조회 성공: user_id={user_id}, club_id={club_id}, "
+                    f"권한: {club_roles}"
+                )
+
+            return club_roles
 
         except Exception as e:
             current_app.logger.exception(
@@ -183,6 +197,12 @@ class PermissionService:
 
             # 3. 전역 권한과 동아리 권한 합치기
             all_roles = global_roles.union(club_roles)
+
+            # 디버깅 로그 추가
+            current_app.logger.debug(
+                f"동아리 컨텍스트 권한 조회: user_id={user_id}, club_id={club_id}, "
+                f"전역 권한: {global_roles}, 동아리 권한: {club_roles}, 합계: {all_roles}"
+            )
 
             return all_roles
 
