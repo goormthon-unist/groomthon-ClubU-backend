@@ -5,8 +5,10 @@ from services.banner_service import (
     delete_banner,
     get_banner_by_id,
     get_banners,
+    get_all_banners,
     update_banner_status,
 )
+from utils.permission_decorator import require_permission
 
 
 class BannerController(Resource):
@@ -132,16 +134,13 @@ class BannerController(Resource):
             }, 500
 
     def get(self):
-        """배너 목록 조회"""
+        """배너 목록 조회 (POSTED 상태만 반환)"""
         try:
             parser = reqparse.RequestParser()
-            parser.add_argument("status", type=str, location="args")
             parser.add_argument("position", type=str, location="args")
             args = parser.parse_args()
 
-            banners = get_banners(
-                status=args.get("status"), position=args.get("position")
-            )
+            banners = get_banners(position=args.get("position"))
 
             return {
                 "count": len(banners),
@@ -196,6 +195,35 @@ class BannerDetailController(Resource):
 
         except ValueError as e:
             return {"status": "error", "message": str(e), "code": "400-04"}, 400
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {e}",
+                "code": "500-00",
+            }, 500
+
+
+class BannerAllController(Resource):
+    """전체 배너 목록 조회 컨트롤러 (관리자용)"""
+
+    @require_permission("banners.list_all")
+    def get(self):
+        """전체 배너 목록 조회 (관리자 및 동연회 권한 필요)"""
+        try:
+            parser = reqparse.RequestParser()
+            parser.add_argument("status", type=str, location="args")
+            parser.add_argument("position", type=str, location="args")
+            args = parser.parse_args()
+
+            banners = get_all_banners(
+                status=args.get("status"), position=args.get("position")
+            )
+
+            return {
+                "count": len(banners),
+                "banners": banners,
+            }, 200
+
         except Exception as e:
             return {
                 "status": "error",

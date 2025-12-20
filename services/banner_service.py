@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from models import Banner, Club, db
 from utils.image_utils import delete_banner_image, save_banner_image
 
@@ -66,9 +66,72 @@ def create_banner(club_id, user_id, banner_data, image_file):
         raise Exception(f"배너 생성 중 오류 발생: {e}")
 
 
-def get_banners(status=None, position=None):
-    """배너 목록 조회"""
+def archive_expired_banners():
+    """end_date가 지난 배너를 자동으로 ARCHIVED로 변경"""
     try:
+        today = date.today()
+        expired_banners = Banner.query.filter(
+            Banner.end_date < today, Banner.status != "ARCHIVED"
+        ).all()
+
+        archived_count = 0
+        for banner in expired_banners:
+            banner.status = "ARCHIVED"
+            archived_count += 1
+
+        if archived_count > 0:
+            db.session.commit()
+
+        return archived_count
+    except Exception as e:
+        db.session.rollback()
+        raise Exception(f"배너 자동 아카이브 중 오류 발생: {e}")
+
+
+def get_banners(status=None, position=None):
+    """배너 목록 조회 (POSTED만 반환)"""
+    try:
+        # 만료된 배너 자동 아카이브
+        archive_expired_banners()
+
+        # POSTED 상태만 조회
+        query = db.session.query(Banner, Club).join(Club, Banner.club_id == Club.id)
+        query = query.filter(Banner.status == "POSTED")
+
+        if position:
+            query = query.filter(Banner.position == position)
+
+        banners = query.order_by(Banner.uploaded_at.desc()).all()
+
+        return [
+            {
+                "id": banner.id,
+                "club_id": banner.club_id,
+                "user_id": banner.user_id,
+                "club_name": club.name,
+                "file_path": banner.file_path,
+                "clublogoImageUrl": club.logo_image,
+                "position": banner.position,
+                "status": banner.status,
+                "uploaded_at": banner.uploaded_at.isoformat(),
+                "start_date": banner.start_date.isoformat(),
+                "end_date": banner.end_date.isoformat(),
+                "title": banner.title,
+                "description": banner.description,
+            }
+            for banner, club in banners
+        ]
+
+    except Exception as e:
+        raise Exception(f"배너 목록 조회 중 오류 발생: {e}")
+
+
+def get_all_banners(status=None, position=None):
+    """전체 배너 목록 조회 (관리자용)"""
+    try:
+        # 만료된 배너 자동 아카이브
+        archive_expired_banners()
+
         query = db.session.query(Banner, Club).join(Club, Banner.club_id == Club.id)
 
         if status:
@@ -98,7 +161,7 @@ def get_banners(status=None, position=None):
         ]
 
     except Exception as e:
-        raise Exception(f"배너 목록 조회 중 오류 발생: {e}")
+        raise Exception(f"전체 배너 목록 조회 중 오류 발생: {e}")
 
 
 def get_banner_by_id(banner_id):

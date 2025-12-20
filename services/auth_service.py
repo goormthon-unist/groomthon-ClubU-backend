@@ -47,6 +47,13 @@ def validate_student_id(student_id):
     return True, "학번이 유효합니다."
 
 
+def normalize_phone_number(phone_number):
+    """전화번호를 숫자만 포함한 형식으로 정규화 (01076317599)"""
+    # 하이픈과 공백 제거
+    normalized = re.sub(r"[\s-]", "", phone_number)
+    return normalized
+
+
 def validate_phone_number(phone_number):
     """전화번호 형식 검증"""
     # 010-1234-5678 형식 또는 01012345678 형식 허용
@@ -75,6 +82,9 @@ def create_user(user_data):
         if existing_student_id:
             raise ValueError("이미 등록된 학번입니다.")
 
+        # 전화번호 정규화 (숫자만 포함한 형식으로 통일)
+        normalized_phone = normalize_phone_number(user_data["phone_number"])
+
         # 새 사용자 생성 (필수 필드만)
         new_user = User(
             name=user_data["username"],  # username을 name으로 사용
@@ -82,7 +92,7 @@ def create_user(user_data):
             password=generate_password_hash(user_data["password"]),
             student_id=user_data["student_id"],  # 실제 학번
             department_id=user_data["department_id"],  # 사용자가 선택한 학과
-            phone_number=user_data["phone_number"],  # 실제 전화번호
+            phone_number=normalized_phone,  # 정규화된 전화번호 (숫자만)
             gender=user_data.get("gender"),  # 성별 (선택사항)
         )
 

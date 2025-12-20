@@ -176,12 +176,12 @@ def create_app():
         app,
         version="1.0",
         title="ClubU API",
-        description="UNIST 동아리 관리 시스템 API",
+        description="UNIST 동아리 관리 시스템 API<br><div id='server-time' style='margin-top: 10px; padding: 8px; background: #f0f0f0; border-radius: 4px; font-family: monospace;'><strong>서버 시간 (KST):</strong> <span id='time-display'>로딩 중...</span></div>",
         doc="/docs/",
         authorizations={
             "sessionAuth": {"type": "apiKey", "in": "cookie", "name": "session"}
         },
-        # Swagger UI에서 쿠키 전송을 위한 설정
+        # Swagger UI에서 쿠키 전송 및 서버 시간 표시를 위한 설정
         swagger_ui_params={
             "requestInterceptor": """
                 function(request) {
@@ -189,7 +189,33 @@ def create_app():
                     request.credentials = 'include';
                     return request;
                 }
-            """
+            """,
+            "onComplete": """
+                function() {
+                    // 서버 시간 업데이트 함수
+                    function updateServerTime() {
+                        fetch('/health')
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.server_time) {
+                                    const timeDisplay = document.getElementById('time-display');
+                                    if (timeDisplay) {
+                                        timeDisplay.textContent = data.server_time.formatted;
+                                    }
+                                }
+                            })
+                            .catch(error => {
+                                console.error('서버 시간 가져오기 실패:', error);
+                            });
+                    }
+                    
+                    // 초기 로드 시 서버 시간 가져오기
+                    updateServerTime();
+                    
+                    // 1초마다 서버 시간 업데이트
+                    setInterval(updateServerTime, 1000);
+                }
+            """,
         },
     )
 
