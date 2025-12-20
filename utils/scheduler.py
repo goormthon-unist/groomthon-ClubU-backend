@@ -22,6 +22,7 @@ def init_scheduler(app):
 
     def recruitment_job_wrapper():
         with app.app_context():
+            open_started_recruitments_job()
             close_expired_recruitments_job()
 
     # 매일 자정(KST)에 만료된 배너 아카이브
@@ -33,18 +34,18 @@ def init_scheduler(app):
         replace_existing=True,
     )
 
-    # 매일 자정(KST)에 만료된 모집 기간 CLOSED 처리
+    # 매일 자정(KST)에 모집 시작일이 된 동아리 OPEN 처리 및 만료된 모집 기간 CLOSED 처리
     scheduler.add_job(
         func=recruitment_job_wrapper,
         trigger=CronTrigger(hour=0, minute=0, timezone=pytz.timezone("Asia/Seoul")),
-        id="close_expired_recruitments",
-        name="만료된 모집 기간 자동 CLOSED",
+        id="manage_recruitment_status",
+        name="모집 기간 상태 자동 관리 (OPEN/CLOSED)",
         replace_existing=True,
     )
 
     scheduler.start()
     logger.info(
-        "스케줄러가 시작되었습니다. 매일 자정(KST)에 만료된 배너를 아카이브하고, 만료된 모집 기간을 CLOSED로 변경합니다."
+        "스케줄러가 시작되었습니다. 매일 자정(KST)에 만료된 배너를 아카이브하고, 모집 기간 상태를 자동으로 관리합니다."
     )
 
     return scheduler
@@ -63,6 +64,24 @@ def archive_expired_banners_job():
     except Exception as e:
         logger.error(
             f"배너 아카이브 스케줄러 작업 중 오류 발생: {str(e)}", exc_info=True
+        )
+
+
+def open_started_recruitments_job():
+    """모집 시작일이 된 동아리를 OPEN으로 변경하는 스케줄러 작업"""
+    try:
+        from services.club_service import open_started_recruitments
+
+        opened_count = open_started_recruitments()
+        if opened_count > 0:
+            logger.info(
+                f"모집 시작일이 된 동아리 {opened_count}개를 OPEN으로 변경했습니다."
+            )
+        else:
+            logger.debug("OPEN으로 변경할 모집 시작일이 된 동아리가 없습니다.")
+    except Exception as e:
+        logger.error(
+            f"모집 시작 처리 스케줄러 작업 중 오류 발생: {str(e)}", exc_info=True
         )
 
 
