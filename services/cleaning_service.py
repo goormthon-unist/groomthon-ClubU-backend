@@ -3,6 +3,7 @@ from typing import List, Dict, Optional
 from sqlalchemy import and_
 from models import db, Reservation, CleaningPhoto, ClubMember
 from utils.image_utils import save_cleaning_photo, delete_cleaning_photo
+from utils.time_utils import get_kst_now
 import os
 from flask import current_app
 
@@ -286,5 +287,5 @@ class CleaningService:
             "status": reservation.status,
             "admin_note": admin_note,
             "message": message,
-            "processed_at": datetime.utcnow().isoformat(),
+            "processed_at": get_kst_now().isoformat(),
         }

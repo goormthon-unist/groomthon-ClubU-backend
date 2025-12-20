@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime, timedelta
 from flask import session
 from models import db, UserSession
+from utils.time_utils import get_kst_now
 
 
 def create_session(user_id, expires_hours=24):
@@ -12,7 +13,7 @@ def create_session(user_id, expires_hours=24):
 
         # 새 세션 생성
         session_id = str(uuid.uuid4())
-        expires_at = datetime.utcnow() + timedelta(hours=expires_hours)
+        expires_at = get_kst_now() + timedelta(hours=expires_hours)
 
         new_session = UserSession(
             session_id=session_id,
@@ -57,7 +58,7 @@ def get_current_session():
             clear_flask_session()
             return None
 
-        if datetime.utcnow() > db_session.expires_at:
+        if get_kst_now() > db_session.expires_at:
             deactivate_session(session_id)
             clear_flask_session()
             return None
@@ -107,7 +108,7 @@ def validate_session(session_id):
             return None
 
         # 만료 시간 확인
-        if datetime.utcnow() > session_obj.expires_at:
+        if get_kst_now() > session_obj.expires_at:
             deactivate_session(session_id)
             return None
 
@@ -156,7 +157,7 @@ def cleanup_expired_sessions():
     """만료된 세션 정리"""
     try:
         expired_sessions = UserSession.query.filter(
-            UserSession.expires_at < datetime.utcnow(), UserSession.is_active == True
+            UserSession.expires_at < get_kst_now(), UserSession.is_active == True
         ).all()
 
         for session_obj in expired_sessions:
@@ -181,7 +182,7 @@ def debug_session_info():
         total_sessions = UserSession.query.count()
         active_sessions = UserSession.query.filter_by(is_active=True).count()
         expired_sessions = UserSession.query.filter(
-            UserSession.expires_at < datetime.utcnow(), UserSession.is_active == True
+            UserSession.expires_at < get_kst_now(), UserSession.is_active == True
         ).count()
 
         # 현재 사용자 정보

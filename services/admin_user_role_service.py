@@ -6,6 +6,7 @@ DEVELOPER 권한을 가진 관리자만 사용자 권한을 변경할 수 있음
 from datetime import datetime
 from models import db, User, Club, ClubMember, Role
 from services.permission_service import permission_service
+from utils.time_utils import get_kst_now
 
 
 def change_user_role(user_id, club_id, new_role_name, generation=None, other_info=None):
@@ -51,9 +52,7 @@ def change_user_role(user_id, club_id, new_role_name, generation=None, other_inf
                 existing_membership.generation = generation
             if other_info is not None:
                 existing_membership.other_info = other_info
-            existing_membership.joined_at = (
-                datetime.utcnow()
-            )  # 권한 변경 시간으로 업데이트
+            existing_membership.joined_at = get_kst_now()  # 권한 변경 시간으로 업데이트
 
             db.session.commit()
 
@@ -86,7 +85,7 @@ def change_user_role(user_id, club_id, new_role_name, generation=None, other_inf
                 role_id=role.id,
                 generation=generation or 1,
                 other_info=other_info,
-                joined_at=datetime.utcnow(),
+                joined_at=get_kst_now(),
             )
 
             db.session.add(new_membership)

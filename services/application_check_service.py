@@ -12,6 +12,7 @@ from models import (
     Role,
 )
 from sqlalchemy.orm import joinedload
+from utils.time_utils import get_kst_now
 
 
 def get_club_applicants(club_id):
@@ -210,7 +211,7 @@ def register_club_member(
             role_id=role_id,
             generation=generation,
             other_info=other_info,
-            joined_at=datetime.utcnow(),
+            joined_at=get_kst_now(),
         )
 
         db.session.add(new_member)

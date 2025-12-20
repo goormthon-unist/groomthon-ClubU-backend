@@ -2,6 +2,7 @@ from datetime import datetime, date, time, timedelta
 from typing import List, Dict, Optional
 from sqlalchemy import and_, or_
 from models import db, Room, Reservation, Club, User
+from utils.time_utils import get_kst_now
 
 
 class ReservationService:
@@ -353,7 +354,7 @@ class ReservationService:
         return {
             "id": reservation.id,
             "status": reservation.status,
-            "cancelled_at": datetime.utcnow().isoformat(),
+            "cancelled_at": get_kst_now().isoformat(),
             "message": "예약이 성공적으로 취소되었습니다.",
         }
 

@@ -1,4 +1,5 @@
 from datetime import datetime
+from utils.time_utils import get_kst_utcnow
 from . import db
 
 
@@ -8,7 +9,7 @@ class UserSession(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     session_id = db.Column(db.String(255), unique=True, nullable=False)
     user_id = db.Column(db.BigInteger, db.ForeignKey("users.id"), nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, nullable=False, default=get_kst_utcnow)
     expires_at = db.Column(db.DateTime, nullable=False)
     is_active = db.Column(db.Boolean, nullable=False, default=True)
 

@@ -1,4 +1,5 @@
 from datetime import datetime
+from utils.time_utils import get_kst_utcnow
 
 from . import db
 
@@ -19,7 +20,7 @@ class Banner(db.Model):
         nullable=False,
         default="WAITING",
     )
-    uploaded_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    uploaded_at = db.Column(db.DateTime, nullable=False, default=get_kst_utcnow)
     start_date = db.Column(db.Date, nullable=False)
     end_date = db.Column(db.Date, nullable=False)
     title = db.Column(db.String(100), nullable=False)
