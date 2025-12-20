@@ -12,6 +12,7 @@ from services.admin_user_role_service import (
     get_user_roles,
     get_available_roles,
 )
+from services.permission_service import permission_service
 from utils.permission_decorator import require_permission
 
 
@@ -157,6 +158,49 @@ class AdminAvailableRolesController(Resource):
                 "message": "사용 가능한 역할 목록 조회가 완료되었습니다",
                 "roles": result["data"],
             }, 200
+
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
+
+
+class AdminPermissionCacheController(Resource):
+    """권한 캐시 관리 컨트롤러"""
+
+    @require_permission("admin.cache_clear")
+    def delete(self, user_id=None):
+        """
+        권한 캐시 삭제 API
+
+        Args:
+            user_id: 사용자 ID (선택사항, 없으면 전체 캐시 삭제)
+        """
+        try:
+            if user_id is not None:
+                # 특정 사용자 캐시 삭제
+                try:
+                    user_id = int(user_id)
+                except (ValueError, TypeError):
+                    return {
+                        "status": "error",
+                        "message": "사용자 ID는 정수여야 합니다",
+                        "code": "400-01",
+                    }, 400
+
+                permission_service.clear_user_cache(user_id)
+                return {
+                    "message": f"사용자 {user_id}의 권한 캐시가 삭제되었습니다",
+                    "user_id": user_id,
+                }, 200
+            else:
+                # 전체 캐시 삭제
+                permission_service.clear_all_cache()
+                return {
+                    "message": "모든 권한 캐시가 삭제되었습니다",
+                }, 200
 
         except Exception as e:
             return {
