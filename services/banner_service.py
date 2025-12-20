@@ -91,6 +91,9 @@ def archive_expired_banners():
 def get_banners(status=None, position=None):
     """배너 목록 조회 (POSTED만 반환)"""
     try:
+        # 만료된 배너 자동 아카이브 (실시간 체크)
+        archive_expired_banners()
+
         # POSTED 상태만 조회
         query = db.session.query(Banner, Club).join(Club, Banner.club_id == Club.id)
         query = query.filter(Banner.status == "POSTED")
@@ -126,6 +129,9 @@ def get_banners(status=None, position=None):
 def get_all_banners(status=None, position=None):
     """전체 배너 목록 조회 (관리자용)"""
     try:
+        # 만료된 배너 자동 아카이브 (실시간 체크)
+        archive_expired_banners()
+
         query = db.session.query(Banner, Club).join(Club, Banner.club_id == Club.id)
 
         if status:
