@@ -8,7 +8,7 @@ from datetime import datetime
 from models import db, User, ClubMember, Role, Club
 from config.permission_policy import ROLE_HIERARCHY
 from .user_search_service import find_user_by_student_id_and_name
-from utils.time_utils import get_kst_now
+from utils.time_utils import get_kst_now_naive
 
 
 def register_club_member_improved(
@@ -90,7 +90,7 @@ def register_club_member_improved(
                     existing_membership.generation = generation
                 if other_info is not None:
                     existing_membership.other_info = other_info
-                existing_membership.updated_at = get_kst_now()
+                existing_membership.updated_at = get_kst_now_naive()
 
                 db.session.commit()
 
@@ -116,7 +116,7 @@ def register_club_member_improved(
                     role_id=role.id,
                     generation=generation,
                     other_info=other_info,
-                    joined_at=get_kst_now(),
+                    joined_at=get_kst_now_naive(),
                 )
 
                 db.session.add(new_membership)
@@ -212,7 +212,7 @@ def change_club_member_role(
                         "role_name": role_name,
                         "generation": None,
                         "other_info": other_info,
-                        "updated_at": get_kst_now().isoformat(),
+                        "updated_at": get_kst_now_naive().isoformat(),
                     },
                 }
             else:
@@ -222,7 +222,7 @@ def change_club_member_role(
                     existing_membership.generation = generation
                 if other_info is not None:
                     existing_membership.other_info = other_info
-                existing_membership.updated_at = get_kst_now()
+                existing_membership.updated_at = get_kst_now_naive()
 
                 db.session.commit()
 
@@ -266,7 +266,7 @@ def change_club_member_role(
                     role_id=role.id,
                     generation=generation or 1,
                     other_info=other_info,
-                    joined_at=get_kst_now(),
+                    joined_at=get_kst_now_naive(),
                 )
 
                 db.session.add(new_membership)

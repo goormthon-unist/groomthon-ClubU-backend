@@ -7,7 +7,7 @@ from models import (
     User,
     Club,
 )
-from utils.time_utils import get_kst_now
+from utils.time_utils import get_kst_now_naive
 
 
 def get_club_application_questions(club_id: int):
@@ -106,7 +106,7 @@ def submit_application(club_id: int, user_id: int, answers_data: list[dict]):
             user_id=user_id,
             club_id=club_id,
             status="SUBMITTED",
-            submitted_at=get_kst_now(),  # TIMESTAMP NOT NULL
+            submitted_at=get_kst_now_naive(),  # TIMESTAMP NOT NULL
         )
         db.session.add(new_app)
         db.session.flush()  # id 확보
