@@ -117,6 +117,10 @@ PERMISSION_POLICY = {
         "allowed_roles": {"DEVELOPER"},
         "description": "사용자 권한 변경 (POST /api/v1/admin/users/{user_id}/roles)",
     },
+    "admin.cache_clear": {
+        "allowed_roles": {"DEVELOPER", "UNION_ADMIN"},
+        "description": "권한 캐시 삭제 (DELETE /api/v1/admin/cache/permissions)",
+    },
     # ===== 예약 관련 권한 =====
     "reservations.create": {
         "allowed_roles": {"CLUB_MEMBER", "CLUB_OFFICER", "CLUB_PRESIDENT", "DEVELOPER"},

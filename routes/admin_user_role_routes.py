@@ -8,6 +8,7 @@ from controllers.admin_user_role_controller import (
     AdminUserRoleChangeController,
     AdminUserRolesController,
     AdminAvailableRolesController,
+    AdminPermissionCacheController,
 )
 
 # 네임스페이스 등록
@@ -37,7 +38,7 @@ class AdminUserRoleChangeResource(AdminUserRoleChangeController):
     @admin_user_role_ns.response(200, "권한 변경 성공")
     @admin_user_role_ns.response(400, "잘못된 요청")
     @admin_user_role_ns.response(401, "로그인이 필요합니다")
-    @admin_user_role_ns.response(403, "DEVELOPER 권한이 필요합니다")
+    @admin_user_role_ns.response(403, "DEVELOPER 또는 UNION_ADMIN 권한이 필요합니다")
     @admin_user_role_ns.response(500, "서버 내부 오류")
     def post(self, user_id):
         """
@@ -66,7 +67,7 @@ class AdminUserRolesResource(AdminUserRolesController):
     @admin_user_role_ns.response(200, "권한 조회 성공")
     @admin_user_role_ns.response(400, "잘못된 요청")
     @admin_user_role_ns.response(401, "로그인이 필요합니다")
-    @admin_user_role_ns.response(403, "DEVELOPER 권한이 필요합니다")
+    @admin_user_role_ns.response(403, "DEVELOPER 또는 UNION_ADMIN 권한이 필요합니다")
     @admin_user_role_ns.response(500, "서버 내부 오류")
     def get(self, user_id):
         """
@@ -84,7 +85,7 @@ class AdminAvailableRolesResource(AdminAvailableRolesController):
     @admin_user_role_ns.doc("get_available_roles")
     @admin_user_role_ns.response(200, "역할 목록 조회 성공")
     @admin_user_role_ns.response(401, "로그인이 필요합니다")
-    @admin_user_role_ns.response(403, "DEVELOPER 권한이 필요합니다")
+    @admin_user_role_ns.response(403, "DEVELOPER 또는 UNION_ADMIN 권한이 필요합니다")
     @admin_user_role_ns.response(500, "서버 내부 오류")
     def get(self):
         """
@@ -93,3 +94,26 @@ class AdminAvailableRolesResource(AdminAvailableRolesController):
         시스템에서 사용 가능한 모든 역할 목록을 조회합니다.
         """
         return super().get()
+
+
+@admin_user_role_ns.route("/cache/permissions")
+@admin_user_role_ns.route("/cache/permissions/<int:user_id>")
+class AdminPermissionCacheResource(AdminPermissionCacheController):
+    """권한 캐시 관리 리소스"""
+
+    @admin_user_role_ns.doc("clear_permission_cache")
+    @admin_user_role_ns.response(200, "캐시 삭제 성공")
+    @admin_user_role_ns.response(400, "잘못된 요청")
+    @admin_user_role_ns.response(401, "로그인이 필요합니다")
+    @admin_user_role_ns.response(403, "DEVELOPER 또는 UNION_ADMIN 권한이 필요합니다")
+    @admin_user_role_ns.response(500, "서버 내부 오류")
+    def delete(self, user_id=None):
+        """
+        권한 캐시 삭제
+
+        - 특정 사용자 캐시 삭제: DELETE /api/v1/admin/cache/permissions/{user_id}
+        - 전체 캐시 삭제: DELETE /api/v1/admin/cache/permissions
+
+        권한 변경 후 캐시가 갱신되지 않았을 때 사용합니다.
+        """
+        return super().delete(user_id)
