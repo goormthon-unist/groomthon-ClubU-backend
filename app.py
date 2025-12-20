@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from flask import Flask
+from flask import Flask, request
 from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_restx import Api
@@ -192,28 +192,32 @@ def create_app():
             """,
             "onComplete": """
                 function() {
-                    // 서버 시간 업데이트 함수
-                    function updateServerTime() {
-                        fetch('/health')
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.server_time) {
-                                    const timeDisplay = document.getElementById('time-display');
-                                    if (timeDisplay) {
-                                        timeDisplay.textContent = data.server_time.formatted;
+                    // Swagger UI가 완전히 로드된 후 실행
+                    setTimeout(function() {
+                        function updateServerTime() {
+                            fetch('/health')
+                                .then(function(response) {
+                                    return response.json();
+                                })
+                                .then(function(data) {
+                                    if (data && data.server_time) {
+                                        var timeDisplay = document.getElementById('time-display');
+                                        if (timeDisplay) {
+                                            timeDisplay.textContent = data.server_time.formatted;
+                                        }
                                     }
-                                }
-                            })
-                            .catch(error => {
-                                console.error('서버 시간 가져오기 실패:', error);
-                            });
-                    }
-                    
-                    // 초기 로드 시 서버 시간 가져오기
-                    updateServerTime();
-                    
-                    // 1초마다 서버 시간 업데이트
-                    setInterval(updateServerTime, 1000);
+                                })
+                                .catch(function(error) {
+                                    console.error('서버 시간 가져오기 실패:', error);
+                                });
+                        }
+                        
+                        // 초기 로드 시 서버 시간 가져오기
+                        updateServerTime();
+                        
+                        // 1초마다 서버 시간 업데이트
+                        setInterval(updateServerTime, 1000);
+                    }, 500);
                 }
             """,
         },
@@ -263,6 +267,51 @@ def create_app():
     api.add_namespace(club_room_ns, path="/api/v1/clubs")
     api.add_namespace(cleaning_ns, path="/api/v1")
     init_routes(app)
+
+    # Swagger UI에 서버 시간 표시 스크립트 주입
+    @app.after_request
+    def inject_server_time_script(response):
+        if "/docs/" in request.path or "/docs" == request.path:
+            if response.content_type and "text/html" in response.content_type:
+                # Swagger UI HTML에 스크립트 추가
+                script = """
+                <script>
+                (function() {
+                    function updateServerTime() {
+                        fetch('/health')
+                            .then(function(response) { return response.json(); })
+                            .then(function(data) {
+                                if (data && data.server_time) {
+                                    var timeDisplay = document.getElementById('time-display');
+                                    if (timeDisplay) {
+                                        timeDisplay.textContent = data.server_time.formatted;
+                                    }
+                                }
+                            })
+                            .catch(function(error) {
+                                console.error('서버 시간 가져오기 실패:', error);
+                            });
+                    }
+                    
+                    // DOM이 로드된 후 실행
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', function() {
+                            setTimeout(updateServerTime, 1000);
+                            setInterval(updateServerTime, 1000);
+                        });
+                    } else {
+                        setTimeout(updateServerTime, 1000);
+                        setInterval(updateServerTime, 1000);
+                    }
+                })();
+                </script>
+                """
+                # HTML 응답에 스크립트 추가
+                response_data = response.get_data(as_text=True)
+                if "</body>" in response_data:
+                    response_data = response_data.replace("</body>", script + "</body>")
+                    response.set_data(response_data)
+        return response
 
     return app
 
