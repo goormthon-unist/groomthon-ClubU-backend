@@ -9,5 +9,6 @@ PyMySQL==1.1.0
 python-dotenv==1.0.0
 Werkzeug==2.3.7
 Pillow==10.0.0
+pytz==2024.1
 black==24.4.2
 flake8==6.1.0

@@ -4,6 +4,7 @@ from controllers.banner_controller import (
     BannerController,
     BannerDetailController,
     BannerStatusController,
+    BannerAllController,
 )
 
 # 네임스페이스 등록
@@ -118,10 +119,24 @@ class BannerResource(BannerController):
         return super().post()
 
     @banner_ns.doc("get_banners")
-    @banner_ns.response(200, "배너 목록 조회 성공", banner_list_model)
+    @banner_ns.response(200, "배너 목록 조회 성공 (POSTED만)", banner_list_model)
     @banner_ns.response(500, "서버 내부 오류")
     def get(self):
-        """배너 목록 조회"""
+        """배너 목록 조회 (POSTED 상태만 반환)"""
+        return super().get()
+
+
+@banner_ns.route("/all")
+class BannerAllResource(BannerAllController):
+    """전체 배너 목록 조회 리소스 (관리자용)"""
+
+    @banner_ns.doc("get_all_banners")
+    @banner_ns.response(200, "전체 배너 목록 조회 성공", banner_list_model)
+    @banner_ns.response(401, "로그인이 필요합니다")
+    @banner_ns.response(403, "UNION_ADMIN 또는 DEVELOPER 권한이 필요합니다")
+    @banner_ns.response(500, "서버 내부 오류")
+    def get(self):
+        """전체 배너 목록 조회 (관리자 및 동연회 권한 필요)"""
         return super().get()
 
 

@@ -95,6 +95,10 @@ PERMISSION_POLICY = {
         "allowed_roles": {"UNION_ADMIN", "DEVELOPER"},
         "description": "배너 상태 수정 (PATCH /api/v1/banners/{id}/status)",
     },
+    "banners.list_all": {
+        "allowed_roles": {"UNION_ADMIN", "DEVELOPER"},
+        "description": "전체 배너 목록 조회 (GET /api/v1/banners/all)",
+    },
     # ===== CLUB_PRESIDENT만 접근 가능한 API들 (동아리 내 권한 관리) =====
     "clubs.member_role_change": {
         "allowed_roles": {"CLUB_PRESIDENT", "DEVELOPER"},

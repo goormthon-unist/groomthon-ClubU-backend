@@ -196,7 +196,27 @@ class RegisterController(Resource):
 
         except ValueError as e:
             current_app.logger.error(f"ValueError in register: {str(e)}")
-            return {"status": "error", "message": str(e), "code": "400-07"}, 400
+            # ValueError는 클라이언트 오류이므로 400으로 처리
+            error_message = str(e)
+            # 이미 등록된 이메일/학번 등의 경우 구체적인 오류 코드 반환
+            if "이미 등록된 이메일입니다." in error_message:
+                return {
+                    "status": "error",
+                    "message": error_message,
+                    "code": "400-15",
+                }, 400
+            elif "이미 등록된 학번입니다." in error_message:
+                return {
+                    "status": "error",
+                    "message": error_message,
+                    "code": "400-16",
+                }, 400
+            else:
+                return {
+                    "status": "error",
+                    "message": error_message,
+                    "code": "400-07",
+                }, 400
         except Exception as e:
             current_app.logger.exception("auth.register failed")
             return {

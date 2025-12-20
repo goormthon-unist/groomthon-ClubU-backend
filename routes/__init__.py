@@ -13,6 +13,8 @@ def health_check():
     """서버 상태 확인용 헬스체크 엔드포인트"""
     from flask import jsonify
     from models import db
+    from datetime import datetime
+    import pytz
 
     try:
         # 데이터베이스 연결 상태 확인
@@ -23,11 +25,21 @@ def health_check():
     except Exception as e:
         db_status = f"error: {str(e)}"
 
+    # 서버 시간 (KST)
+    kst = pytz.timezone("Asia/Seoul")
+    server_time = datetime.now(kst)
+
     return jsonify(
         {
             "status": "healthy",
             "message": "ClubU Backend API is running",
             "database": db_status,
+            "server_time": {
+                "iso": server_time.isoformat(),
+                "formatted": server_time.strftime("%Y-%m-%d %H:%M:%S %Z"),
+                "timestamp": server_time.timestamp(),
+                "timezone": "Asia/Seoul",
+            },
         }
     )
 

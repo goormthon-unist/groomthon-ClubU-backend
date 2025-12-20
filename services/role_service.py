@@ -193,6 +193,9 @@ def get_all_club_members(club_id):
                 "user_id": membership.user.id,
                 "user_name": membership.user.name,
                 "email": membership.user.email,
+                "student_id": membership.user.student_id,  # 학번 추가
+                "phone_number": membership.user.phone_number,  # 전화번호 추가
+                "generation": membership.generation,  # 기수 추가
                 "role_id": membership.role.id,
                 "role_name": membership.role.role_name,
                 "joined_at": (
