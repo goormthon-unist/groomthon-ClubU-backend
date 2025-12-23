@@ -5,6 +5,7 @@ from controllers.banner_controller import (
     BannerDetailController,
     BannerStatusController,
     BannerAllController,
+    BannerClubsController,
 )
 
 # 네임스페이스 등록
@@ -100,6 +101,17 @@ banner_delete_response_model = banner_ns.model(
     },
 )
 
+banner_clubs_response_model = banner_ns.model(
+    "BannerClubsResponse",
+    {
+        "status": fields.String(description="응답 상태"),
+        "data": fields.Raw(description="동아리 ID를 키로 하는 객체, 각 값은 배너 배열"),
+        "count": fields.Raw(
+            description="동아리 ID를 키로 하는 객체, 각 값은 배너 개수"
+        ),
+    },
+)
+
 
 # 배너 관리 엔드포인트
 @banner_ns.route("/")
@@ -137,6 +149,29 @@ class BannerAllResource(BannerAllController):
     @banner_ns.response(500, "서버 내부 오류")
     def get(self):
         """전체 배너 목록 조회 (관리자 및 동연회 권한 필요)"""
+        return super().get()
+
+
+@banner_ns.route("/clubs")
+class BannerClubsResource(BannerClubsController):
+    """동아리별 배너 목록 조회 리소스"""
+
+    @banner_ns.doc("get_banners_by_clubs", security="sessionAuth")
+    @banner_ns.param(
+        "club_ids",
+        "동아리 ID 배열 (쉼표로 구분된 문자열)",
+        required=True,
+        type="string",
+        example="1,2,3",
+    )
+    @banner_ns.response(
+        200, "동아리별 배너 목록 조회 성공", banner_clubs_response_model
+    )
+    @banner_ns.response(400, "잘못된 요청")
+    @banner_ns.response(401, "로그인이 필요합니다")
+    @banner_ns.response(500, "서버 내부 오류")
+    def get(self):
+        """동아리별 배너 목록 조회 (CLUB_PRESIDENT, UNION_ADMIN, DEVELOPER 권한 필요)"""
         return super().get()
 
 

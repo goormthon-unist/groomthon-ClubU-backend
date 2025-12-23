@@ -7,6 +7,7 @@ from services.banner_service import (
     get_banners,
     get_all_banners,
     update_banner_status,
+    get_banners_by_clubs,
 )
 from utils.permission_decorator import require_permission
 
@@ -256,6 +257,75 @@ class BannerStatusController(Resource):
 
         except ValueError as e:
             return {"status": "error", "message": str(e), "code": "400-05"}, 400
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {e}",
+                "code": "500-00",
+            }, 500
+
+
+class BannerClubsController(Resource):
+    """동아리별 배너 목록 조회 컨트롤러"""
+
+    def get(self):
+        """동아리별 배너 목록 조회"""
+        try:
+            # 세션 인증 확인
+            session_data = get_current_session()
+            if not session_data:
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다",
+                    "code": "401-01",
+                }, 401
+
+            user_id = session_data["user_id"]
+
+            # 쿼리 파라미터 파싱
+            parser = reqparse.RequestParser()
+            parser.add_argument("club_ids", type=str, required=True, location="args")
+            args = parser.parse_args()
+
+            # club_ids 파라미터 검증
+            club_ids_str = args.get("club_ids")
+            if not club_ids_str:
+                return {
+                    "status": "error",
+                    "message": "club_ids 파라미터가 필요합니다",
+                    "code": "400-01",
+                }, 400
+
+            # 쉼표로 구분된 문자열을 정수 배열로 변환
+            try:
+                club_ids = [
+                    int(cid.strip()) for cid in club_ids_str.split(",") if cid.strip()
+                ]
+            except ValueError:
+                return {
+                    "status": "error",
+                    "message": "club_ids는 정수 배열이어야 합니다",
+                    "code": "400-02",
+                }, 400
+
+            if not club_ids:
+                return {
+                    "status": "error",
+                    "message": "club_ids는 최소 1개 이상의 동아리 ID가 필요합니다",
+                    "code": "400-03",
+                }, 400
+
+            # 동아리별 배너 조회
+            result = get_banners_by_clubs(club_ids, user_id)
+
+            return {
+                "status": "success",
+                "data": result["data"],
+                "count": result["count"],
+            }, 200
+
+        except ValueError as e:
+            return {"status": "error", "message": str(e), "code": "400-04"}, 400
         except Exception as e:
             return {
                 "status": "error",
