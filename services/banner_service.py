@@ -1,6 +1,6 @@
 from datetime import datetime, date
 from typing import List, Dict, Any
-from models import Banner, Club, ClubMember, Role, db
+from models import Banner, Club, ClubCategory, ClubMember, Role, db
 from utils.image_utils import delete_banner_image, save_banner_image
 
 
@@ -95,8 +95,12 @@ def get_banners(status=None, position=None):
         # 만료된 배너 자동 아카이브 (실시간 체크)
         archive_expired_banners()
 
-        # POSTED 상태만 조회
-        query = db.session.query(Banner, Club).join(Club, Banner.club_id == Club.id)
+        # POSTED 상태만 조회 (ClubCategory join 추가)
+        query = (
+            db.session.query(Banner, Club, ClubCategory)
+            .join(Club, Banner.club_id == Club.id)
+            .join(ClubCategory, Club.category_id == ClubCategory.id)
+        )
         query = query.filter(Banner.status == "POSTED")
 
         if position:
@@ -110,6 +114,7 @@ def get_banners(status=None, position=None):
                 "club_id": banner.club_id,
                 "user_id": banner.user_id,
                 "club_name": club.name,
+                "categoryName": category.name,
                 "file_path": banner.file_path,
                 "clublogoImageUrl": club.logo_image,
                 "position": banner.position,
@@ -120,7 +125,7 @@ def get_banners(status=None, position=None):
                 "title": banner.title,
                 "description": banner.description,
             }
-            for banner, club in banners
+            for banner, club, category in banners
         ]
 
     except Exception as e:
@@ -133,7 +138,12 @@ def get_all_banners(status=None, position=None):
         # 만료된 배너 자동 아카이브 (실시간 체크)
         archive_expired_banners()
 
-        query = db.session.query(Banner, Club).join(Club, Banner.club_id == Club.id)
+        # ClubCategory join 추가
+        query = (
+            db.session.query(Banner, Club, ClubCategory)
+            .join(Club, Banner.club_id == Club.id)
+            .join(ClubCategory, Club.category_id == ClubCategory.id)
+        )
 
         if status:
             query = query.filter(Banner.status == status)
@@ -148,6 +158,7 @@ def get_all_banners(status=None, position=None):
                 "club_id": banner.club_id,
                 "user_id": banner.user_id,
                 "club_name": club.name,
+                "categoryName": category.name,
                 "file_path": banner.file_path,
                 "clublogoImageUrl": club.logo_image,
                 "position": banner.position,
@@ -158,7 +169,7 @@ def get_all_banners(status=None, position=None):
                 "title": banner.title,
                 "description": banner.description,
             }
-            for banner, club in banners
+            for banner, club, category in banners
         ]
 
     except Exception as e:
@@ -168,9 +179,11 @@ def get_all_banners(status=None, position=None):
 def get_banner_by_id(banner_id):
     """배너 상세 조회"""
     try:
+        # ClubCategory join 추가
         banner_data = (
-            db.session.query(Banner, Club)
+            db.session.query(Banner, Club, ClubCategory)
             .join(Club, Banner.club_id == Club.id)
+            .join(ClubCategory, Club.category_id == ClubCategory.id)
             .filter(Banner.id == banner_id)
             .first()
         )
@@ -178,13 +191,14 @@ def get_banner_by_id(banner_id):
         if not banner_data:
             return None
 
-        banner, club = banner_data
+        banner, club, category = banner_data
 
         return {
             "id": banner.id,
             "club_id": banner.club_id,
             "user_id": banner.user_id,
             "club_name": club.name,
+            "categoryName": category.name,
             "file_path": banner.file_path,
             "clublogoImageUrl": club.logo_image,
             "position": banner.position,
@@ -315,10 +329,11 @@ def get_banners_by_clubs(club_ids: List[int], user_id: int) -> Dict[str, Any]:
                 result_count[club_id_str] = 0
                 continue
 
-            # 해당 동아리의 모든 배너 조회 (상태 필터 없이)
+            # 해당 동아리의 모든 배너 조회 (상태 필터 없이, ClubCategory join 추가)
             banners = (
-                db.session.query(Banner, Club)
+                db.session.query(Banner, Club, ClubCategory)
                 .join(Club, Banner.club_id == Club.id)
+                .join(ClubCategory, Club.category_id == ClubCategory.id)
                 .filter(Banner.club_id == club_id)
                 .order_by(Banner.uploaded_at.desc())
                 .all()
@@ -331,6 +346,7 @@ def get_banners_by_clubs(club_ids: List[int], user_id: int) -> Dict[str, Any]:
                     "club_id": banner.club_id,
                     "user_id": banner.user_id,
                     "club_name": club.name,
+                    "categoryName": category.name,
                     "file_path": banner.file_path,
                     "clublogoImageUrl": club.logo_image,
                     "position": banner.position,
@@ -341,7 +357,7 @@ def get_banners_by_clubs(club_ids: List[int], user_id: int) -> Dict[str, Any]:
                     "title": banner.title,
                     "description": banner.description,
                 }
-                for banner, club in banners
+                for banner, club, category in banners
             ]
 
             result_data[club_id_str] = banner_list
