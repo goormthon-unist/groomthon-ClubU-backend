@@ -14,6 +14,9 @@ load_dotenv()
 def create_app():
     app = Flask(__name__)
 
+    # 슬래시 유무에 관계없이 동일 라우팅 처리
+    app.url_map.strict_slashes = False
+
     # 설정 로드
     from config import config
 
