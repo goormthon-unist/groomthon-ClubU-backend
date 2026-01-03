@@ -11,4 +11,8 @@ class DepartmentListResource(DepartmentListController):
     """학과 목록 리소스"""
 
     def get(self):
-        return {"status": "error", "message": "비활성화된 API입니다", "code": "404-00"}, 404
+        return {
+            "status": "error",
+            "message": "비활성화된 API입니다",
+            "code": "404-00",
+        }, 404

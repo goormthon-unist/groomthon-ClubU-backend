@@ -83,4 +83,8 @@ class ClubMemberRegistrationResource(ClubMemberRegistrationController):
     """동아리원 등록 리소스"""
 
     def post(self):
-        return {"status": "error", "message": "비활성화된 API입니다", "code": "404-00"}, 404
+        return {
+            "status": "error",
+            "message": "비활성화된 API입니다",
+            "code": "404-00",
+        }, 404
