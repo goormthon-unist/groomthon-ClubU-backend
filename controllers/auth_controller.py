@@ -1,6 +1,7 @@
 from flask_restx import Resource, reqparse
 from werkzeug.exceptions import BadRequest
 from flask import request, current_app
+import uuid
 from services.auth_service import (
     create_user,
     authenticate_user,
@@ -252,6 +253,8 @@ class LoginController(Resource):
             # 2) 필드 추출/검증
             email = (data.get("email") or "").strip()
             password = data.get("password")
+            channel = (data.get("channel") or "").strip().upper()
+            device_id = (data.get("device_id") or "").strip()
 
             if not email:
                 return {
@@ -265,12 +268,41 @@ class LoginController(Resource):
                     "message": "비밀번호가 필요합니다",
                     "code": "400-02",
                 }, 400
+            if channel not in {"WEB", "APP"}:
+                return {
+                    "status": "error",
+                    "message": "channel은 WEB 또는 APP 이어야 합니다",
+                    "code": "400-04",
+                }, 400
+            if channel == "APP":
+                if not device_id:
+                    return {
+                        "status": "error",
+                        "message": "APP 로그인 시 device_id가 필요합니다",
+                        "code": "400-05",
+                    }, 400
+                if len(device_id) > 64:
+                    return {
+                        "status": "error",
+                        "message": "device_id 길이는 64자 이하여야 합니다",
+                        "code": "400-06",
+                    }, 400
+                try:
+                    uuid.UUID(device_id)
+                except (ValueError, AttributeError):
+                    return {
+                        "status": "error",
+                        "message": "device_id는 UUID 형식이어야 합니다",
+                        "code": "400-07",
+                    }, 400
 
             # 3) 사용자 인증
             user_data = authenticate_user(email, password)
 
             # 4) 세션 생성
-            session_data = create_session(user_data["user_id"])
+            session_data = create_session(
+                user_data["user_id"], channel, device_id if channel == "APP" else None
+            )
 
             return {
                 "message": "로그인이 완료되었습니다.",

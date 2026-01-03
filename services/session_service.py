@@ -1,15 +1,18 @@
 import uuid
-from datetime import datetime, timedelta
+from datetime import timedelta
 from flask import session
 from models import db, UserSession
-from utils.time_utils import get_kst_now, get_kst_now_naive
+from utils.time_utils import get_kst_now_naive
 
 
-def create_session(user_id, expires_hours=24):
-    """새로운 사용자 세션 생성 (쿠키에는 session_id만 저장)"""
+def create_session(user_id, channel, device_id=None, expires_hours=24):
+    """새로운 사용자 세션 생성 (쿠키에는 session_id만 저장)
+
+    channel별 중복 로그인 방지를 위해 동일 channel의 기존 활성 세션만 비활성화
+    """
     try:
-        # 기존 활성 세션 비활성화
-        deactivate_user_sessions(user_id)
+        # 기존 활성 세션 비활성화 (동일 channel만)
+        deactivate_user_sessions(user_id, channel=channel)
 
         # 새 세션 생성
         session_id = str(uuid.uuid4())
@@ -19,6 +22,8 @@ def create_session(user_id, expires_hours=24):
         new_session = UserSession(
             session_id=session_id,
             user_id=user_id,
+            channel=channel,
+            device_id=device_id,
             expires_at=expires_at,
             is_active=True,
         )
@@ -32,6 +37,8 @@ def create_session(user_id, expires_hours=24):
         result = {
             "session_id": session_id,
             "user_id": user_id,
+            "channel": channel,
+            "device_id": device_id,
             "expires_at": expires_at.isoformat(),
         }
 
@@ -74,6 +81,8 @@ def get_current_session():
         result = {
             "session_id": db_session.session_id,
             "user_id": db_session.user_id,
+            "channel": db_session.channel,
+            "device_id": db_session.device_id,
             "expires_at": db_session.expires_at.isoformat(),
         }
 
@@ -130,6 +139,8 @@ def validate_session(session_id):
         result = {
             "session_id": session_obj.session_id,
             "user_id": session_obj.user_id,
+            "channel": session_obj.channel,
+            "device_id": session_obj.device_id,
             "expires_at": session_obj.expires_at.isoformat(),
         }
 
@@ -155,12 +166,17 @@ def deactivate_session(session_id):
         raise Exception(f"세션 비활성화 중 오류 발생: {str(e)}")
 
 
-def deactivate_user_sessions(user_id):
-    """사용자의 모든 세션 비활성화"""
+def deactivate_user_sessions(user_id, channel=None):
+    """사용자의 세션 비활성화
+
+    channel이 지정되면 해당 channel의 활성 세션만 비활성화
+    """
     try:
-        UserSession.query.filter_by(user_id=user_id, is_active=True).update(
-            {"is_active": False}
-        )
+        query = UserSession.query.filter_by(user_id=user_id, is_active=True)
+        if channel:
+            query = query.filter_by(channel=channel)
+
+        query.update({"is_active": False})
         db.session.commit()
 
     except Exception as e:
@@ -323,6 +339,8 @@ def get_session_info():
             "session": {
                 "session_id": session_data["session_id"],
                 "user_id": session_data["user_id"],
+                "channel": session_data.get("channel"),
+                "device_id": session_data.get("device_id"),
                 "expires_at": session_data["expires_at"],
             },
             "user": {

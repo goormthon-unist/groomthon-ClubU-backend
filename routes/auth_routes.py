@@ -34,6 +34,13 @@ login_model = auth_ns.model(
     {
         "email": fields.String(required=True, description="이메일"),
         "password": fields.String(required=True, description="비밀번호"),
+        "channel": fields.String(
+            required=True, description="로그인 채널", enum=["WEB", "APP"]
+        ),
+        "device_id": fields.String(
+            required=False,
+            description="APP 로그인 시 필수, UUID 형식(최대 64자)",
+        ),
     },
 )
 
