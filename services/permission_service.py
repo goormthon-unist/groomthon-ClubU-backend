@@ -6,7 +6,11 @@
 from typing import Set, Optional, Dict, Any
 from flask import current_app
 from models import db, User, ClubMember, Role
-from config.permission_policy import get_permission_policy, ROLE_HIERARCHY
+from config.permission_policy import (
+    get_permission_policy,
+    ROLE_HIERARCHY,
+    CLUB_SCOPED_PERMISSIONS,
+)
 
 
 class PermissionService:
@@ -44,7 +48,18 @@ class PermissionService:
                 if not required_roles:
                     required_roles = {"STUDENT"}
 
-            # 2. 사용자 ID 확인
+            # 2. club 스코프 필수 권한인데 club_id가 없는 경우 즉시 거절
+            if permission_key in CLUB_SCOPED_PERMISSIONS and club_id is None:
+                return {
+                    "has_permission": False,
+                    "message": "club_id가 필요합니다",
+                    "user_id": user_id,
+                    "user_roles": set(),
+                    "required_roles": required_roles,
+                    "club_id": club_id,
+                }
+
+            # 3. 사용자 ID 확인
             if user_id is None:
                 from services.session_service import get_current_user
 
@@ -59,7 +74,7 @@ class PermissionService:
                     }
                 user_id = current_user.id
 
-            # 3. 사용자 권한 조회 (동아리 컨텍스트 고려)
+            # 4. 사용자 권한 조회 (동아리 컨텍스트 고려)
             if club_id is not None:
                 # 특정 동아리 컨텍스트에서 권한 검사
                 user_roles = self.get_user_roles_in_club(user_id, club_id)
@@ -67,7 +82,7 @@ class PermissionService:
                 # 전역 권한 검사
                 user_roles = self.get_user_roles(user_id)
 
-            # 4. 권한 검사
+            # 5. 권한 검사
             has_permission = bool(user_roles.intersection(required_roles))
 
             if has_permission:

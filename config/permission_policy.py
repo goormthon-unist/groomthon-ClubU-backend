@@ -171,6 +171,27 @@ PERMISSION_POLICY = {
     },
 }
 
+# club_id가 필수인 권한 키 목록 (club 스코프 강제)
+CLUB_SCOPED_PERMISSIONS = {
+    # 클럽 관리/멤버/공지 (club_id 컨텍스트 필수)
+    "clubs.update",
+    "clubs.status",
+    "clubs.application_questions_create",
+    "application_questions.update",
+    "application_questions.delete",
+    "applications.list_by_club",
+    "applications.detail",
+    "members.create",
+    "notices.club_create",
+    "notices.club_update",
+    "notices.club_delete",
+    "notices.club_list",
+    "clubs.members",
+    "clubs.member_role_change",
+    "clubs.members_list",
+    "clubs.remaining_usage",
+}
+
 
 def get_permission_policy(permission_key):
     """권한 정책 조회"""

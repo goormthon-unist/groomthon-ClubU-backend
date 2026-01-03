@@ -86,12 +86,7 @@ class LogoutResource(LogoutController):
 class SessionDebugResource(SessionDebugController):
     """세션 디버깅 리소스"""
 
-    def get(self):
-        return {
-            "status": "error",
-            "message": "비활성화된 API입니다",
-            "code": "404-00",
-        }, 404
+    pass
 
 
 @auth_ns.route("/session-info")

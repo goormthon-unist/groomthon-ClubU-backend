@@ -235,12 +235,10 @@ def create_app():
     from routes.banner_routes import banner_ns
 
     from routes.auth_routes import auth_ns
-    from routes.role_routes import role_ns
     from routes.application_check_routes import application_check_ns
     from routes.user_routes import user_ns
     from routes.admin_user_role_routes import admin_user_role_ns
     from routes.club_member_role_routes import club_member_role_ns
-    from routes.department_routes import department_ns
     from routes.club_info_routes import club_info_ns
     from routes.user_search_routes import user_search_ns
     from routes.room_routes import room_ns
@@ -257,12 +255,10 @@ def create_app():
     api.add_namespace(file_download_ns, path="/api/v1")
     api.add_namespace(banner_ns, path="/api/v1/banners")
     api.add_namespace(auth_ns, path="/api/v1/auth")
-    api.add_namespace(role_ns, path="/api/v1/roles")
     api.add_namespace(application_check_ns, path="/api/v1")
     api.add_namespace(user_ns, path="/api/v1/users")
     api.add_namespace(admin_user_role_ns, path="/api/v1/admin")
     api.add_namespace(club_member_role_ns, path="/api/v1/clubs")
-    api.add_namespace(department_ns, path="/api/v1/departments")
     api.add_namespace(club_info_ns, path="/api/v1/clubs")
     api.add_namespace(user_search_ns, path="/api/v1/users")
     api.add_namespace(room_ns, path="/api/v1/rooms")

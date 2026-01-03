@@ -359,27 +359,8 @@ class SessionDebugController(Resource):
     """세션 디버깅 컨트롤러"""
 
     def get(self):
-        """현재 세션 상태 디버깅 정보를 반환합니다"""
-        try:
-            # 세션 인증 확인
-            session_data = get_current_session()
-            if not session_data:
-                return {
-                    "status": "error",
-                    "message": "로그인이 필요합니다",
-                    "code": "401-01",
-                }, 401
-
-            debug_info = debug_session_info()
-
-            return debug_info, 200
-
-        except Exception as e:
-            return {
-                "status": "error",
-                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
-                "code": "500-00",
-            }, 500
+        """비활성화된 디버그 엔드포인트"""
+        return {"status": "error", "message": "not found"}, 404
 
 
 class SessionInfoController(Resource):

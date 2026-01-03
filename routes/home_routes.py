@@ -10,7 +10,6 @@ from controllers.home_controller import (
 from controllers.application_check_submit_controller import (
     ClubApplicationQuestionsController,
 )
-from utils.permission_decorator import require_permission
 
 # 네임스페이스 등록
 home_ns = Namespace("clubs", description="동아리 관리 API")
@@ -357,9 +356,7 @@ class ClubQuestionsResource(
 class ClubMembersResource(ClubMembersController):
     """동아리원 목록 조회 리소스"""
 
-    @require_permission("clubs.members_list", club_id_param="club_id")
-    def get(self, club_id):
-        return super().get(club_id)
+    pass
 
 
 # 모집 중인 동아리 조회 엔드포인트

@@ -1,5 +1,6 @@
 from flask_restx import Resource, reqparse
 from services.session_service import get_current_session
+from utils.permission_decorator import require_permission
 from services.home_service import (
     get_all_clubs,
     get_club_by_id,
@@ -101,6 +102,7 @@ class ClubUpdateController(Resource):
     #         }, 500
 
     # 새로운 통합 업데이트 메서드
+    @require_permission("clubs.update", club_id_param="club_id")
     def put(self, club_id):
         """동아리 정보 일괄 업데이트 (통합 API)"""
         try:
@@ -229,6 +231,7 @@ class ClubQuestionsController(Resource):
     #         }, 500
 
     # 새로운 Bulk Update 메서드
+    @require_permission("application_questions.update", club_id_param="club_id")
     def put(self, club_id):
         """동아리 지원서 문항을 일괄 업데이트합니다 (추가/수정/삭제/순서 변경)"""
         try:
@@ -365,18 +368,10 @@ class ClubQuestionsController(Resource):
 class ClubMembersController(Resource):
     """동아리원 목록 조회 컨트롤러"""
 
+    @require_permission("clubs.members", club_id_param="club_id")
     def get(self, club_id):
         """동아리원 목록을 조회합니다"""
         try:
-            # 세션 인증 확인
-            session_data = get_current_session()
-            if not session_data:
-                return {
-                    "status": "error",
-                    "message": "로그인이 필요합니다",
-                    "code": "401-01",
-                }, 401
-
             members = get_club_members(club_id)
             return {
                 "count": len(members),

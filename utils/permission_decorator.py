@@ -6,6 +6,7 @@
 from functools import wraps
 from flask import request, jsonify
 from services.permission_service import permission_service
+from config.permission_policy import CLUB_SCOPED_PERMISSIONS
 
 
 def require_permission(permission_key: str, club_id_param: str = None):
@@ -46,11 +47,11 @@ def require_permission(permission_key: str, club_id_param: str = None):
                         "message": f"유효하지 않은 {club_id_param} 파라미터입니다",
                         "code": "400-00",
                     }, 400
-            elif club_id_param:
-                # club_id가 필요한 권한인데 전달되지 않은 경우
+            # club 스코프 권한인데 club_id가 없는 경우
+            if club_id is None and permission_key in CLUB_SCOPED_PERMISSIONS:
                 return {
                     "status": "error",
-                    "message": f"{club_id_param} 파라미터가 필요합니다",
+                    "message": "club_id가 필요합니다",
                     "code": "400-00",
                 }, 400
 

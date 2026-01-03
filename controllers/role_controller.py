@@ -11,6 +11,7 @@ from services.role_service import (
     check_current_user_permission,
     get_current_user_clubs,
 )
+from utils.permission_decorator import require_permission
 
 
 class RoleListController(Resource):
