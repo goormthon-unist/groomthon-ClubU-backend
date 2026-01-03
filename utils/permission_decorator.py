@@ -46,6 +46,13 @@ def require_permission(permission_key: str, club_id_param: str = None):
                         "message": f"유효하지 않은 {club_id_param} 파라미터입니다",
                         "code": "400-00",
                     }, 400
+            elif club_id_param:
+                # club_id가 필요한 권한인데 전달되지 않은 경우
+                return {
+                    "status": "error",
+                    "message": f"{club_id_param} 파라미터가 필요합니다",
+                    "code": "400-00",
+                }, 400
 
             # 권한 검사 실행
             result = permission_service.check_permission(
