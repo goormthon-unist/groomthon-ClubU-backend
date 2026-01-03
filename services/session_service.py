@@ -5,7 +5,7 @@ from models import db, UserSession
 from utils.time_utils import get_kst_now_naive
 
 
-def create_session(user_id, channel, device_id=None, expires_hours=24):
+def create_session(user_id, channel, device_id=None, expires_hours=24 * 30):
     """새로운 사용자 세션 생성 (쿠키에는 session_id만 저장)
 
     channel별 중복 로그인 방지를 위해 동일 channel의 기존 활성 세션만 비활성화
