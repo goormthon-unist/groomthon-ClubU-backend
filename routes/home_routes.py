@@ -352,13 +352,6 @@ class ClubQuestionsResource(
         return ClubQuestionsController.put(self, club_id)
 
 
-@home_ns.route("/<int:club_id>/members")
-class ClubMembersResource(ClubMembersController):
-    """동아리원 목록 조회 리소스"""
-
-    pass
-
-
 # 모집 중인 동아리 조회 엔드포인트
 @home_ns.route("/imminent")
 class OpenClubsResource(ClubListController):

@@ -10,31 +10,5 @@ class NoticeAssetController(Resource):
 
     def delete(self, notice_id, asset_id):
         """개별 첨부파일 삭제"""
-        try:
-            # 세션 인증 확인
-            session_data = get_current_session()
-            if not session_data:
-                return {
-                    "status": "error",
-                    "message": "로그인이 필요합니다",
-                    "code": "401-01",
-                }, 401
-
-            # 공지사항 작성자 권한 확인
-            user_id = session_data["user_id"]
-
-            # 첨부파일 삭제
-            result = delete_notice_asset_by_id(asset_id)
-
-            return {
-                "message": "첨부파일이 성공적으로 삭제되었습니다",
-            }, 200
-
-        except ValueError as e:
-            return {"status": "error", "message": str(e), "code": "400-01"}, 400
-        except Exception as e:
-            return {
-                "status": "error",
-                "message": f"서버 내부 오류가 발생했습니다 - {e}",
-                "code": "500-00",
-            }, 500
+        """비활성화된 엔드포인트 (미사용)"""
+        return {"status": "error", "message": "not found"}, 404

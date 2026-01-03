@@ -368,21 +368,6 @@ class ClubQuestionsController(Resource):
 class ClubMembersController(Resource):
     """동아리원 목록 조회 컨트롤러"""
 
-    @require_permission("clubs.members", club_id_param="club_id")
     def get(self, club_id):
-        """동아리원 목록을 조회합니다"""
-        try:
-            members = get_club_members(club_id)
-            return {
-                "count": len(members),
-                "members": members,
-            }, 200
-
-        except ValueError as e:
-            return {"status": "error", "message": str(e), "code": "400-11"}, 400
-        except Exception as e:
-            return {
-                "status": "error",
-                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
-                "code": "500-00",
-            }, 500
+        """비활성화된 엔드포인트 (미사용)"""
+        return {"status": "error", "message": "not found"}, 404

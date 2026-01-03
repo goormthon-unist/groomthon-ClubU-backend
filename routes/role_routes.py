@@ -28,35 +28,8 @@ class RoleDetailResource(RoleDetailController):
     pass
 
 
-@role_ns.route("/clubs/<int:club_id>/members")
-class ClubMembersResource(ClubMembersController):
-    """동아리 멤버 목록 조회 리소스"""
-
-    pass
-
-
-@role_ns.route("/clubs/<int:club_id>/roles/<int:role_id>/users")
-class ClubRoleUsersResource(ClubRoleUsersController):
-    """동아리에서 역할별 사용자 조회 리소스"""
-
-    pass
-
-
 # @role_ns.route("/clubs/<int:club_id>/users/<int:user_id>")
 # class ClubMemberRoleResource(ClubMemberRoleController):
 #     """동아리 멤버 역할 관리 리소스 (DEPRECATED - use /api/v1/clubs/{club_id}/members/{user_id}/role instead)"""
 #     pass
 
-
-@role_ns.route("/clubs/<int:club_id>/my-permission")
-class CurrentUserPermissionResource(CurrentUserPermissionController):
-    """현재 사용자 권한 확인 리소스 (쿠키 기반)"""
-
-    pass
-
-
-@role_ns.route("/my-clubs")
-class CurrentUserClubsResource(CurrentUserClubsController):
-    """현재 사용자 동아리 목록 조회 리소스 (쿠키 기반)"""
-
-    pass
