@@ -38,9 +38,20 @@ def require_permission(permission_key: str, club_id_param: str = None):
 
             # 동아리 컨텍스트 추출
             club_id = None
+            # 1) kwargs 우선
             if club_id_param and club_id_param in kwargs:
                 try:
                     club_id = int(kwargs[club_id_param])
+                except (ValueError, TypeError):
+                    return {
+                        "status": "error",
+                        "message": f"유효하지 않은 {club_id_param} 파라미터입니다",
+                        "code": "400-00",
+                    }, 400
+            # 2) kwargs에 없고 positional로 전달된 경우(super().get(club_id) 패턴)
+            elif club_id_param and club_id is None and len(args) >= 2:
+                try:
+                    club_id = int(args[1])
                 except (ValueError, TypeError):
                     return {
                         "status": "error",
