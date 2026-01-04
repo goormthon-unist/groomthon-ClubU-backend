@@ -20,6 +20,7 @@ from services.session_service import (
     get_current_user,
     get_current_session,
 )
+from utils.permission_decorator import require_permission
 
 
 class RegisterController(Resource):
@@ -406,18 +407,10 @@ class SessionInfoController(Resource):
 class UserListController(Resource):
     """모든 사용자 목록 조회 컨트롤러"""
 
+    @require_permission("admin.users_list")
     def get(self):
-        """모든 사용자 정보 조회 API"""
+        """모든 사용자 정보 조회 API (DEVELOPER 권한 필요)"""
         try:
-            # 세션 인증 확인
-            session_data = get_current_session()
-            if not session_data:
-                return {
-                    "status": "error",
-                    "message": "로그인이 필요합니다",
-                    "code": "401-01",
-                }, 401
-
             # 모든 사용자 정보 조회
             users = get_all_users()
 

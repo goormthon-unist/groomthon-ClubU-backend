@@ -117,6 +117,10 @@ PERMISSION_POLICY = {
         "description": "동아리 멤버 목록 조회 (GET /api/v1/clubs/{club_id}/members/roles)",
     },
     # ===== DEVELOPER만 접근 가능한 API들 =====
+    "admin.users_list": {
+        "allowed_roles": {"DEVELOPER"},
+        "description": "모든 사용자 목록 조회 (GET /api/v1/auth/users)",
+    },
     "admin.user_role_change": {
         "allowed_roles": {"DEVELOPER"},
         "description": "사용자 권한 변경 (POST /api/v1/admin/users/{user_id}/roles)",
