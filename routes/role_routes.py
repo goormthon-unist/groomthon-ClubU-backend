@@ -32,4 +32,3 @@ class RoleDetailResource(RoleDetailController):
 # class ClubMemberRoleResource(ClubMemberRoleController):
 #     """동아리 멤버 역할 관리 리소스 (DEPRECATED - use /api/v1/clubs/{club_id}/members/{user_id}/role instead)"""
 #     pass
-
