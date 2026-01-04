@@ -8,7 +8,6 @@ from controllers.notice_asset_controller import NoticeAssetController
 notice_asset_ns = Namespace(
     "notice-assets",
     description="공지사항 첨부파일 관리 API",
-    path="/api/v1/notices",
 )
 
 # RequestParser 정의 (파일 업로드용) - 단일/다중 파일 모두 지원
