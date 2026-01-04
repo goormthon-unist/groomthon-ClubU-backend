@@ -2,6 +2,7 @@
 지원서 확인 관련 서비스
 """
 
+from typing import Dict, Any
 from models import (
     db,
     Application,
@@ -253,3 +254,51 @@ def register_club_member(
     except Exception as e:
         db.session.rollback()
         raise Exception(f"동아리원 등록 중 오류 발생: {str(e)}")
+
+
+def update_application_status(application_id: int, status: str) -> Dict[str, Any]:
+    """
+    지원서 상태 변경
+
+    Args:
+        application_id: 지원서 ID
+        status: 변경할 상태 (VIEWED, ACCEPTED, REJECTED)
+
+    Returns:
+        업데이트된 지원서 정보
+    """
+    try:
+        # 지원서 조회
+        application = Application.query.filter_by(id=application_id).first()
+        if not application:
+            raise ValueError(f"지원서 ID {application_id}를 찾을 수 없습니다")
+
+        # 유효한 상태 확인
+        valid_statuses = ["SUBMITTED", "VIEWED", "ACCEPTED", "REJECTED"]
+        if status not in valid_statuses:
+            raise ValueError(
+                f"유효하지 않은 상태입니다. 허용된 상태: {', '.join(valid_statuses)}"
+            )
+
+        # 상태 변경
+        application.status = status
+        db.session.commit()
+
+        return {
+            "application_id": application.id,
+            "user_id": application.user_id,
+            "club_id": application.club_id,
+            "status": application.status,
+            "submitted_at": (
+                application.submitted_at.isoformat()
+                if application.submitted_at
+                else None
+            ),
+        }
+
+    except ValueError:
+        db.session.rollback()
+        raise
+    except Exception as e:
+        db.session.rollback()
+        raise Exception(f"지원서 상태 변경 중 오류 발생: {str(e)}")

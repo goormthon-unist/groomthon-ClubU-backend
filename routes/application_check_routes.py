@@ -6,6 +6,7 @@ from flask_restx import Namespace, fields
 from controllers.application_check_controller import (
     ClubApplicantsController,
     ApplicationDetailController,
+    ApplicationStatusController,
     ClubMemberRegistrationController,
 )
 
@@ -74,6 +75,13 @@ class ClubApplicantsResource(ClubApplicantsController):
 @application_check_ns.route("/applications/<int:application_id>")
 class ApplicationDetailResource(ApplicationDetailController):
     """지원서 상세 조회 리소스"""
+
+    pass
+
+
+@application_check_ns.route("/applications/<int:application_id>/status")
+class ApplicationStatusResource(ApplicationStatusController):
+    """지원서 상태 변경 리소스"""
 
     pass
 

@@ -48,6 +48,10 @@ PERMISSION_POLICY = {
         "allowed_roles": {"CLUB_PRESIDENT", "DEVELOPER"},
         "description": "지원서 상세 조회 (GET /api/v1/applications/{application_id})",
     },
+    "applications.status_update": {
+        "allowed_roles": {"CLUB_PRESIDENT", "DEVELOPER"},
+        "description": "지원서 상태 변경 (PATCH /api/v1/applications/{application_id}/status)",
+    },
     "members.create": {
         "allowed_roles": {"CLUB_PRESIDENT", "DEVELOPER"},
         "description": "멤버 등록 (POST /api/v1/members)",
@@ -181,6 +185,7 @@ CLUB_SCOPED_PERMISSIONS = {
     "application_questions.delete",
     "applications.list_by_club",
     "applications.detail",
+    "applications.status_update",
     "members.create",
     "notices.club_create",
     "notices.club_update",

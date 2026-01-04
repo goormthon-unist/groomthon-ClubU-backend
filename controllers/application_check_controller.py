@@ -9,6 +9,7 @@ from services.application_check_service import (
     get_club_applicants,
     get_application_detail,
     register_club_member,
+    update_application_status,
 )
 from services.permission_service import permission_service
 
@@ -122,6 +123,87 @@ class ApplicationDetailController(Resource):
 
         except ValueError as e:
             return {"status": "error", "message": str(e), "code": "400-13"}, 400
+        except Exception as e:
+            return {
+                "status": "error",
+                "message": f"서버 내부 오류가 발생했습니다 - {str(e)}",
+                "code": "500-00",
+            }, 500
+
+
+class ApplicationStatusController(Resource):
+    """지원서 상태 변경 컨트롤러"""
+
+    def patch(self, application_id):
+        """지원서 상태를 변경합니다"""
+        try:
+            # 세션 인증 확인
+            session_data = get_current_session()
+            if not session_data:
+                return {
+                    "status": "error",
+                    "message": "로그인이 필요합니다",
+                    "code": "401-01",
+                }, 401
+
+            # 지원서 조회 (club_id 확인을 위해)
+            from models import Application
+
+            application = Application.query.filter_by(id=application_id).first()
+            if not application:
+                return {
+                    "status": "error",
+                    "message": f"지원서 ID {application_id}를 찾을 수 없습니다",
+                    "code": "404-01",
+                }, 404
+
+            club_id = application.club_id
+
+            # 클럽 스코프 권한 검증
+            permission_result = permission_service.check_permission(
+                "applications.status_update", club_id=club_id
+            )
+            if not permission_result["has_permission"]:
+                if not permission_result["user_id"]:
+                    return {
+                        "status": "error",
+                        "message": permission_result["message"],
+                        "code": "401-01",
+                    }, 401
+                else:
+                    return {
+                        "status": "error",
+                        "message": permission_result["message"],
+                        "code": "403-01",
+                    }, 403
+
+            # 요청 데이터 파싱
+            data = request.get_json()
+            if not data:
+                return {
+                    "status": "error",
+                    "message": "요청 데이터가 없습니다",
+                    "code": "400-01",
+                }, 400
+
+            status = data.get("status")
+            if not status:
+                return {
+                    "status": "error",
+                    "message": "status가 필요합니다",
+                    "code": "400-14",
+                }, 400
+
+            # 지원서 상태 변경
+            result = update_application_status(application_id, status)
+
+            return {
+                "message": "지원서 상태가 성공적으로 변경되었습니다",
+                "application": result,
+            }, 200
+
+        except ValueError as e:
+            return {"status": "error", "message": str(e), "code": "400-15"}, 400
         except Exception as e:
             return {
                 "status": "error",
