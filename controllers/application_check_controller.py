@@ -10,6 +10,7 @@ from services.application_check_service import (
     get_application_detail,
     register_club_member,
 )
+from services.permission_service import permission_service
 
 
 class ClubApplicantsController(Resource):
@@ -35,6 +36,24 @@ class ClubApplicantsController(Resource):
                     "message": "club_id 파라미터가 필요합니다",
                     "code": "400-12",
                 }, 400
+
+            # 클럽 스코프 권한 검증
+            permission_result = permission_service.check_permission(
+                "applications.list_by_club", club_id=club_id
+            )
+            if not permission_result["has_permission"]:
+                if not permission_result["user_id"]:
+                    return {
+                        "status": "error",
+                        "message": permission_result["message"],
+                        "code": "401-01",
+                    }, 401
+                else:
+                    return {
+                        "status": "error",
+                        "message": permission_result["message"],
+                        "code": "403-01",
+                    }, 403
 
             applicants = get_club_applicants(club_id)
             return {
@@ -66,6 +85,37 @@ class ApplicationDetailController(Resource):
                     "message": "로그인이 필요합니다",
                     "code": "401-01",
                 }, 401
+
+            # 지원서 조회 (club_id 확인을 위해)
+            from models import Application
+
+            application = Application.query.filter_by(id=application_id).first()
+            if not application:
+                return {
+                    "status": "error",
+                    "message": f"지원서 ID {application_id}를 찾을 수 없습니다",
+                    "code": "404-01",
+                }, 404
+
+            club_id = application.club_id
+
+            # 클럽 스코프 권한 검증
+            permission_result = permission_service.check_permission(
+                "applications.detail", club_id=club_id
+            )
+            if not permission_result["has_permission"]:
+                if not permission_result["user_id"]:
+                    return {
+                        "status": "error",
+                        "message": permission_result["message"],
+                        "code": "401-01",
+                    }, 401
+                else:
+                    return {
+                        "status": "error",
+                        "message": permission_result["message"],
+                        "code": "403-01",
+                    }, 403
 
             application_detail = get_application_detail(application_id)
             return application_detail, 200
