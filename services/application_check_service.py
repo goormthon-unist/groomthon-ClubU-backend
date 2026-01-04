@@ -47,6 +47,7 @@ def get_club_applicants(club_id):
 
             applicant_info = {
                 "application_id": application.id,
+                "user_id": user.id,
                 "name": user.name,
                 "student_id": user.student_id,
                 "phone_number": user.phone_number,
