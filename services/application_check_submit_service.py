@@ -62,6 +62,10 @@ def submit_application(club_id: int, user_id: int, answers_data: list[dict]):
         if not club:
             raise ValueError("존재하지 않는 동아리입니다")
 
+        # 모집 상태 확인
+        if club.recruitment_status == "CLOSED":
+            raise ValueError("모집이 마감된 동아리입니다")
+
         user = User.query.get(user_id)
         if not user:
             raise ValueError("존재하지 않는 사용자입니다")
