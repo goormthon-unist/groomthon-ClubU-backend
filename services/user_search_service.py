@@ -25,14 +25,10 @@ def find_user_by_student_id_and_name(student_id: str, name: str) -> Dict[str, An
         # 학번으로 사용자 검색
         user = User.query.filter_by(student_id=student_id).first()
 
-        if not user:
-            raise ValueError(f"학번 {student_id}에 해당하는 사용자를 찾을 수 없습니다.")
-
-        # 이름 일치 확인
-        if user.name != name:
-            raise ValueError(
-                f"학번 {student_id}의 이름이 '{name}'과 일치하지 않습니다. 실제 이름: '{user.name}'"
-            )
+        # 보안: 학번 존재 여부와 이름 일치 여부를 구분하지 않음
+        # 학번이 없거나 이름이 일치하지 않으면 동일한 오류 메시지 반환
+        if not user or user.name != name:
+            raise ValueError("학번과 이름이 일치하지 않습니다.")
 
         return {
             "success": True,
