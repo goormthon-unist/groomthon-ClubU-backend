@@ -449,6 +449,7 @@ def get_club_members_list(club_id: int) -> Dict[str, Any]:
                     "user_name": user.name,
                     "user_email": user.email,
                     "student_id": user.student_id,
+                    "phone_number": user.phone_number,
                     "role_id": role.id,
                     "role_name": role.role_name,
                     "role_description": _get_role_description(role.role_name),
